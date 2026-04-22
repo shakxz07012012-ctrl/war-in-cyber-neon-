@@ -28,8 +28,6 @@
     font-size:30px;
     z-index:9999;
   }
-  
-
   </style>
 </head>
 <body>
@@ -37,7 +35,7 @@
     Loading...
   </div>
   <canvas id = "canvas"></canvas>
-  <<script src="AdivaClient.js"></script>
+  <script src="AdivaClient.js"></script>
   <script src="AdivaServer.js"></script>
   <script src="./data.js"></script>
   <script src="./item.js"></script>
@@ -51,14 +49,15 @@
     const renderer = new Renderer(gl, canvas)
     const utils = new Utils()
     
-    //kita gunakan class sakti di ADIVA
     const physics = new Collision(150)
     physics.gameState.add("1")
     physics.grid.buildStatic(tembok)
     
     const listImg = {
       idle : {path : "Diam1.png"},
-      run : {path : "Lari3.png"},
+      lari1 : {path : "Lari1.png"},
+      lari2 : {path : "Lari2.png"},
+      lari3 : {path : "Lari3.png"},
       jump : {path : "Lompat1.png"},
       fall : {path : "Turun1.png"},
       wall : {path : "Walll1.png"},
@@ -69,7 +68,6 @@
       kelomang : {path : "Kura3.png"},
       kelomangDiam : {path : "Kura1.png"},
       kelomangNembak : {path : "Kura2.png"},
-      
       guinLari : {path : "LabaLari2.png"},
       guinDiam : {path : "LabaLari1.png"},
       guinLompat : {path : "LabaNembak1.png"},
@@ -83,7 +81,6 @@
     
     const hero = {
       miya : {
-       // x:7600,
         x:0,
         y:-800,
         width : 100,
@@ -114,9 +111,9 @@
         background: "#222",
         border:"1px solid black",
         lerpSpeed: 5,
-        });
+    });
         
-      const manaBar = new VirtualBarDiv({
+    const manaBar = new VirtualBarDiv({
         value: 100,
         maxValue: 100,
         width: 100,
@@ -128,10 +125,9 @@
         background: "#222",
         border:"1px solid black",
         lerpSpeed: 5,
-        });
-        hpBar.el.style.display = "none"
-        manaBar.el.style.display = "none"
-    
+    });
+    hpBar.el.style.display = "none"
+    manaBar.el.style.display = "none"
     
     const tombolKiri = new VirtualButton({
       text :"<=",
@@ -148,7 +144,7 @@
       onPress :()=> tombolKanan.press = true,
       onRelease :()=> tombolKanan.press = false,
     })
-    //buat tombol lompat untuk MIYAAAAA
+    
     const tombolLompat = new VirtualButton({
       text :"(^)",
       bottom : 100,
@@ -156,17 +152,15 @@
       onPress :()=> {
         const miya = hero.miya;
         miya.jumpBufferTimer = miya.jumpBufferMax
-        
       }
     })
-    //buat tombol memanah untuk MIYAAAAA
+    
     const listPanahMiya = {}
     const tombolPanah = new VirtualButton({
       img :"Misil1.png",
       bottom : 100,
       right :20,
       onPress :()=> {
-        
         const miya = hero.miya;
         if(miya.energi<=0)return
         if(miya.isAttack)return
@@ -179,29 +173,30 @@
         const id = crypto.randomUUID()
         listPanahMiya[id] = {
           id : id,
-          x : miya.x + miya.width/2,
+          x : miya.x + miya.width/2 - 15,
           y : miya.y + miya.height/3,
-          width :miya.statusItem ==="peluruGanda"?50:30,
-          height :miya.statusItem ==="peluruGanda"?50:30,
-          scene :miya.scene,
-          dir : miya.animationDirection ==="right"?1:-1,
-          dirY : miya.statusItem ==="peluruGanda"?utils.rand(-0.5,0.5):0,
+          width : miya.statusItem === "peluruGanda" ? 50 : 30,
+          height : miya.statusItem === "peluruGanda" ? 50 : 30,
+          scene : miya.scene,
+          dir : miya.animationDirection === "right" ? 1 : -1,
+          dirY : miya.statusItem === "peluruGanda" ? utils.rand(-0.5,0.5) : 0,
           animationDirection : miya.animationDirection,
-          speed : 400,
-          lifeTime :5,
-          img :"panahMisil"
+          speed : 500,
+          lifeTime : 3,
+          img : "panahMisil"
         }
         miya.superTimer = 0.1
       },
       onRelease :()=> {
-        
         const miya = hero.miya;
-        
-        
         miya.isAttack = false
       }
     })
-    
+
+    let lariFrame = 1;
+    let lariTimer = 0;
+    const lariSpeed = 0.15;
+
     const baseAnimasi = {
       idle : "idle",
       run : "run",
@@ -210,10 +205,10 @@
       panah : "panah",
     }
     
-    
     const aset = new Aset(gl, listImg)
     const listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem]
     const listUpdateDraw = []
+    
     async function init(){
       const loading = document.getElementById("loading")
       const texture = await aset.load()
@@ -239,10 +234,8 @@
         text:"ibill",
         color :"white",
         fontSize :25,
-        
         padding:"2px 10px",
         textShadow :"2px 1px 1px red",
-        
         top : 5,
         left :70
       })
@@ -265,8 +258,6 @@
         right :5
       })
       
-      
-      
       const avatar = new VirtualImg({
         src: "Avatar1.png",
         width: 70, height: 70,
@@ -277,17 +268,30 @@
       });
       
       game.render(dt =>{
-        //daftarkan monster ke sistem AABB
         physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem)
         
         dialog.play(dt)
-        //buat kamera MENGIKUTI miya
         game.cameraOn(hero, "miya")
         
         for(let entitas of listUpdateDraw){
           entitas.update(dt, game.camera)
         }
-        hero.miya.img = "idle"
+        
+        // Animasi lari 3 frame
+        if(hero.miya.state === "run") {
+          lariTimer += dt;
+          if(lariTimer >= lariSpeed) {
+            lariTimer = 0;
+            lariFrame++;
+            if(lariFrame > 3) lariFrame = 1;
+          }
+          hero.miya.img = `lari${lariFrame}`;
+        } else {
+          hero.miya.img = baseAnimasi[hero.miya.state];
+          lariTimer = 0;
+          lariFrame = 1;
+        }
+        
         utils.timer(dt,"timeColorMiya", 0.5,()=>{
           hero.miya.tintColor = "white"
         })
@@ -301,8 +305,7 @@
         physics.applyPhysics(dt, hero.miya)
         physics.platformerLogic(dt, hero.miya)
         
-        hero.miya.vy += hero.miya.gravity  * dt
-        hero.miya.img = baseAnimasi[hero.miya.state]
+        hero.miya.vy += hero.miya.gravity * dt
         utils.activeHurtBox(hero.miya)
         const miya = hero.miya
         if(miya.superTimer > 0){
@@ -311,14 +314,14 @@
             miya.superState = false
           }
         }
-        miya.energi = Math.min(100, miya.energi + 1 *dt)
+        miya.energi = Math.min(100, miya.energi + 1 * dt)
         manaBar.setValue(miya.energi)
         
-        if(miya.vy>3000  || miya.hp<=0){
+        if(miya.vy > 3000 || miya.hp <= 0){
           Object.values(tembok).forEach(wl=>{
-            if(wl.img === "gerbang")wl.scene = "1"
+            if(wl.img === "gerbang") wl.scene = "1"
           })
-          Object.values({...kelomang, ...buff,...guin}).forEach(el=>{
+          Object.values({...kelomang, ...buff, ...guin}).forEach(el=>{
             el.x = el.originalX
             el.y = el.originalY
             el.hp = el.originalHp
@@ -327,7 +330,7 @@
             el.isDead = false
             el.vx = 0
           })
-          miya.vy =0
+          miya.vy = 0
           miya.x = 0
           miya.y = 0
           miya.hp = 150
@@ -336,31 +339,22 @@
           manaBar.setValue(miya.energi)
         }
         
-        
         for(let id in listPanahMiya){
           let panah = listPanahMiya[id]
           panah.x += panah.dir * panah.speed * dt
           panah.y += panah.dirY * panah.speed * dt
-          
           panah.lifeTime -= dt
-          if(panah.lifeTime<=0) delete listPanahMiya[panah.id]
+          if(panah.lifeTime <= 0) delete listPanahMiya[panah.id]
         }
         
-        
-        
-        //panggil function yang kita buat tadi
         for(let id in buff){
           const monster = buff[id]
           logikaMonsterJungler(dt, hero.miya, monster, physics)
-          
-          //panggil function hpMonster
           hpMonster(dt, monster, game.camera, renderer)
         }
         
         panahMiyaVsMonster(dt, listPanahMiya, physics)
-        
         miyaVsMonster(dt, hero, hpBar, physics)
-        
         logikaKelomang(dt, hero.miya, physics)
         updateBulletKelomang(dt, physics)
         Object.values(kelomang).forEach(el => hpKelomang(dt, el, game.camera, renderer))
@@ -369,21 +363,14 @@
         panahMiyaVsGuin(dt, listPanahMiya, physics)
         miyaVsKelomang(dt, hero, hpBar, physics)
         anakKelomangVsMiya(dt, hero, hpBar, physics)
-        
-        
         logikaGuinevere(dt, hero, hpBar, physics, utils)
-        
         updatePeluruGuin(dt)
-        peluruGuinVsMiya(dt, hero,hpBar, physics)
-        
+        peluruGuinVsMiya(dt, hero, hpBar, physics)
         miyaMengambilItem(hero, physics)
         miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
       })
     }
-    
     init()
-    
-    
   </script>
 </body>
 </html>

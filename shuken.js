@@ -1,290 +1,409 @@
-// ==================== SHUKEN.JS - TAMBAHAN UNTUK GAME KAMU ====================
+// ==========================================
+// SHUKEN - Karakter Petir Cepat
+// ==========================================
 
-// Data Shu Ken sebagai musuh baru
-const shukenEnemy = {
-  "shuken-1": {
-    id: "shuken-1",
-    x: 6800,
-    y: 0,
-    originalX: 6800,
-    originalY: 0,
-    width: 80,
-    height: 80,
-    type: "shuken",
-    scene: "1",
-    originalScene: "1",
-    hp: 300,
-    originalHp: 300,
-    color: "orange",
-    img: "shukenIdle",
+// Data karakter Shuken (akan ditambahkan ke hero)
+const shuken = {
+    x: 0,
+    y: -800,
+    width: 100,
+    height: 110,  // Lebih tinggi dari karakter lain
+    hp: 120,
+    maxHp: 120,
+    energi: 100,
+    maxEnergi: 100,
     gravity: 2000,
+    jumpPower: 680,
+    speed: 550,  // Sangat cepat
+    attackDamage: 35,
+    useCollider: true,
+    colliderBox: { width: 50, height: 100 },
+    useHurtBox: true,
+    hurtBox: { x: 0, y: 0, width: 50, height: 120 },
     vx: 0,
     vy: 0,
-    useCollider: true,
-    colliderBox: { width: 50, height: 70 },
-    isDead: false,
-    animationDirection: "right"
-  }
-};
-
-// Wadah projectile Hadouken
-const listProjectileShuken = {};
-
-// Tambahkan gambar Shu Ken ke listImg (listImg dari data.js)
-if (typeof listImg !== 'undefined') {
-  listImg.shukenIdle = { path: "ShukenIdle.png" };
-  listImg.shukenPukul = { path: "ShukenPukul.png" };
-  listImg.shukenUppercut = { path: "ShukenUppercut.png" };
-  listImg.shukenRush = { path: "ShukenRush.png" };
-  listImg.shukenHadouken = { path: "ShukenHadouken.png" };
-  listImg.shukenUlti = { path: "ShukenUlti.png" };
-  listImg.projectileHadouken = { path: "Hadouken.png" };
+    scene: "1",
+    isAttacking: false,
+    isUsingSkill: false,
+    skill1Cooldown: 0,
+    skill2Cooldown: 0,
+    ultiCooldown: 0,
+    currentHero: "shuken",
+    
+    // Efek visual
+    petirEffect: null,
+    tintColor: "white"
 }
 
-// Tambahkan properti skill ke hero.miya
-if (typeof hero !== 'undefined' && hero.miya) {
-  hero.miya.cd_pukul = 0;
-  hero.miya.cd_uppercut = 0;
-  hero.miya.cd_rush = 0;
-  hero.miya.cd_hadouken = 0;
-  hero.miya.cd_shoryuken = 0;
-  hero.miya.currentSkill = "";
-  hero.miya.skillTimer = 0;
-  hero.miya.invincible = false;
+// Wadah untuk projectile skill 1 (bola listrik)
+const bolaPetir = {}
+
+// Wadah untuk efek petir area (skill 2)
+const petirArea = {}
+
+// Wadah untuk efek petir dari atas (ulti)
+const petirAtas = {}
+
+// ==========================================
+// SKILL 1: BOLA LISTRIK (Jarak Jauh)
+// ==========================================
+function shukenSkill1BolaListrik(shuken, dt, utils) {
+    if (shuken.currentHero !== "shuken") return
+    if (shuken.skill1Cooldown > 0) {
+        shuken.skill1Cooldown -= dt
+        return
+    }
+    if (shuken.energi < 12) return
+    if (shuken.isAttacking || shuken.isUsingSkill) return
+    
+    shuken.isUsingSkill = true
+    shuken.energi -= 12
+    shuken.superState = true
+    shuken.state = "skill1"
+    shuken.img = "shukenSkill1"
+    
+    // Buat bola listrik
+    const id = crypto.randomUUID()
+    bolaPetir[id] = {
+        id: id,
+        x: shuken.x + shuken.width/2 - 20,
+        y: shuken.y + shuken.height/3,
+        width: 40,
+        height: 40,
+        scene: "1",
+        dir: shuken.animationDirection === "right" ? 1 : -1,
+        speed: 600,
+        damage: 20,
+        lifeTime: 2,
+        img: "bolaPetir"
+    }
+    
+    shuken.skill1Cooldown = 2  // Cooldown 2 detik
+    shuken.superTimer = 0.3
+    
+    utils.timer(dt, "shukenSkill1Anim", 0.3, () => {
+        shuken.isUsingSkill = false
+    })
 }
 
-// ==================== FUNGSI-FUNGSI SHU KEN ====================
-
-// Update cooldown skill
-function updateShukenCooldowns(hero, dt) {
-  const skills = ["cd_pukul", "cd_uppercut", "cd_rush", "cd_hadouken", "cd_shoryuken"];
-  skills.forEach(skill => {
-    if (hero[skill] > 0) hero[skill] = Math.max(0, hero[skill] - dt);
-  });
-  if (hero.skillTimer > 0) {
-    hero.skillTimer -= dt;
-    if (hero.skillTimer <= 0 && hero.currentSkill) {
-      hero.currentSkill = "";
-      hero.invincible = false;
+// ==========================================
+// SKILL 2: SAMBARAN PETIR AREA
+// ==========================================
+function shukenSkill2PetirArea(shuken, dt, utils) {
+    if (shuken.currentHero !== "shuken") return
+    if (shuken.skill2Cooldown > 0) {
+        shuken.skill2Cooldown -= dt
+        return
     }
-  }
+    if (shuken.energi < 25) return
+    if (shuken.isAttacking || shuken.isUsingSkill) return
+    
+    shuken.isUsingSkill = true
+    shuken.energi -= 25
+    shuken.superState = true
+    shuken.state = "skill2"
+    shuken.img = "shukenSkill2"
+    
+    // Tentukan area sambaran (depan karakter)
+    const areaX = shuken.animationDirection === "right" 
+        ? shuken.x + shuken.width + 20
+        : shuken.x - 120
+    const areaY = shuken.y + shuken.height/2
+    
+    // Buat efek petir area
+    const id = crypto.randomUUID()
+    petirArea[id] = {
+        id: id,
+        x: areaX,
+        y: areaY - 50,
+        width: 120,
+        height: 100,
+        scene: "1",
+        damage: 30,
+        lifeTime: 0.3,
+        img: "petirArea"
+    }
+    
+    shuken.skill2Cooldown = 4  // Cooldown 4 detik
+    shuken.superTimer = 0.4
+    
+    utils.timer(dt, "shukenSkill2Anim", 0.4, () => {
+        shuken.isUsingSkill = false
+    })
 }
 
-// Update projectile Hadouken
-function updateHadoukenProjectile(dt, physics) {
-  for (let id in listProjectileShuken) {
-    const p = listProjectileShuken[id];
-    p.x += p.dir * p.speed * dt;
-    p.lifeTime -= dt;
-    if (p.lifeTime <= 0) {
-      delete listProjectileShuken[id];
-      continue;
+// ==========================================
+// ULTIMATE: PETIR DARI ATAS
+// ==========================================
+function shukenUltiPetirAtas(shuken, dt, utils) {
+    if (shuken.currentHero !== "shuken") return
+    if (shuken.ultiCooldown > 0) {
+        shuken.ultiCooldown -= dt
+        return
     }
-    if (physics && physics.aabb) {
-      physics.aabb(p, "kelomang,buff,guin,shuken", (proj, enemy) => {
-        enemy.hp -= p.damage;
-        enemy.tintColor = "red";
-        delete listProjectileShuken[proj.id];
-      });
+    if (shuken.energi < 50) return
+    if (shuken.isAttacking || shuken.isUsingSkill) return
+    
+    shuken.isUsingSkill = true
+    shuken.energi -= 50
+    shuken.superState = true
+    shuken.state = "ulti"
+    shuken.img = "shukenUlti"
+    
+    // Petir menyambar DARI ATAS ke tanah
+    // Tentukan posisi sambaran (depan karakter)
+    const targetX = shuken.animationDirection === "right"
+        ? shuken.x + shuken.width + 50
+        : shuken.x - 130
+    
+    const id = crypto.randomUUID()
+    petirAtas[id] = {
+        id: id,
+        x: targetX,
+        y: -50,  // Mulai dari ATAS canvas
+        width: 100,
+        height: 800,  // Menyambar sampai ke bawah
+        scene: "1",
+        damage: 60,
+        lifeTime: 0.5,
+        img: "petirAtas",
+        isFalling: true
     }
-  }
+    
+    shuken.ultiCooldown = 10  // Cooldown 10 detik
+    shuken.superTimer = 0.6
+    
+    utils.timer(dt, "shukenUltiAnim", 0.6, () => {
+        shuken.isUsingSkill = false
+    })
 }
 
-// Logika Shu Ken sebagai musuh
-function logikaShuKen(dt, miya, physics) {
-  Object.values(shukenEnemy).forEach(el => {
-    if (el.hp <= 0) {
-      el.scene = "inactive";
-      if (typeof tembok !== 'undefined') {
-        Object.values(tembok).forEach(wl => {
-          if (wl.img === "gerbang") wl.scene = "inactive";
-        });
-      }
-      return;
+// ==========================================
+// SERANGAN DASAR SHUKEN (Pukulan Petir)
+// ==========================================
+function shukenBasicAttack(shuken, dt, utils, physics) {
+    if (shuken.currentHero !== "shuken") return
+    if (shuken.isAttacking || shuken.isUsingSkill) return
+    if (shuken.state === "attack") return
+    
+    shuken.isAttacking = true
+    shuken.superState = true
+    shuken.state = "attack"
+    shuken.img = "shukenAttack1"
+    
+    // Hitbox serangan
+    const attackX = shuken.animationDirection === "right"
+        ? shuken.x + shuken.width
+        : shuken.x - 50
+    
+    const attackHitbox = {
+        x: attackX,
+        y: shuken.y + shuken.height/3,
+        width: 50,
+        height: 60,
+        damage: shuken.attackDamage,
+        scene: "1",
+        lifeTime: 0.15
     }
-    el.vx = el.vx || 0;
-    el.vy = el.vy || 0;
+    
+    // Damage ke musuh terdekat
+    const attackId = crypto.randomUUID()
+    // Simpan hitbox untuk deteksi damage
+    
+    shuken.superTimer = 0.2
+    
+    utils.timer(dt, "shukenAttackAnim", 0.2, () => {
+        shuken.isAttacking = false
+        shuken.state = "idle"
+    })
+}
+
+// ==========================================
+// UPDATE BOLA LISTRIK (Skill 1)
+// ==========================================
+function updateBolaPetir(dt, physics, listPanahMiya = null) {
+    Object.values(bolaPetir).forEach(bola => {
+        bola.x += bola.dir * bola.speed * dt
+        bola.lifeTime -= dt
+        
+        if (bola.lifeTime <= 0) {
+            delete bolaPetir[bola.id]
+        }
+    })
+    
+    // Damage ke musuh (kelomang, guin, buff)
     if (physics) {
-      physics.applyPhysics(dt, el);
-      el.vy += 2000 * dt;
+        physics.aabb(bolaPetir, "kelomang", (bola, musuh) => {
+            musuh.hp -= bola.damage
+            musuh.tintColor = "purple"
+            delete bolaPetir[bola.id]
+        })
+        
+        physics.aabb(bolaPetir, "guin", (bola, musuh) => {
+            if (musuh.aktif) {
+                musuh.hp -= bola.damage
+                musuh.tintColor = "purple"
+            }
+            delete bolaPetir[bola.id]
+        })
+        
+        physics.aabb(bolaPetir, "buff", (bola, musuh) => {
+            musuh.hp -= bola.damage
+            musuh.tintColor = "purple"
+            delete bolaPetir[bola.id]
+        })
     }
-    const dx = miya.x - el.x;
-    if (Math.abs(dx) > 60) {
-      el.vx = dx > 0 ? 120 : -120;
-      el.animationDirection = dx > 0 ? "right" : "left";
-    } else {
-      el.vx = 0;
-    }
-    el.img = "shukenIdle";
-  });
 }
 
-// Panah Miya vs Shu Ken
-function panahMiyaVsShuKen(panah, physics) {
-  if (!physics || !physics.aabb) return;
-  physics.aabb(panah, "shuken", (p, enemy) => {
-    if (enemy.hp <= 0) return;
-    enemy.hp -= 8;
-    enemy.tintColor = "red";
-    delete panah[p.id];
-  });
-}
-
-// Miya vs Shu Ken (collision)
-function miyaVsShuKen(hero, hpBar, physics) {
-  if (!physics || !physics.aabb) return;
-  physics.aabb(hero, "shuken", (h, enemy) => {
-    if (h.invincible) return;
-    h.hp -= 5;
-    if (hpBar) hpBar.setValue(h.hp);
-    h.tintColor = "red";
-  });
-}
-
-// Health bar Shu Ken
-function hpShuKen(dt, monster, camera, renderer) {
-  if (!monster || monster.hp <= 0 || monster.scene === "inactive") return;
-  monster.hpVisual = monster.hpVisual || monster.hp;
-  monster.hpVisual -= (monster.hpVisual - monster.hp) * 5 * dt;
-  const barWidth = 80;
-  const barX = monster.x - camera.x;
-  const barY = monster.y - camera.y - 15;
-  if (renderer) {
-    renderer.fillRect(barX, barY, barWidth, 10, "#330000");
-    renderer.fillRect(barX, barY, (monster.hpVisual / monster.originalHp) * barWidth, 10, "#ff6600");
-    renderer.fillRect(barX, barY, (monster.hp / monster.originalHp) * barWidth, 10, "#ff0000");
-  }
-}
-
-// ==================== TOMBOL SKILL UNTUK HERO ====================
-
-function createShukenSkillButtons(heroRef, physicsRef, manaBarRef) {
-  const miya = heroRef.miya;
-  
-  // Tombol Pukul (Q)
-  const tombolPukul = new VirtualButton({
-    text: "👊", bottom: 15, right: 320, width: 55, height: 55, fontSize: 28,
-    background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid orange",
-    onPress: () => {
-      if (miya.cd_pukul > 0) return;
-      miya.cd_pukul = 0.5;
-      miya.currentSkill = "pukul";
-      miya.skillTimer = 0.2;
-      miya.tintColor = "orange";
-      const xPos = miya.x + (miya.animationDirection === "right" ? 60 : -60);
-      physicsRef.aabbRange(xPos, miya.y, 60, 80, "kelomang,buff,guin,shuken", (enemy) => {
-        enemy.hp -= 15;
-        enemy.tintColor = "red";
-      });
-      setTimeout(() => { if (miya.currentSkill === "pukul") miya.tintColor = "white"; }, 200);
-    }
-  });
-  
-  // Tombol Uppercut (W)
-  const tombolUppercut = new VirtualButton({
-    text: "⬆️", bottom: 80, right: 320, width: 55, height: 55, fontSize: 28,
-    background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid yellow",
-    onPress: () => {
-      if (miya.cd_uppercut > 0) return;
-      miya.cd_uppercut = 2;
-      miya.currentSkill = "uppercut";
-      miya.skillTimer = 0.3;
-      miya.vy = -400;
-      miya.tintColor = "yellow";
-      physicsRef.aabbRange(miya.x, miya.y, 70, 100, "kelomang,buff,guin,shuken", (enemy) => {
-        enemy.hp -= 25;
-        enemy.vy = -300;
-        enemy.tintColor = "red";
-      });
-      setTimeout(() => { if (miya.currentSkill === "uppercut") miya.tintColor = "white"; }, 300);
-    }
-  });
-  
-  // Tombol Rush (E)
-  const tombolRush = new VirtualButton({
-    text: "💨", bottom: 145, right: 320, width: 55, height: 55, fontSize: 28,
-    background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid cyan",
-    onPress: () => {
-      if (miya.cd_rush > 0) return;
-      miya.cd_rush = 3;
-      miya.currentSkill = "rush";
-      miya.skillTimer = 0.4;
-      miya.invincible = true;
-      miya.tintColor = "cyan";
-      miya.vx = miya.animationDirection === "right" ? 600 : -600;
-      let hitCount = 0;
-      const rushInterval = setInterval(() => {
-        if (miya.skillTimer <= 0 || hitCount >= 3) {
-          clearInterval(rushInterval);
-          miya.invincible = false;
-          if (miya.currentSkill === "rush") miya.tintColor = "white";
-          return;
+// ==========================================
+// UPDATE PETIR AREA (Skill 2)
+// ==========================================
+function updatePetirArea(dt, physics) {
+    Object.values(petirArea).forEach(petir => {
+        petir.lifeTime -= dt
+        
+        if (petir.lifeTime <= 0) {
+            delete petirArea[petir.id]
         }
-        physicsRef.aabbRange(miya.x, miya.y, 80, 80, "kelomang,buff,guin,shuken", (enemy) => {
-          enemy.hp -= 10;
-          enemy.tintColor = "red";
-        });
-        hitCount++;
-      }, 130);
+    })
+    
+    if (physics) {
+        physics.aabb(petirArea, "kelomang", (petir, musuh) => {
+            musuh.hp -= petir.damage
+            musuh.tintColor = "purple"
+        })
+        
+        physics.aabb(petirArea, "guin", (petir, musuh) => {
+            if (musuh.aktif) {
+                musuh.hp -= petir.damage
+                musuh.tintColor = "purple"
+            }
+        })
+        
+        physics.aabb(petirArea, "buff", (petir, musuh) => {
+            musuh.hp -= petir.damage
+            musuh.tintColor = "purple"
+        })
     }
-  });
-  
-  // Tombol Hadouken (R)
-  const tombolHadouken = new VirtualButton({
-    text: "🌊", bottom: 15, right: 250, width: 55, height: 55, fontSize: 28,
-    background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid blue",
-    onPress: () => {
-      if (miya.cd_hadouken > 0) return;
-      if (miya.energi < 15) return;
-      miya.cd_hadouken = 1.5;
-      miya.energi -= 15;
-      manaBarRef.setValue(miya.energi);
-      miya.currentSkill = "hadouken";
-      miya.skillTimer = 0.3;
-      miya.tintColor = "blue";
-      const id = crypto.randomUUID();
-      listProjectileShuken[id] = {
-        id, x: miya.x + miya.width/2, y: miya.y + miya.height/3,
-        width: 40, height: 40, scene: miya.scene,
-        dir: miya.animationDirection === "right" ? 1 : -1,
-        speed: 550, damage: 20, lifeTime: 2.5, img: "projectileHadouken"
-      };
-      setTimeout(() => { if (miya.currentSkill === "hadouken") miya.tintColor = "white"; }, 300);
-    }
-  });
-  
-  // Tombol Shoryuken (T/Ultimate)
-  const tombolShoryuken = new VirtualButton({
-    text: "🔥", bottom: 80, right: 250, width: 55, height: 55, fontSize: 28,
-    background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid red",
-    onPress: () => {
-      if (miya.cd_shoryuken > 0) return;
-      if (miya.energi < 30) return;
-      miya.cd_shoryuken = 8;
-      miya.energi -= 30;
-      manaBarRef.setValue(miya.energi);
-      miya.currentSkill = "shoryuken";
-      miya.skillTimer = 0.5;
-      miya.vy = -500;
-      miya.invincible = true;
-      miya.tintColor = "red";
-      setTimeout(() => {
-        if (miya.skillTimer > 0) {
-          physicsRef.aabbRange(miya.x, miya.y - 100, 120, 120, "kelomang,buff,guin,shuken", (enemy) => {
-            enemy.hp -= 45;
-            enemy.vy = -400;
-            enemy.tintColor = "red";
-          });
-        }
-      }, 200);
-      setTimeout(() => {
-        if (miya.currentSkill === "shoryuken") {
-          miya.tintColor = "white";
-          miya.invincible = false;
-        }
-      }, 500);
-    }
-  });
-  
-  return { tombolPukul, tombolUppercut, tombolRush, tombolHadouken, tombolShoryuken };
 }
+
+// ==========================================
+// UPDATE PETIR DARI ATAS (Ultimate)
+// ==========================================
+function updatePetirAtas(dt, physics) {
+    Object.values(petirAtas).forEach(petir => {
+        petir.lifeTime -= dt
+        
+        if (petir.lifeTime <= 0) {
+            delete petirAtas[petir.id]
+        }
+    })
+    
+    if (physics) {
+        physics.aabb(petirAtas, "kelomang", (petir, musuh) => {
+            musuh.hp -= petir.damage
+            musuh.tintColor = "purple"
+            musuh.tintColorTimer = 0.3
+        })
+        
+        physics.aabb(petirAtas, "guin", (petir, musuh) => {
+            if (musuh.aktif) {
+                musuh.hp -= petir.damage
+                musuh.tintColor = "purple"
+            }
+        })
+        
+        physics.aabb(petirAtas, "buff", (petir, musuh) => {
+            musuh.hp -= petir.damage
+            musuh.tintColor = "purple"
+        })
+    }
+}
+
+// ==========================================
+// LOGIKA UTAMA SHUKEN (panggil di game loop)
+// ==========================================
+function logikaShuken(dt, hero, hpBar, manaBar, physics, utils) {
+    const player = hero.shuken
+    if (!player) return
+    
+    // Regenerasi energi
+    player.energi = Math.min(player.maxEnergi, player.energi + 5 * dt)
+    if (player.currentHero === "shuken") {
+        manaBar.setMaxValue(player.maxEnergi)
+        manaBar.setValue(player.energi)
+        hpBar.setMaxValue(player.maxHp)
+        hpBar.setValue(player.hp)
+    }
+    
+    // Update cooldown visual (bisa ditampilkan di UI nanti)
+    
+    // Animasi berdasarkan state
+    if (!player.superState) {
+        if (!player.onGround) {
+            player.state = player.vy < 0 ? "jump" : "fall"
+            if (player.state === "jump") player.img = "shukenJump"
+            if (player.state === "fall") player.img = "shukenFall"
+        } else if (Math.abs(player.vx) > 10) {
+            player.state = "run"
+        } else {
+            player.state = "idle"
+            player.img = "shukenIdle"
+        }
+    }
+    
+    // Efek petir kecil saat idle (percikan listrik)
+    if (player.state === "idle" && !player.superState && player.currentHero === "shuken") {
+        utils.timer(dt, "shukenIdlePetir", 0.5, () => {
+            // Efek visual percikan listrik (optional)
+            player.tintColor = "#aa88ff"
+            utils.timer(dt, "shukenIdlePetirReset", 0.1, () => {
+                if (player.tintColor === "#aa88ff") player.tintColor = "white"
+            })
+        })
+    }
+}
+
+// ==========================================
+// SHUKEN VS MUSUH (Damage ke musuh saat terkena)
+// ==========================================
+function shukenVsMusuh(dt, hero, hpBar, physics) {
+    const shuken = hero.shuken
+    if (shuken.currentHero !== "shuken") return
+    
+    // Damage ke buff (semut)
+    physics.aabb({ shuken: shuken }, "buff", (hero, musuh) => {
+        if (shuken.isAttacking) {
+            musuh.hp -= shuken.attackDamage
+            shuken.isAttacking = false
+        }
+        shuken.hp -= 0.5
+        hpBar.setValue(shuken.hp)
+    })
+    
+    // Damage ke kelomang
+    physics.aabb({ shuken: shuken }, "kelomang", (hero, musuh) => {
+        if (shuken.isAttacking) {
+            musuh.hp -= shuken.attackDamage
+            shuken.isAttacking = false
+        }
+        shuken.hp -= 0.8
+        hpBar.setValue(shuken.hp)
+    })
+    
+    // Damage ke guin
+    physics.aabb({ shuken: shuken }, "guin", (hero, musuh) => {
+        if (shuken.isAttacking && musuh.aktif) {
+            musuh.hp -= shuken.attackDamage
+            shuken.isAttacking = false
+        }
+        shuken.hp -= 1
+        hpBar.setValue(shuken.hp)
+    })
+}
+
+// ==========================================
+// EKSPOR SEMUA FUNGSI
+// ==========================================
+// (Jika menggunakan module, bisa di export. Tapi karena ini game loop, 
+//  fungsi-fungsi di atas akan dipanggil langsung di index.html)

@@ -2,523 +2,1034 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>ibill vs mosnyer - HP Version</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ibill vs mosnyer - Pilih Karakter</title>
   <style>
     * {
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    body {
-      background: #0a0a2a;
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
     canvas {
       display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, #1a2a4a 0%, #2a1a3a 100%);
+      background: #2a1a3a;
     }
-    
-    /* Loading */
     #loading {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #0a0a2a;
+      background: #1a0a2a;
       color: #aa88ff;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
+      font-size: 30px;
       font-family: monospace;
       z-index: 9999;
       flex-direction: column;
-      gap: 15px;
+      gap: 20px;
     }
-    .spinner {
+    .loading-spinner {
       width: 50px;
       height: 50px;
-      border: 4px solid #aa88ff;
+      border: 5px solid #aa88ff;
       border-top-color: #ffcc00;
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
     
-    /* Layar Pilih Karakter */
-    #selectScreen {
+    /* ===== LAYAR PEMILIHAN KARAKTER ===== */
+    #characterSelect {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #0a0a2a, #1a0a3a);
+      background: linear-gradient(135deg, #0a0a2a 0%, #1a0a3a 100%);
       z-index: 10000;
       display: none;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      font-family: monospace;
+      font-family: 'Courier New', monospace;
     }
-    #selectScreen h1 {
+    
+    #characterSelect h1 {
       color: #ffcc00;
-      font-size: 36px;
-      margin-bottom: 40px;
+      font-size: 48px;
+      text-shadow: 0 0 20px #ff6600;
+      margin-bottom: 50px;
+      letter-spacing: 5px;
     }
+    
+    .char-container {
+      display: flex;
+      gap: 50px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    
     .char-card {
-      width: 250px;
+      width: 280px;
       padding: 20px;
       background: rgba(0,0,0,0.6);
       border-radius: 20px;
       text-align: center;
-      margin: 10px;
       cursor: pointer;
+      transition: all 0.3s ease;
       border: 2px solid #666;
     }
+    
+    .char-card:hover {
+      transform: scale(1.05);
+      border-color: #ffcc00;
+      box-shadow: 0 0 30px rgba(255,204,0,0.3);
+    }
+    
     .char-card.selected {
       border-color: #00ff00;
-      box-shadow: 0 0 20px #00ff00;
+      box-shadow: 0 0 30px rgba(0,255,0,0.3);
+      background: rgba(0,0,0,0.8);
     }
+    
+    .char-avatar {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 20px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    
+    .char-avatar.miya {
+      background-image: url('Avatar1.png');
+    }
+    
+    .char-avatar.shuken {
+      background-image: url('ShukenIdle1.png');
+    }
+    
     .char-name {
-      font-size: 32px;
+      font-size: 36px;
       font-weight: bold;
+      margin-bottom: 10px;
     }
-    .char-name.miya { color: #00ff88; }
-    .char-name.shuken { color: #aa44ff; }
+    
+    .char-name.miya { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+    .char-name.shuken { color: #aa44ff; text-shadow: 0 0 10px #aa44ff; }
+    
     .char-stats {
-      font-size: 12px;
+      font-size: 14px;
       color: #ccc;
-      margin-top: 10px;
+      text-align: left;
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 10px;
     }
+    
+    .char-stats span {
+      color: #ffcc00;
+    }
+    
     .btn-start {
-      margin-top: 30px;
-      padding: 12px 40px;
-      font-size: 22px;
+      margin-top: 50px;
+      padding: 15px 50px;
+      font-size: 24px;
+      font-weight: bold;
       background: linear-gradient(135deg, #ff6600, #ffcc00);
       border: none;
       border-radius: 50px;
       cursor: pointer;
-      font-weight: bold;
+      transition: all 0.3s ease;
+      font-family: monospace;
+      color: #1a0a2a;
     }
+    
+    .btn-start:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px #ffcc00;
+    }
+    
     .btn-start.disabled {
       opacity: 0.5;
-      pointer-events: none;
+      transform: none;
+      cursor: not-allowed;
     }
     
-    /* Tombol Touch */
-    .analog-area {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      width: 130px;
-      height: 130px;
-      border-radius: 65px;
-      background: rgba(0,0,0,0.4);
-      border: 2px solid rgba(255,255,255,0.3);
-      z-index: 100;
-    }
-    .analog-stick {
-      position: absolute;
-      width: 55px;
-      height: 55px;
-      border-radius: 27px;
-      background: rgba(255,255,255,0.8);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      transition: transform 0.05s;
-    }
-    .btn-area {
-      position: fixed;
-      bottom: 30px;
-      right: 20px;
-      display: flex;
-      gap: 15px;
-      z-index: 100;
-    }
-    .touch-btn {
-      width: 70px;
-      height: 70px;
-      border-radius: 35px;
-      background: rgba(50,50,100,0.8);
-      border: 2px solid white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-      transition: 0.05s;
-    }
-    .touch-btn:active { transform: scale(0.92); }
-    .btn-jump { background: rgba(0,150,100,0.8); }
-    .btn-attack { background: rgba(200,100,50,0.8); }
-    
-    /* HP Bar */
-    .hpbar {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      right: 15px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 10px;
-      padding: 8px 12px;
-      z-index: 100;
-    }
-    .hp-fill {
-      height: 18px;
-      background: linear-gradient(90deg, #ff4444, #ff8888);
-      border-radius: 9px;
-      width: 100%;
-      transition: width 0.2s;
-    }
-    .mp-fill {
-      height: 10px;
-      background: linear-gradient(90deg, #44ff44, #aaffaa);
-      border-radius: 5px;
-      width: 100%;
-      margin-top: 5px;
-      transition: width 0.2s;
+    @media (max-width: 600px) {
+      .char-container { gap: 20px; }
+      .char-card { width: 200px; padding: 10px; }
+      .char-avatar { width: 120px; height: 120px; }
+      .char-name { font-size: 28px; }
+      .char-stats { font-size: 11px; }
+      #characterSelect h1 { font-size: 32px; }
+      .btn-start { padding: 10px 30px; font-size: 20px; }
     }
   </style>
 </head>
 <body>
   <div id="loading">
-    <div class="spinner"></div>
-    <div>⚡ LOADING...</div>
+    <div class="loading-spinner"></div>
+    <div>⚡ Loading Assets... ⚡</div>
   </div>
   
-  <div id="selectScreen">
+  <!-- LAYAR PEMILIHAN KARAKTER -->
+  <div id="characterSelect">
     <h1>⚔️ PILIH KARAKTER ⚔️</h1>
-    <div class="char-card" id="cardMiya">
-      <div class="char-name miya">MIYA</div>
-      <div class="char-stats">❤️150 💛100 🏃400 🏹10<br>Panah Jarak Jauh</div>
+    <div class="char-container">
+      
+      <!-- MIYA CARD -->
+      <div class="char-card" data-hero="miya" id="cardMiya">
+        <div class="char-avatar miya"></div>
+        <div class="char-name miya">MIYA</div>
+        <div class="char-stats">
+          📊 STATS<br>
+          ❤️ HP: 150<br>
+          💛 ENERGI: 100<br>
+          🏃 SPEED: 400<br>
+          🏹 ATK: 10 (arrow)<br>
+          ⚡ SKILL: Panah Jarak Jauh
+        </div>
+      </div>
+      
+      <!-- SHUKEN CARD -->
+      <div class="char-card" data-hero="shuken" id="cardShuken">
+        <div class="char-avatar shuken"></div>
+        <div class="char-name shuken">SHUKEN</div>
+        <div class="char-stats">
+          📊 STATS<br>
+          ❤️ HP: 120<br>
+          💛 ENERGI: 100<br>
+          🏃 SPEED: 550<br>
+          👊 ATK: 35<br>
+          ⚡ SKILL: Petir (3 skills) - SPAMMABLE
+        </div>
+      </div>
+      
     </div>
-    <div class="char-card" id="cardShuken">
-      <div class="char-name shuken">SHUKEN</div>
-      <div class="char-stats">❤️120 💛100 🏃550 👊35<br>3 Skill Petir</div>
-    </div>
-    <button class="btn-start disabled" id="btnStart">▶ START</button>
+    <button class="btn-start disabled" id="btnStart">▶ START GAME ◀</button>
   </div>
   
   <canvas id="canvas"></canvas>
   
-  <!-- Touch Controls -->
-  <div class="analog-area" id="analogArea">
-    <div class="analog-stick" id="analogStick"></div>
-  </div>
-  <div class="btn-area">
-    <div class="touch-btn btn-attack" id="btnAttack">👊</div>
-    <div class="touch-btn btn-jump" id="btnJump">⬆️</div>
-  </div>
-  <div class="hpbar" id="hpbar" style="display:none">
-    <div class="hp-fill" id="hpFill"></div>
-    <div class="mp-fill" id="mpFill"></div>
-  </div>
+  <script src="AdivaClient.js"></script>
+  <script src="AdivaServer.js"></script>
+  <script src="./data.js"></script>
+  <script src="./item.js"></script>
+  <script src="./semut.js"></script>
+  <script src="./kura.js"></script>
+  <script src="./laba.js"></script>
+  <script src="./shuken.js"></script>
   
   <script>
-    // ========== SETUP CANVAS ==========
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("canvas")
+    const game = new GameLoop(canvas)
+    const gl = game.gl
+    const renderer = new Renderer(gl, canvas)
+    const utils = new Utils()
     
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    const physics = new Collision(150)
+    physics.gameState.add("1")
+    physics.grid.buildStatic(tembok)
     
-    // ========== VARIABEL ==========
-    let selectedHero = null;
-    let moveX = 0;
-    let isJumping = false;
-    let canJump = true;
-    let lastTime = 0;
+    // ===== VARIABEL KARAKTER TERPILIH =====
+    let selectedHero = null  // "miya" atau "shuken"
+    let isGameRunning = false
     
-    // Ground
-    const groundY = canvas.height - 100;
-    
-    // Player
-    let player = {
-      x: canvas.width/2 - 50,
-      y: groundY - 100,
-      width: 100,
-      height: 100,
-      vx: 0,
-      vy: 0,
-      hp: 150,
-      maxHp: 150,
-      mp: 100,
-      maxMp: 100,
-      speed: 400,
-      gravity: 2000,
-      jumpPower: 650,
-      onGround: false,
-      canMove: true,
-      canAttack: true,
-      isAttacking: false,
-      attackTimer: 0,
-      img: null
-    };
-    
-    // Load gambar
-    let miyaImg = null;
-    let shukenImg = null;
-    let loading = true;
-    
-    function loadImages() {
-      miyaImg = new Image();
-      shukenImg = new Image();
-      miyaImg.src = "Avatar1.png";
-      shukenImg.src = "ShukenIdle1.png";
+    // ===== ASET GAMBAR =====
+    const listImg = {
+      // Miya assets
+      idle: { path: "Diam1.png" },
+      lari1: { path: "Lari1.png" },
+      lari2: { path: "Lari2.png" },
+      lari3: { path: "Lari3.png" },
+      jump: { path: "Lompat1.png" },
+      fall: { path: "Turun1.png" },
+      panah: { path: "Pnh2.png" },
+      panahMisil: { path: "Misil1.png" },
       
-      Promise.all([
-        new Promise(resolve => { miyaImg.onload = resolve; miyaImg.onerror = () => { console.log("Avatar1.png not found, using fallback"); resolve(); }; }),
-        new Promise(resolve => { shukenImg.onload = resolve; shukenImg.onerror = () => { console.log("ShukenIdle1.png not found, using fallback"); resolve(); }; })
-      ]).then(() => {
-        loading = false;
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("selectScreen").style.display = "flex";
-      });
+      // Wall & environment
+      wall: { path: "Walll1.png" },
+      gerbang: { path: "WallRentak1.png" },
+      
+      // Items & buffs
+      buff: { path: "Semut2.png" },
+      heal: { path: "Heal1.png" },
+      energi: { path: "Energi1.png" },
+      peluruGanda: { path: "PeluruGanda1.png" },
+      
+      // Kelomang (kura)
+      kelomang: { path: "Kura3.png" },
+      kelomangDiam: { path: "Kura1.png" },
+      kelomangNembak: { path: "Kura2.png" },
+      
+      // Guinevere (laba)
+      guinLari: { path: "LabaLari2.png" },
+      guinDiam: { path: "LabaLari1.png" },
+      guinLompat: { path: "LabaNembak1.png" },
+      guinUlti: { path: "LabaMakan2.png" },
+      guinShoot: { path: "LabaNembak2.png" },
+      bolaGuin: { path: "BolaUlti2.png" },
+      
+      // ===== SHUKEN ASSETS =====
+      shukenIdle: { path: "ShukenIdle1.png" },
+      shukenRun1: { path: "ShukenRun1.png" },
+      shukenRun2: { path: "ShukenRun2.png" },
+      shukenRun3: { path: "ShukenRun3.png" },
+      shukenJump: { path: "ShukenJump1.png" },
+      shukenFall: { path: "ShukenFall1.png" },
+      shukenAttack1: { path: "ShukenAttack1.png" },
+      shukenAttack2: { path: "ShukenAttack2.png" },
+      shukenSkill1: { path: "ShukenSkill1.png" },
+      shukenSkill2: { path: "ShukenSkill2.png" },
+      shukenUlti: { path: "ShukenUlti1.png" },
+      bolaPetir: { path: "BolaPetir1.png" },
+      petirArea: { path: "PetirArea1.png" },
+      petirAtas: { path: "PetirAtas1.png" }
     }
     
-    // ========== ANALOG STICK ==========
-    const analogArea = document.getElementById("analogArea");
-    const analogStick = document.getElementById("analogStick");
-    let stickActive = false;
-    let stickX = 0, stickY = 0;
-    const maxDist = 40;
-    
-    function getStickPos(e) {
-      const rect = analogArea.getBoundingClientRect();
-      const centerX = rect.left + rect.width/2;
-      const centerY = rect.top + rect.height/2;
-      let clientX, clientY;
-      if (e.touches) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
+    // ===== DATA HERO (UKURAN DIPERBESAR) =====
+    const hero = {
+      miya: {
+        x: 0,
+        y: -800,
+        width: 130,        // 🔥 DIPERBESAR dari 100
+        height: 130,       // 🔥 DIPERBESAR dari 100
+        hp: 150,
+        maxHp: 150,
+        energi: 100,
+        maxEnergi: 100,
+        gravity: 2000,
+        jumpPower: 700,
+        useCollider: true,
+        colliderBox: { width: 60, height: 110 },  // 🔥 DIPERBESAR
+        useHurtBox: true,
+        hurtBox: { x: 0, y: 0, width: 60, height: 130 },  // 🔥 DIPERBESAR
+        vx: 0,
+        vy: 0,
+        scene: "1",
+        isAttack: false,
+        superState: false,
+        superTimer: 0,
+        state: "idle",
+        img: "idle",
+        animationDirection: "right",
+        statusItem: "",
+        durasiItem: 0,
+        tintColor: "white",
+        currentHero: null,
+        canMove: true,
+        canAttack: true
+      },
+      shuken: {
+        x: 0,
+        y: -800,
+        width: 140,        // 🔥 DIPERBESAR dari 100
+        height: 150,       // 🔥 DIPERBESAR dari 110
+        hp: 120,
+        maxHp: 120,
+        energi: 100,
+        maxEnergi: 100,
+        gravity: 2000,
+        jumpPower: 680,
+        speed: 550,
+        attackDamage: 35,
+        useCollider: true,
+        colliderBox: { width: 65, height: 120 },  // 🔥 DIPERBESAR
+        useHurtBox: true,
+        hurtBox: { x: 0, y: 0, width: 65, height: 140 },  // 🔥 DIPERBESAR
+        vx: 0,
+        vy: 0,
+        scene: "1",
+        isAttacking: false,
+        isUsingSkill: false,
+        // 🔥 TIDAK ADA COOLDOWN - BISA SPAM SELAMA MP CUKUP
+        skill1Cooldown: 0,
+        skill2Cooldown: 0,
+        ultiCooldown: 0,
+        superState: false,
+        superTimer: 0,
+        state: "idle",
+        img: "shukenIdle",
+        animationDirection: "right",
+        tintColor: "white",
+        currentHero: null,
+        canMove: true,
+        canAttack: true
       }
-      let dx = clientX - centerX;
-      let dy = clientY - centerY;
-      const dist = Math.hypot(dx, dy);
-      if (dist > maxDist) {
-        dx = dx / dist * maxDist;
-        dy = dy / dist * maxDist;
+    }
+    
+    // HP Bar & Mana Bar
+    const hpBar = new VirtualBarDiv({
+      value: 100,
+      maxValue: 100,
+      width: 180,
+      height: 18,
+      top: 38,
+      left: 82,
+      fillColor: "lime",
+      visualColor: "maroon",
+      background: "#222",
+      border: "1px solid black",
+      lerpSpeed: 5
+    })
+    
+    const manaBar = new VirtualBarDiv({
+      value: 100,
+      maxValue: 100,
+      width: 180,
+      height: 12,
+      top: 58,
+      left: 82,
+      fillColor: "yellow",
+      visualColor: "aqua",
+      background: "#222",
+      border: "1px solid black",
+      lerpSpeed: 5
+    })
+    
+    hpBar.el.style.display = "none"
+    manaBar.el.style.display = "none"
+    
+    // ===== LOGIKA PEMILIHAN KARAKTER =====
+    const cardMiya = document.getElementById("cardMiya")
+    const cardShuken = document.getElementById("cardShuken")
+    const btnStart = document.getElementById("btnStart")
+    const selectScreen = document.getElementById("characterSelect")
+    const loadingDiv = document.getElementById("loading")
+    
+    let selectedCard = null
+    
+    function selectCharacter(heroName) {
+      cardMiya.classList.remove("selected")
+      cardShuken.classList.remove("selected")
+      
+      if (heroName === "miya") {
+        cardMiya.classList.add("selected")
+        selectedCard = "miya"
+      } else if (heroName === "shuken") {
+        cardShuken.classList.add("selected")
+        selectedCard = "shuken"
       }
-      return { dx, dy };
+      
+      btnStart.classList.remove("disabled")
+      selectedHero = heroName
     }
     
-    function updateStick(dx, dy) {
-      analogStick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-      moveX = (dx / maxDist) * player.speed;
-    }
-    
-    function onStart(e) {
-      e.preventDefault();
-      stickActive = true;
-      const { dx, dy } = getStickPos(e);
-      updateStick(dx, dy);
-    }
-    
-    function onMove(e) {
-      if (!stickActive) return;
-      e.preventDefault();
-      const { dx, dy } = getStickPos(e);
-      updateStick(dx, dy);
-    }
-    
-    function onEnd(e) {
-      stickActive = false;
-      moveX = 0;
-      analogStick.style.transform = "translate(-50%, -50%)";
-    }
-    
-    analogArea.addEventListener("touchstart", onStart);
-    analogArea.addEventListener("touchmove", onMove);
-    analogArea.addEventListener("touchend", onEnd);
-    analogArea.addEventListener("mousedown", onStart);
-    window.addEventListener("mousemove", (e) => { if (stickActive) onMove(e); });
-    window.addEventListener("mouseup", onEnd);
-    
-    // ========== TOMBOL ==========
-    const btnAttack = document.getElementById("btnAttack");
-    const btnJump = document.getElementById("btnJump");
-    
-    btnJump.addEventListener("click", () => {
-      if (player.onGround && !player.isAttacking) {
-        player.vy = -player.jumpPower;
-        player.onGround = false;
-      }
-    });
-    btnJump.addEventListener("touchstart", (e) => { e.preventDefault(); btnJump.click(); });
-    
-    btnAttack.addEventListener("click", () => {
-      if (player.isAttacking) return;
-      if (player.mp < 5) return;
-      player.isAttacking = true;
-      player.attackTimer = 0.3;
-      player.mp -= 5;
-      updateUI();
-    });
-    btnAttack.addEventListener("touchstart", (e) => { e.preventDefault(); btnAttack.click(); });
-    
-    // ========== UI ==========
-    const hpFill = document.getElementById("hpFill");
-    const mpFill = document.getElementById("mpFill");
-    const hpbarDiv = document.getElementById("hpbar");
-    
-    function updateUI() {
-      hpFill.style.width = `${(player.hp / player.maxHp) * 100}%`;
-      mpFill.style.width = `${(player.mp / player.maxMp) * 100}%`;
-    }
-    
-    // ========== SELECT KARAKTER ==========
-    const cardMiya = document.getElementById("cardMiya");
-    const cardShuken = document.getElementById("cardShuken");
-    const btnStart = document.getElementById("btnStart");
-    const selectScreen = document.getElementById("selectScreen");
-    
-    cardMiya.onclick = () => {
-      cardMiya.classList.add("selected");
-      cardShuken.classList.remove("selected");
-      selectedHero = "miya";
-      btnStart.classList.remove("disabled");
-    };
-    cardShuken.onclick = () => {
-      cardShuken.classList.add("selected");
-      cardMiya.classList.remove("selected");
-      selectedHero = "shuken";
-      btnStart.classList.remove("disabled");
-    };
+    cardMiya.onclick = () => selectCharacter("miya")
+    cardShuken.onclick = () => selectCharacter("shuken")
     
     btnStart.onclick = () => {
-      if (!selectedHero) return;
-      selectScreen.style.display = "none";
-      hpbarDiv.style.display = "block";
+      if (!selectedHero) return
+      selectScreen.style.display = "none"
+      startGameAfterLoad()
+    }
+    
+    // ===== LOAD ASSETS DULU, BARU START GAME =====
+    let loadedTexture = null
+    
+    async function startGameAfterLoad() {
+      loadingDiv.style.display = "flex"
+      loadingDiv.innerHTML = '<div class="loading-spinner"></div><div>⚡ Loading Game... ⚡</div>'
+      
+      const aset = new Aset(gl, listImg)
+      loadedTexture = await aset.load()
+      
+      loadingDiv.style.display = "none"
+      
+      // Set karakter terpilih sebagai active
+      hero.miya.currentHero = selectedHero
+      hero.shuken.currentHero = selectedHero
+      
+      hero.shuken.x = hero.miya.x
+      hero.shuken.y = hero.miya.y
       
       if (selectedHero === "miya") {
-        player.hp = 150;
-        player.maxHp = 150;
-        player.speed = 400;
-        player.width = 100;
-        player.height = 100;
-        player.img = miyaImg;
+        hpBar.setMaxValue(hero.miya.maxHp)
+        hpBar.setValue(hero.miya.hp)
+        manaBar.setMaxValue(hero.miya.maxEnergi)
+        manaBar.setValue(hero.miya.energi)
       } else {
-        player.hp = 120;
-        player.maxHp = 120;
-        player.speed = 550;
-        player.width = 110;
-        player.height = 110;
-        player.img = shukenImg;
+        hpBar.setMaxValue(hero.shuken.maxHp)
+        hpBar.setValue(hero.shuken.hp)
+        manaBar.setMaxValue(hero.shuken.maxEnergi)
+        manaBar.setValue(hero.shuken.energi)
       }
-      player.mp = 100;
-      player.maxMp = 100;
-      player.x = canvas.width/2 - player.width/2;
-      player.y = groundY - player.height;
-      updateUI();
-      startGame();
-    };
+      
+      hpBar.el.style.display = "block"
+      manaBar.el.style.display = "block"
+      
+      initGame()
+    }
     
-    // ========== GAME LOOP ==========
-    function startGame() {
-      function gameLoop(now) {
-        let dt = Math.min(0.033, (now - lastTime) / 1000);
-        lastTime = now;
+    // ===== TOMBOL =====
+    let tombolKiri, tombolKanan, tombolLompat
+    let tombolPanah
+    let tombolShukenAttack, tombolShukenSkill1, tombolShukenSkill2, tombolShukenUlti
+    
+    let listPanahMiya = {}
+    let listUpdateDraw = []
+    let dialog, text, text2, text3, avatar
+    
+    // Animasi variables
+    let lariFrame = 1
+    let lariTimer = 0
+    let lariFrameShuken = 1
+    let lariTimerShuken = 0
+    const lariSpeed = 0.15
+    
+    const baseAnimasi = {
+      idle: "idle",
+      run: "run",
+      jump: "jump",
+      fall: "fall",
+      panah: "panah"
+    }
+    
+    let dtGlobal = 0
+    
+    function initGame() {
+      // ===== TOMBOL MOVEMENT =====
+      tombolKiri = new VirtualButton({
+        text: "←",
+        bottom: 15,
+        left: 30,
+        onPress: () => tombolKiri.press = true,
+        onRelease: () => tombolKiri.press = false
+      })
+      
+      tombolKanan = new VirtualButton({
+        text: "→",
+        bottom: 15,
+        left: 120,
+        onPress: () => tombolKanan.press = true,
+        onRelease: () => tombolKanan.press = false
+      })
+      
+      tombolLompat = new VirtualButton({
+        text: "↑",
+        bottom: 100,
+        right: 200,
+        onPress: () => {
+          const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
+          if (activeHero.canMove) {
+            activeHero.jumpBufferTimer = 0.15
+          }
+        }
+      })
+      
+      // ===== TOMBOL MIYA (Panah) - BISA SPAM SELAMA MP =====
+      tombolPanah = new VirtualButton({
+        img: "Misil1.png",
+        bottom: 100,
+        right: 20,
+        onPress: () => {
+          if (selectedHero !== "miya") return
+          const miya = hero.miya
+          // 🔥 CEK: bisa attack hanya jika tidak superState (tidak sedang animasi skill)
+          if (miya.superState) return
+          if (miya.energi < 5) return
+          
+          miya.isAttack = true
+          miya.canMove = false
+          miya.canAttack = false
+          miya.energi -= 5
+          manaBar.setValue(miya.energi)
+          miya.superState = true
+          miya.state = "panah"
+          
+          const id = crypto.randomUUID()
+          listPanahMiya[id] = {
+            id: id,
+            x: miya.x + miya.width/2 - 15,
+            y: miya.y + miya.height/3,
+            width: miya.statusItem === "peluruGanda" ? 60 : 40,
+            height: miya.statusItem === "peluruGanda" ? 60 : 40,
+            scene: miya.scene,
+            dir: miya.animationDirection === "right" ? 1 : -1,
+            dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
+            animationDirection: miya.animationDirection,
+            speed: 500,
+            lifeTime: 3,
+            img: "panahMisil"
+          }
+          miya.superTimer = 0.25  // Animasi cepat
+        },
+        onRelease: () => {}
+      })
+      
+      // ===== TOMBOL SHUKEN - BISA SPAM SELAMA MP =====
+      
+      // Serangan Dasar
+      tombolShukenAttack = new VirtualButton({
+        text: "👊",
+        bottom: 160,
+        right: 20,
+        background: "rgba(200,100,50,0.8)",
+        onPress: () => {
+          if (selectedHero !== "shuken") return
+          const player = hero.shuken
+          if (player.superState) return  // Lagi animasi skill/attack
+          if (player.energi < 5) return
+          
+          player.isAttacking = true
+          player.canMove = false
+          player.canAttack = false
+          player.energi -= 5
+          manaBar.setValue(player.energi)
+          player.superState = true
+          player.state = "attack"
+          player.img = "shukenAttack1"
+          
+          player.superTimer = 0.25
+        }
+      })
+      
+      // Skill 1 - Bola Petir
+      tombolShukenSkill1 = new VirtualButton({
+        text: "⚡",
+        bottom: 100,
+        right: 20,
+        background: "rgba(100,50,200,0.8)",
+        fontSize: 28,
+        onPress: () => {
+          if (selectedHero !== "shuken") return
+          const player = hero.shuken
+          if (player.superState) return  // Lagi animasi skill/attack
+          if (player.energi < 12) return
+          
+          player.isUsingSkill = true
+          player.canMove = false
+          player.canAttack = false
+          player.energi -= 12
+          manaBar.setValue(player.energi)
+          player.superState = true
+          player.state = "skill1"
+          player.img = "shukenSkill1"
+          
+          const id = crypto.randomUUID()
+          bolaPetir[id] = {
+            id: id,
+            x: player.x + player.width/2 - 20,
+            y: player.y + player.height/3,
+            width: 45,
+            height: 45,
+            scene: "1",
+            dir: player.animationDirection === "right" ? 1 : -1,
+            speed: 600,
+            damage: 20,
+            lifeTime: 2,
+            img: "bolaPetir"
+          }
+          
+          player.superTimer = 0.35
+        }
+      })
+      
+      // Skill 2 - Petir Area
+      tombolShukenSkill2 = new VirtualButton({
+        text: "🌩️",
+        bottom: 100,
+        right: 110,
+        background: "rgba(150,50,200,0.8)",
+        fontSize: 24,
+        onPress: () => {
+          if (selectedHero !== "shuken") return
+          const player = hero.shuken
+          if (player.superState) return
+          if (player.energi < 25) return
+          
+          player.isUsingSkill = true
+          player.canMove = false
+          player.canAttack = false
+          player.energi -= 25
+          manaBar.setValue(player.energi)
+          player.superState = true
+          player.state = "skill2"
+          player.img = "shukenSkill2"
+          
+          const areaX = player.animationDirection === "right"
+            ? player.x + player.width + 20
+            : player.x - 140
+          const areaY = player.y + player.height/2
+          
+          const id = crypto.randomUUID()
+          petirArea[id] = {
+            id: id,
+            x: areaX,
+            y: areaY - 60,
+            width: 140,
+            height: 120,
+            scene: "1",
+            damage: 30,
+            lifeTime: 0.35,
+            img: "petirArea"
+          }
+          
+          player.superTimer = 0.4
+        }
+      })
+      
+      // Ultimate - Petir dari Atas
+      tombolShukenUlti = new VirtualButton({
+        text: "💜⚡",
+        bottom: 160,
+        right: 110,
+        background: "rgba(200,50,255,0.9)",
+        fontSize: 20,
+        onPress: () => {
+          if (selectedHero !== "shuken") return
+          const player = hero.shuken
+          if (player.superState) return
+          if (player.energi < 50) return
+          
+          player.isUsingSkill = true
+          player.canMove = false
+          player.canAttack = false
+          player.energi -= 50
+          manaBar.setValue(player.energi)
+          player.superState = true
+          player.state = "ulti"
+          player.img = "shukenUlti"
+          
+          const targetX = player.animationDirection === "right"
+            ? player.x + player.width + 50
+            : player.x - 150
+          
+          const id = crypto.randomUUID()
+          petirAtas[id] = {
+            id: id,
+            x: targetX,
+            y: -50,
+            width: 120,
+            height: 850,
+            scene: "1",
+            damage: 60,
+            lifeTime: 0.5,
+            img: "petirAtas",
+            isFalling: true
+          }
+          
+          player.superTimer = 0.6
+        }
+      })
+      
+      // Mulai game loop
+      startGameLoop()
+    }
+    
+    // Draw lists
+    let listDraw
+    
+    function startGameLoop() {
+      listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas]
+      listUpdateDraw = []
+      
+      listDraw.forEach(entitas => {
+        listUpdateDraw.push(new Draw(entitas, loadedTexture, renderer, physics.gameState))
+      })
+      
+      // Dialog
+      dialog = new VirtualLyrics(canvas)
+        .startX(10)
+        .startY(100)
+        .color("white")
+        .fill("ibill .....")
+        .fill("kesadaran yg engkau miliki")
+        .fill("menjadikan dirimu sebagai puncak")
+        .fill("rantai makanan")
+        .fill("tetap tenang, dan terus maju")
+      
+      // UI Text
+      text = new VirtualText({
+        text: selectedHero === "miya" ? "MIYA" : "SHUKEN",
+        color: selectedHero === "miya" ? "#00ff88" : "#aa44ff",
+        fontSize: 28,
+        padding: "2px 10px",
+        textShadow: "2px 1px 1px black",
+        top: 5,
+        left: 80
+      })
+      
+      text2 = new VirtualText({
+        text: "support development via DANA",
+        color: "white",
+        fontSize: 10,
+        padding: "2px 10px",
+        textShadow: "2px 1px 1px blue",
+        top: 5,
+        right: 5
+      })
+      
+      text3 = new VirtualText({
+        text: "0821-1602-3162",
+        color: "white",
+        fontSize: 10,
+        padding: "2px 10px",
+        textShadow: "2px 1px 1px black",
+        top: 20,
+        right: 5
+      })
+      
+      avatar = new VirtualImg({
+        src: selectedHero === "miya" ? "Avatar1.png" : "ShukenIdle1.png",
+        width: 80, height: 80,
+        top: 5, left: 5,
+        borderRadius: "50%",
+        background: "#eee",
+        border: "1px solid white"
+      })
+      
+      game.render(dt => {
+        dtGlobal = dt
+        physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas)
         
-        // Update player physics
-        if (!player.isAttacking) {
-          player.vx = moveX;
-        } else {
-          player.vx = 0;
+        dialog.play(dt)
+        
+        const activeHeroObj = selectedHero === "miya" ? hero.miya : hero.shuken
+        game.cameraOn({ active: activeHeroObj }, "active")
+        
+        for (let entitas of listUpdateDraw) {
+          entitas.update(dt, game.camera)
         }
         
-        player.x += player.vx * dt;
-        player.vy += player.gravity * dt;
-        player.y += player.vy * dt;
-        
-        // Ground collision
-        if (player.y + player.height >= groundY) {
-          player.y = groundY - player.height;
-          player.vy = 0;
-          player.onGround = true;
-        } else {
-          player.onGround = false;
-        }
-        
-        // Batas kiri-kanan
-        if (player.x < 0) player.x = 0;
-        if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-        
-        // Attack timer
-        if (player.attackTimer > 0) {
-          player.attackTimer -= dt;
-          if (player.attackTimer <= 0) {
-            player.isAttacking = false;
+        // ===== MIYA LOGIC =====
+        if (selectedHero === "miya") {
+          const miya = hero.miya
+          
+          // Animasi
+          if (miya.state === "run" && miya.canMove && !miya.superState) {
+            lariTimer += dt
+            if (lariTimer >= lariSpeed) {
+              lariTimer = 0
+              lariFrame++
+              if (lariFrame > 3) lariFrame = 1
+            }
+            miya.img = `lari${lariFrame}`
+          } else if (!miya.superState) {
+            miya.img = baseAnimasi[miya.state] || "idle"
+            lariTimer = 0
+            lariFrame = 1
+          }
+          
+          utils.timer(dt, "timeColorMiya", 0.5, () => {
+            miya.tintColor = "white"
+          })
+          
+          // GERAK
+          if (miya.canMove && !miya.superState) {
+            if (tombolKanan.press) {
+              miya.vx = 400
+            } else if (tombolKiri.press) {
+              miya.vx = -400
+            } else miya.vx = 0
+          } else {
+            miya.vx = 0
+          }
+          
+          physics.applyPhysics(dt, miya)
+          physics.platformerLogic(dt, miya)
+          miya.vy += miya.gravity * dt
+          utils.activeHurtBox(miya)
+          
+          // SUPER TIMER - Balikin status setelah skill selesai
+          if (miya.superTimer > 0) {
+            miya.superTimer -= dt
+            if (miya.superTimer <= 0) {
+              miya.superState = false
+              miya.isAttack = false
+              miya.canMove = true
+              miya.canAttack = true
+              miya.state = "idle"
+            }
+          }
+          
+          miya.energi = Math.min(miya.maxEnergi, miya.energi + 1.5 * dt)
+          manaBar.setValue(miya.energi)
+          
+          // Update panah
+          for (let id in listPanahMiya) {
+            let panah = listPanahMiya[id]
+            panah.x += panah.dir * panah.speed * dt
+            panah.y += panah.dirY * panah.speed * dt
+            panah.lifeTime -= dt
+            if (panah.lifeTime <= 0) delete listPanahMiya[panah.id]
+          }
+          
+          // Collisions
+          panahMiyaVsMonster(dt, listPanahMiya, physics)
+          miyaVsMonster(dt, hero, hpBar, physics)
+          panahMiyaVsKelomang(dt, listPanahMiya, physics)
+          miyaVsKelomang(dt, hero, hpBar, physics)
+          panahMiyaVsGuin(dt, listPanahMiya, physics)
+          
+          if (miya.vy > 3000 || miya.hp <= 0) {
+            resetGame(miya)
           }
         }
         
-        // Regen MP
-        player.mp = Math.min(player.maxMp, player.mp + 10 * dt);
-        updateUI();
-        
-        // DRAW
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Ground
-        ctx.fillStyle = "#4a6a3a";
-        ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY + 10);
-        ctx.fillStyle = "#8B5A2B";
-        ctx.fillRect(0, groundY - 10, canvas.width, 10);
-        
-        // Player
-        if (player.img && player.img.complete) {
-          ctx.drawImage(player.img, player.x, player.y, player.width, player.height);
-        } else {
-          // Fallback kotak
-          ctx.fillStyle = selectedHero === "miya" ? "#00ff88" : "#aa44ff";
-          ctx.fillRect(player.x, player.y, player.width, player.height);
-          ctx.fillStyle = "white";
-          ctx.font = "20px monospace";
-          ctx.fillText(selectedHero === "miya" ? "MIYA" : "SHUKEN", player.x + 10, player.y + 50);
+        // ===== SHUKEN LOGIC =====
+        if (selectedHero === "shuken") {
+          const shukenHero = hero.shuken
+          
+          // GERAK
+          if (shukenHero.canMove && !shukenHero.superState) {
+            if (tombolKanan.press) {
+              shukenHero.vx = shukenHero.speed
+            } else if (tombolKiri.press) {
+              shukenHero.vx = -shukenHero.speed
+            } else shukenHero.vx = 0
+          } else {
+            shukenHero.vx = 0
+          }
+          
+          physics.applyPhysics(dt, shukenHero)
+          physics.platformerLogic(dt, shukenHero)
+          shukenHero.vy += shukenHero.gravity * dt
+          utils.activeHurtBox(shukenHero)
+          
+          // Animasi lari
+          if (shukenHero.state === "run" && shukenHero.canMove && !shukenHero.superState) {
+            lariTimerShuken += dt
+            if (lariTimerShuken >= lariSpeed) {
+              lariTimerShuken = 0
+              lariFrameShuken++
+              if (lariFrameShuken > 3) lariFrameShuken = 1
+            }
+            shukenHero.img = `shukenRun${lariFrameShuken}`
+          } else if (!shukenHero.superState) {
+            if (shukenHero.state === "jump") shukenHero.img = "shukenJump"
+            else if (shukenHero.state === "fall") shukenHero.img = "shukenFall"
+            else if (shukenHero.state === "idle") shukenHero.img = "shukenIdle"
+          }
+          
+          // SUPER TIMER - Balikin status setelah skill selesai
+          if (shukenHero.superTimer > 0) {
+            shukenHero.superTimer -= dt
+            if (shukenHero.superTimer <= 0) {
+              shukenHero.superState = false
+              shukenHero.isAttacking = false
+              shukenHero.isUsingSkill = false
+              shukenHero.canMove = true
+              shukenHero.canAttack = true
+              shukenHero.state = "idle"
+            }
+          }
+          
+          // 🔥 TIDAK ADA COOLDOWN - BISA SPAM LANGSUNG
+          // (cukup regenerasi energi)
+          
+          shukenHero.energi = Math.min(shukenHero.maxEnergi, shukenHero.energi + 2 * dt)
+          manaBar.setValue(shukenHero.energi)
+          
+          // Update projectiles
+          updateBolaPetir(dt, physics)
+          updatePetirArea(dt, physics)
+          updatePetirAtas(dt, physics)
+          
+          // DAMAGE SERANGAN DASAR
+          if (shukenHero.isAttacking && shukenHero.superState) {
+            const attackX = shukenHero.animationDirection === "right"
+              ? shukenHero.x + shukenHero.width
+              : shukenHero.x - 60
+            const attackHitbox = {
+              x: attackX,
+              y: shukenHero.y + shukenHero.height/3,
+              width: 60,
+              height: 70,
+              damage: shukenHero.attackDamage,
+              scene: "1"
+            }
+            
+            physics.aabb({ temp: attackHitbox }, "buff", (hit, musuh) => {
+              musuh.hp -= shukenHero.attackDamage
+              musuh.tintColor = "purple"
+            })
+            physics.aabb({ temp: attackHitbox }, "kelomang", (hit, musuh) => {
+              musuh.hp -= shukenHero.attackDamage
+              musuh.tintColor = "purple"
+            })
+            physics.aabb({ temp: attackHitbox }, "guin", (hit, musuh) => {
+              if (musuh.aktif) musuh.hp -= shukenHero.attackDamage
+              musuh.tintColor = "purple"
+            })
+          }
+          
+          // Damage ke musuh saat terkena (bukan saat attack)
+          shukenVsMusuh(dt, hero, hpBar, physics)
+          
+          if (shukenHero.vy > 3000 || shukenHero.hp <= 0) {
+            resetGame(shukenHero)
+          }
         }
         
-        // Attack effect
-        if (player.isAttacking) {
-          ctx.fillStyle = "yellow";
-          ctx.fillRect(player.x + player.width, player.y + 20, 30, 60);
+        // ===== COMMON MONSTER LOGIC =====
+        const currentPlayer = selectedHero === "miya" ? hero.miya : hero.shuken
+        
+        for (let id in buff) {
+          const monster = buff[id]
+          logikaMonsterJungler(dt, currentPlayer, monster, physics)
+          hpMonster(dt, monster, game.camera, renderer)
         }
         
-        // Debug text
-        ctx.fillStyle = "white";
-        ctx.font = "14px monospace";
-        ctx.fillText(`X: ${Math.floor(player.x)} | Ground: ${player.onGround}`, 10, 50);
+        logikaKelomang(dt, currentPlayer, physics)
+        updateBulletKelomang(dt, physics)
+        Object.values(kelomang).forEach(el => hpKelomang(dt, el, game.camera, renderer))
+        Object.values(guin).forEach(el => hpGuin(dt, el, game.camera, renderer))
         
-        requestAnimationFrame(gameLoop);
-      }
-      
-      lastTime = performance.now();
-      requestAnimationFrame(gameLoop);
+        anakKelomangVsMiya(dt, hero, hpBar, physics)
+        logikaGuinevere(dt, hero, hpBar, physics, utils)
+        updatePeluruGuin(dt)
+        peluruGuinVsMiya(dt, hero, hpBar, physics)
+        
+        miyaMengambilItem(hero, physics)
+        miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
+      })
     }
     
-    // START
-    loadImages();
+    function resetGame(playerObj) {
+      Object.values(tembok).forEach(wl => {
+        if (wl.img === "gerbang") wl.scene = "1"
+      })
+      Object.values({...kelomang, ...buff, ...guin}).forEach(el => {
+        el.x = el.originalX
+        el.y = el.originalY
+        el.hp = el.originalHp
+        el.scene = "1"
+        el.isChase = false
+        el.isDead = false
+        el.vx = 0
+      })
+      playerObj.vy = 0
+      playerObj.x = 0
+      playerObj.y = 0
+      playerObj.hp = playerObj.maxHp
+      playerObj.energi = playerObj.maxEnergi
+      playerObj.superState = false
+      playerObj.superTimer = 0
+      playerObj.canMove = true
+      playerObj.canAttack = true
+      playerObj.isAttacking = false
+      playerObj.isUsingSkill = false
+      hpBar.setValue(playerObj.hp)
+      manaBar.setValue(playerObj.energi)
+    }
+    
+    // Mulai loading assets, setelah selesai tampilkan pilih karakter
+    (async () => {
+      const aset = new Aset(gl, listImg)
+      loadedTexture = await aset.load()
+      loadingDiv.style.display = "none"
+      selectScreen.style.display = "flex"
+    })()
   </script>
 </body>
 </html>

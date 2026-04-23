@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>ibill vs mosnyer - Pilih Karakter</title>
+  <title>ibill vs mosnyer - Shuken ⚡</title>
   <style>
     * {
       margin: 0;
@@ -29,7 +29,47 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, #1a2a4a 0%, #2a1a3a 100%);
+      background: linear-gradient(180deg, #1a2a4a 0%, #2a1a3a 100%;
+    }
+    
+    /* ===== LAYAR PERINGATAN LANDSCAPE ===== */
+    #landscapeWarning {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0a0a2a;
+      z-index: 20000;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      color: white;
+      text-align: center;
+      gap: 30px;
+    }
+    
+    #landscapeWarning .rotate-icon {
+      font-size: 80px;
+      animation: rotate 1.5s ease infinite;
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(90deg); }
+      100% { transform: rotate(90deg); }
+    }
+    
+    #landscapeWarning p {
+      font-size: 24px;
+      max-width: 80%;
+    }
+    
+    #landscapeWarning small {
+      font-size: 16px;
+      color: #aa88ff;
     }
     
     #loading {
@@ -81,26 +121,26 @@
     
     #characterSelect h1 {
       color: #ffcc00;
-      font-size: clamp(28px, 6vw, 48px);
+      font-size: clamp(28px, 5vw, 48px);
       text-shadow: 0 0 20px #ff6600;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
       letter-spacing: 5px;
     }
     
     .char-container {
       display: flex;
-      gap: 40px;
+      gap: 60px;
       justify-content: center;
       flex-wrap: wrap;
       padding: 20px;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
     
     .char-card {
-      width: 300px;
-      padding: 25px;
+      width: 350px;
+      padding: 30px;
       background: rgba(0,0,0,0.6);
-      border-radius: 20px;
+      border-radius: 25px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -120,33 +160,29 @@
     }
     
     .char-name {
-      font-size: 36px;
+      font-size: 42px;
       font-weight: bold;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
     
     .char-name.miya { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
     .char-name.shuken { color: #aa44ff; text-shadow: 0 0 10px #aa44ff; }
     
     .char-stats {
-      font-size: 14px;
+      font-size: 16px;
       color: #ccc;
       text-align: left;
       margin-top: 15px;
-      padding: 12px;
+      padding: 15px;
       background: rgba(0,0,0,0.5);
-      border-radius: 10px;
-      line-height: 1.6;
-    }
-    
-    .char-stats span {
-      color: #ffcc00;
+      border-radius: 12px;
+      line-height: 1.8;
     }
     
     .btn-start {
-      margin-top: 20px;
-      padding: 14px 55px;
-      font-size: 26px;
+      margin-top: 30px;
+      padding: 16px 60px;
+      font-size: 28px;
       font-weight: bold;
       background: linear-gradient(135deg, #ff6600, #ffcc00);
       border: none;
@@ -170,21 +206,7 @@
       box-shadow: none;
     }
     
-    @media (max-width: 700px) {
-      .char-card { width: 260px; padding: 18px; }
-      .char-name { font-size: 28px; }
-      .char-stats { font-size: 12px; }
-      .btn-start { padding: 12px 45px; font-size: 22px; margin-top: 15px; }
-      .char-container { gap: 25px; margin-bottom: 20px; }
-    }
-    
-    @media (max-width: 550px) {
-      .char-card { width: 220px; padding: 15px; }
-      .char-name { font-size: 24px; }
-      .btn-start { padding: 10px 35px; font-size: 20px; }
-    }
-    
-    /* ===== UI GAME (Analog + Tombol) ===== */
+    /* ===== UI GAME (Analog + Tombol) - DIPERBESAR ===== */
     .game-ui {
       position: fixed;
       bottom: 20px;
@@ -194,14 +216,14 @@
       pointer-events: none;
     }
     
-    /* Analog Stick */
+    /* Analog Stick - Lebih Besar */
     .analog-container {
       position: fixed;
       bottom: 30px;
       left: 30px;
-      width: 140px;
-      height: 140px;
-      border-radius: 70px;
+      width: 160px;
+      height: 160px;
+      border-radius: 80px;
       background: rgba(30,30,60,0.5);
       backdrop-filter: blur(8px);
       border: 2px solid rgba(255,255,255,0.3);
@@ -214,9 +236,9 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 120px;
-      height: 120px;
-      border-radius: 60px;
+      width: 140px;
+      height: 140px;
+      border-radius: 70px;
       background: rgba(0,0,0,0.4);
       border: 2px solid #888;
     }
@@ -226,39 +248,39 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 55px;
-      height: 55px;
-      border-radius: 27px;
-      background: rgba(200,200,255,0.8);
+      width: 65px;
+      height: 65px;
+      border-radius: 32px;
+      background: rgba(200,200,255,0.9);
       border: 2px solid white;
       transition: transform 0.05s ease;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
     
-    /* Tombol Kanan Bawah */
+    /* Tombol Kanan Bawah - Lebih Besar */
     .buttons-container {
       position: fixed;
       bottom: 30px;
       right: 20px;
       display: flex;
-      gap: 15px;
+      gap: 18px;
       pointer-events: auto;
       flex-wrap: wrap;
       justify-content: flex-end;
-      max-width: 300px;
+      max-width: 360px;
     }
     
     .game-btn {
-      width: 75px;
-      height: 75px;
-      border-radius: 37px;
+      width: 85px;
+      height: 85px;
+      border-radius: 42px;
       background: rgba(50,50,100,0.8);
       backdrop-filter: blur(8px);
       border: 2px solid rgba(255,255,255,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
+      font-size: 34px;
       font-weight: bold;
       color: white;
       cursor: pointer;
@@ -290,7 +312,7 @@
     .btn-ulti {
       background: rgba(200,50,255,0.9);
       border-color: #ff88ff;
-      font-size: 24px;
+      font-size: 26px;
     }
     
     .btn-attack {
@@ -306,15 +328,15 @@
       right: 15px;
       background: rgba(0,0,0,0.5);
       border-radius: 12px;
-      padding: 10px 15px;
+      padding: 12px 18px;
       z-index: 100;
       backdrop-filter: blur(4px);
     }
     
     .hp-bar-bg {
-      height: 22px;
+      height: 26px;
       background: #333;
-      border-radius: 11px;
+      border-radius: 13px;
       overflow: hidden;
     }
     
@@ -322,23 +344,23 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(90deg, #ff4444, #ff8888);
-      border-radius: 11px;
+      border-radius: 13px;
       transition: width 0.2s ease;
     }
     
     .mp-bar-bg {
-      height: 14px;
+      height: 16px;
       background: #333;
-      border-radius: 7px;
+      border-radius: 8px;
       overflow: hidden;
-      margin-top: 8px;
+      margin-top: 10px;
     }
     
     .mp-bar-fill {
       width: 100%;
       height: 100%;
       background: linear-gradient(90deg, #44ff44, #aaffaa);
-      border-radius: 7px;
+      border-radius: 8px;
       transition: width 0.2s ease;
     }
     
@@ -347,35 +369,47 @@
       top: 15px;
       right: 15px;
       color: white;
-      font-size: 14px;
+      font-size: 16px;
       font-family: monospace;
       background: rgba(0,0,0,0.5);
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 8px 15px;
+      border-radius: 10px;
       z-index: 100;
       font-weight: bold;
     }
     
-    @media (max-width: 700px) {
-      .game-btn { width: 65px; height: 65px; font-size: 26px; }
-      .btn-ulti { font-size: 20px; }
-      .buttons-container { gap: 12px; max-width: 260px; }
-      .analog-container { width: 120px; height: 120px; bottom: 25px; left: 25px; }
-      .analog-base { width: 100px; height: 100px; }
-      .analog-stick { width: 48px; height: 48px; }
+    @media (max-width: 800px) {
+      .game-btn { width: 75px; height: 75px; font-size: 30px; }
+      .btn-ulti { font-size: 24px; }
+      .buttons-container { gap: 15px; max-width: 320px; }
+      .analog-container { width: 140px; height: 140px; }
+      .analog-base { width: 120px; height: 120px; }
+      .analog-stick { width: 58px; height: 58px; }
+      .char-card { width: 300px; padding: 25px; }
+      .char-name { font-size: 36px; }
     }
     
-    @media (max-width: 550px) {
-      .game-btn { width: 58px; height: 58px; font-size: 22px; }
-      .btn-ulti { font-size: 18px; }
-      .buttons-container { gap: 10px; max-width: 230px; }
-      .hp-bar-container { padding: 6px 12px; }
-      .hp-bar-bg { height: 18px; }
-      .mp-bar-bg { height: 10px; }
+    @media (max-width: 650px) {
+      .game-btn { width: 68px; height: 68px; font-size: 26px; }
+      .btn-ulti { font-size: 20px; }
+      .buttons-container { gap: 12px; max-width: 280px; }
+      .analog-container { width: 125px; height: 125px; bottom: 25px; left: 25px; }
+      .analog-base { width: 105px; height: 105px; }
+      .analog-stick { width: 52px; height: 52px; }
+      .hp-bar-bg { height: 22px; }
+      .mp-bar-bg { height: 12px; }
     }
   </style>
 </head>
 <body>
+  <!-- LAYAR PERINGATAN LANDSCAPE -->
+  <div id="landscapeWarning">
+    <div class="rotate-icon">📱 ↔️ 🎮</div>
+    <p>⚠️ PUTAR HP KE LANDSCAPE ⚠️</p>
+    <p>Mainkan game dalam posisi <b>HORIZONTAL</b> untuk pengalaman terbaik</p>
+    <small>Rotate your device to landscape mode</small>
+  </div>
+  
   <div id="loading">
     <div class="loading-spinner"></div>
     <div>⚡ Loading Shuken... ⚡</div>
@@ -385,7 +419,6 @@
   <div id="characterSelect">
     <h1>⚔️ PILIH KARAKTER ⚔️</h1>
     <div class="char-container">
-      <!-- MIYA CARD -->
       <div class="char-card" data-hero="miya" id="cardMiya">
         <div class="char-name miya">MIYA</div>
         <div class="char-stats">
@@ -395,8 +428,6 @@
           ⚡ Panah Jarak Jauh
         </div>
       </div>
-      
-      <!-- SHUKEN CARD -->
       <div class="char-card" data-hero="shuken" id="cardShuken">
         <div class="char-name shuken">SHUKEN</div>
         <div class="char-stats">
@@ -418,7 +449,6 @@
       <div class="analog-base"></div>
       <div class="analog-stick" id="analogStick"></div>
     </div>
-    
     <div class="buttons-container">
       <div class="game-btn btn-attack" id="btnAttack">👊</div>
       <div class="game-btn btn-skill1" id="btnSkill1">⚡</div>
@@ -429,12 +459,8 @@
   </div>
   
   <div class="hp-bar-container" id="hpBarContainer" style="display: none;">
-    <div class="hp-bar-bg">
-      <div class="hp-bar-fill" id="hpFill" style="width: 100%"></div>
-    </div>
-    <div class="mp-bar-bg">
-      <div class="mp-bar-fill" id="mpFill" style="width: 100%"></div>
-    </div>
+    <div class="hp-bar-bg"><div class="hp-bar-fill" id="hpFill" style="width: 100%"></div></div>
+    <div class="mp-bar-bg"><div class="mp-bar-fill" id="mpFill" style="width: 100%"></div></div>
   </div>
   <div class="stats-text" id="statsText" style="display: none;">⚡ SHUKEN</div>
   
@@ -448,6 +474,33 @@
   <script src="./shuken.js"></script>
   
   <script>
+    // ===== CEK ORIENTASI LANDSCAPE =====
+    const landscapeWarning = document.getElementById("landscapeWarning")
+    
+    function checkOrientation() {
+      if (window.innerHeight > window.innerWidth) {
+        // PORTRAIT - tampilkan peringatan
+        landscapeWarning.style.display = "flex"
+        document.body.style.overflow = "hidden"
+        return false
+      } else {
+        // LANDSCAPE - sembunyikan peringatan
+        landscapeWarning.style.display = "none"
+        document.body.style.overflow = "auto"
+        return true
+      }
+    }
+    
+    window.addEventListener("resize", () => {
+      if (checkOrientation()) {
+        // Jika sudah landscape dan game belum mulai, lanjutkan
+        if (selectScreen.style.display === "none" && !gameStarted) {
+          // Game sudah jalan, lanjutkan
+        }
+      }
+      resizeCanvas()
+    })
+    
     const canvas = document.getElementById("canvas")
     const game = new GameLoop(canvas)
     const gl = game.gl
@@ -471,7 +524,8 @@
     let selectedHero = null
     let analogX = 0, analogY = 0
     let isTouchingAnalog = false
-    const analogMaxDist = 45
+    const analogMaxDist = 55
+    let gameStarted = false
     
     const listImg = {
       idle: { path: "Diam1.png" }, lari1: { path: "Lari1.png" }, lari2: { path: "Lari2.png" }, lari3: { path: "Lari3.png" },
@@ -488,23 +542,24 @@
       bolaPetir: { path: "BolaPetir1.png" }, petirArea: { path: "PetirArea1.png" }, petirAtas: { path: "PetirAtas1.png" }
     }
     
+    // ===== KARAKTER DIPERBESAR =====
     const hero = {
       miya: {
-        x: 0, y: -800, width: 150, height: 150, hp: 150, maxHp: 150,
+        x: 0, y: -800, width: 180, height: 180, hp: 150, maxHp: 150,
         energi: 100, maxEnergi: 100, gravity: 2000, jumpPower: 700,
-        useCollider: true, colliderBox: { width: 70, height: 120 },
-        useHurtBox: true, hurtBox: { x: 0, y: 0, width: 70, height: 140 },
+        useCollider: true, colliderBox: { width: 85, height: 140 },
+        useHurtBox: true, hurtBox: { x: 0, y: 0, width: 85, height: 160 },
         vx: 0, vy: 0, scene: "1", isAttack: false, superState: false, superTimer: 0,
         state: "idle", img: "idle", animationDirection: "right",
         statusItem: "", durasiItem: 0, tintColor: "white",
         currentHero: null, canMove: true, canAttack: true
       },
       shuken: {
-        x: 0, y: -800, width: 160, height: 170, hp: 120, maxHp: 120,
+        x: 0, y: -800, width: 190, height: 200, hp: 120, maxHp: 120,
         energi: 100, maxEnergi: 100, gravity: 2000, jumpPower: 680,
         speed: 550, attackDamage: 35,
-        useCollider: true, colliderBox: { width: 75, height: 130 },
-        useHurtBox: true, hurtBox: { x: 0, y: 0, width: 75, height: 150 },
+        useCollider: true, colliderBox: { width: 90, height: 150 },
+        useHurtBox: true, hurtBox: { x: 0, y: 0, width: 90, height: 170 },
         vx: 0, vy: 0, scene: "1", isAttacking: false, isUsingSkill: false,
         superState: false, superTimer: 0, state: "idle", img: "shukenIdle",
         animationDirection: "right", tintColor: "white", currentHero: null,
@@ -580,6 +635,10 @@
     
     btnStart.onclick = () => {
       if (!selectedHero) return
+      if (!checkOrientation()) {
+        alert("📱 Harap putar HP ke mode LANDSCAPE / HORIZONTAL!")
+        return
+      }
       selectScreen.style.display = "none"
       startGameAfterLoad()
     }
@@ -602,6 +661,7 @@
       
       updateUI()
       initGame()
+      gameStarted = true
     }
     
     function updateUI() {
@@ -630,7 +690,7 @@
           miya.energi -= 5; miya.superState = true; miya.state = "panah"
           updateUI()
           const id = crypto.randomUUID()
-          listPanahMiya[id] = { id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3, width: 40, height: 40, scene: "1", dir: miya.animationDirection === "right" ? 1 : -1, dirY: 0, speed: 500, lifeTime: 3, img: "panahMisil" }
+          listPanahMiya[id] = { id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3, width: 45, height: 45, scene: "1", dir: miya.animationDirection === "right" ? 1 : -1, dirY: 0, speed: 500, lifeTime: 3, img: "panahMisil" }
           miya.superTimer = 0.25
         }
         btnSkill1.style.display = "none"
@@ -653,7 +713,7 @@
           player.energi -= 12; player.superState = true; player.state = "skill1"; player.img = "shukenSkill1"
           updateUI()
           const id = crypto.randomUUID()
-          bolaPetir[id] = { id, x: player.x + player.width/2 - 20, y: player.y + player.height/3, width: 45, height: 45, scene: "1", dir: player.animationDirection === "right" ? 1 : -1, speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir" }
+          bolaPetir[id] = { id, x: player.x + player.width/2 - 20, y: player.y + player.height/3, width: 50, height: 50, scene: "1", dir: player.animationDirection === "right" ? 1 : -1, speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir" }
           player.superTimer = 0.35
         }
         btnSkill2.onclick = () => {
@@ -663,9 +723,9 @@
           player.isUsingSkill = true; player.canMove = false; player.canAttack = false
           player.energi -= 25; player.superState = true; player.state = "skill2"; player.img = "shukenSkill2"
           updateUI()
-          const areaX = player.animationDirection === "right" ? player.x + player.width + 20 : player.x - 140
+          const areaX = player.animationDirection === "right" ? player.x + player.width + 25 : player.x - 155
           const id = crypto.randomUUID()
-          petirArea[id] = { id, x: areaX, y: player.y + player.height/2 - 60, width: 140, height: 120, scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea" }
+          petirArea[id] = { id, x: areaX, y: player.y + player.height/2 - 70, width: 160, height: 140, scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea" }
           player.superTimer = 0.4
         }
         btnUlti.onclick = () => {
@@ -675,9 +735,9 @@
           player.isUsingSkill = true; player.canMove = false; player.canAttack = false
           player.energi -= 50; player.superState = true; player.state = "ulti"; player.img = "shukenUlti"
           updateUI()
-          const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
+          const targetX = player.animationDirection === "right" ? player.x + player.width + 60 : player.x - 170
           const id = crypto.randomUUID()
-          petirAtas[id] = { id, x: targetX, y: -50, width: 120, height: 900, scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas" }
+          petirAtas[id] = { id, x: targetX, y: -50, width: 140, height: 950, scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas" }
           player.superTimer = 0.6
         }
         btnSkill1.style.display = "flex"
@@ -742,8 +802,8 @@
           shuken.energi = Math.min(shuken.maxEnergi, shuken.energi + 2 * dt)
           updateBolaPetir(dt, physics); updatePetirArea(dt, physics); updatePetirAtas(dt, physics)
           if (shuken.isAttacking && shuken.superState) {
-            const attackX = shuken.animationDirection === "right" ? shuken.x + shuken.width : shuken.x - 60
-            const attackHitbox = { x: attackX, y: shuken.y + shuken.height/3, width: 60, height: 70, damage: shuken.attackDamage, scene: "1" }
+            const attackX = shuken.animationDirection === "right" ? shuken.x + shuken.width : shuken.x - 70
+            const attackHitbox = { x: attackX, y: shuken.y + shuken.height/3, width: 70, height: 80, damage: shuken.attackDamage, scene: "1" }
             physics.aabb({ temp: attackHitbox }, "buff", (hit, musuh) => { musuh.hp -= shuken.attackDamage; musuh.tintColor = "purple" })
             physics.aabb({ temp: attackHitbox }, "kelomang", (hit, musuh) => { musuh.hp -= shuken.attackDamage; musuh.tintColor = "purple" })
             physics.aabb({ temp: attackHitbox }, "guin", (hit, musuh) => { if (musuh.aktif) musuh.hp -= shuken.attackDamage; musuh.tintColor = "purple" })
@@ -773,6 +833,10 @@
       updateUI()
     }
     
+    // CEK ORIENTASI AWAL
+    checkOrientation()
+    
+    // LOAD ASSETS
     (async () => { const aset = new Aset(gl, listImg); loadedTexture = await aset.load(); loadingDiv.style.display = "none"; selectScreen.style.display = "flex" })()
   </script>
 </body>

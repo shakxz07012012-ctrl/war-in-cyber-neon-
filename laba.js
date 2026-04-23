@@ -7,7 +7,6 @@ class Guinevere extends AI_Behaviour {
         if (dis < 250) {
             return "faseA";
         }
-
         return "faseA";
     }
     getPatterns() {
@@ -32,15 +31,28 @@ class Guinevere extends AI_Behaviour {
     }
 }
 
+// Inisialisasi properti untuk setiap guin
 Object.values(guin).forEach(el => {
     el.guin_AI = new Guinevere(el);
+    // Inisialisasi properti yang hilang
+    el.useCollider = true;
+    el.colliderBox = { width: 50, height: 60 };
+    el.gravity = 2000;
+    el.vx = 0;
+    el.vy = 0;
+    el.tintColor = "white";
+    el.hpVisual = el.hp;
+    el.aktif = false;
+    el.playDialog2 = false;
+    el.state = "diam";
+    el.animationDirection = "right";
 });
 
 //kita buat supaya guin bisa nembak2
-
 const peluruGuin = {};
 for (let i = 0; i < 10; i++) {
     peluruGuin[i] = {
+        id: i,
         x: 0,
         y: 0,
         width: 20,
@@ -49,7 +61,9 @@ for (let i = 0; i < 10; i++) {
         type: "peluruGuin",
         img: "bolaGuin",
         vy: 0,
-        vx: 0
+        vx: 0,
+        dir: 1,
+        lifeTime: 0
     };
 }
 
@@ -60,6 +74,7 @@ const dialog2 = new VirtualLyrics(canvas)
     .fill("Kalah kan monster")
     .fill("LABA - LABA")
     .fill("untuk membuka pintu di depan")
+    
 const dialog3 = new VirtualLyrics(canvas)
     .startX(10)
     .startY(90)
@@ -72,25 +87,24 @@ const dialog3 = new VirtualLyrics(canvas)
     .fill("dibalik permaianan ini")
     .fill("sampai ketemu lagi SIAKA....")
 
+// Timer untuk shoot
+let shootTimer = 0;
 
 function logikaGuinevere(dt, hero, hpBar, physics, utils) {
     const miya = hero.miya;
 
     Object.values(guin).forEach(el => {
+        // Cek scene
+        if(el.scene !== miya.scene) return;
+        
         const dx = miya.x - el.x;
         const dis = Math.abs(dx);
-        /*const dxOri = el.originalX - el.x;
-        const disOri = Math.abs(dxOri);
-        if(disOri<500){
-          el.x += dx * dt
-          return
-        }*/
         
         el.img = "guinDiam";
         if (dis < 500) {
             el.playDialog2 = true
         }
-        if(el.playDialog2)dialog2.play(dt);
+        if(el.playDialog2) dialog2.play(dt);
         if (dis < 300) el.aktif = true;
         if (!el.aktif) return;
         
@@ -101,29 +115,25 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
 
         if (el.hp < 1) {
           Object.values(tembok).forEach(wl=>{
-            if(wl.img === "gerbang")wl.scene = "inactive"
+            if(wl.img === "gerbang") wl.scene = "inactive"
           })
           dialog3.play(dt)
-            el.scene = "inactive";
+          el.scene = "inactive";
+          return;
         }
+        
         if (el.scene === "inactive") return;
-        //kita pakai fitur bawaan adiva engine. sudah ku upload di github kalau mau mempelajari.
-        el.useCollider ??= true;
-        el.colliderBox ??= { width: 50, height: 60 };
-        el.gravity ??= 2000;
-        el.vx ??= 0;
-        el.vy ??= 0;
-
+        
         physics.applyPhysics(dt, el);
         el.vy += el.gravity * dt;
 
-        //kita atur ai nya disini
-        //el.state ini berubah ubah karena class Guinevere extends AI_Brhaviour
+        // Atur AI
         switch (el.state) {
             case "nembak":
                 el.vx = 0;
                 el.img = "guinShoot";
-                utils.timer(dt, "timeShoot", 0.1, () => {
+                if(shootTimer <= 0) {
+                    shootTimer = 0.1;
                     for (let pel of Object.values(peluruGuin)) {
                         if (pel.scene === "inactive") {
                             pel.scene = "1";
@@ -131,17 +141,19 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
                             pel.x = el.x + el.width / 2;
                             pel.y = el.y + el.height / 3;
                             pel.animationDirection = el.animationDirection;
-                            pel.dir =
-                                el.animationDirection === "right" ? 1 : -1;
+                            pel.dir = el.animationDirection === "right" ? 1 : -1;
+                            pel.vy = 0;
                             break;
                         }
                     }
-                });
+                }
+                shootTimer -= dt;
                 break;
             case "nembak2":
                 el.vx = 0;
                 el.img = "guinShoot";
-                utils.timer(dt, "timeShoot", 0.1, () => {
+                if(shootTimer <= 0) {
+                    shootTimer = 0.1;
                     el.vy = -350;
                     for (let pel of Object.values(peluruGuin)) {
                         if (pel.scene === "inactive") {
@@ -150,17 +162,19 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
                             pel.x = el.x + el.width / 2;
                             pel.y = el.y + el.height / 3;
                             pel.animationDirection = el.animationDirection;
-                            pel.dir =
-                                el.animationDirection === "right" ? 1 : -1;
+                            pel.dir = el.animationDirection === "right" ? 1 : -1;
+                            pel.vy = 0;
                             break;
                         }
                     }
-                });
+                }
+                shootTimer -= dt;
                 break;
             case "nembak3":
                 el.vx = 0;
                 el.img = "guinShoot";
-                utils.timer(dt, "timeShoot", 0.1, () => {
+                if(shootTimer <= 0) {
+                    shootTimer = 0.1;
                     for (let pel of Object.values(peluruGuin)) {
                         if (pel.scene === "inactive") {
                             pel.scene = "1";
@@ -169,12 +183,12 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
                             pel.y = el.y + el.height / 3;
                             pel.vy = utils.rand(-300, 300);
                             pel.animationDirection = el.animationDirection;
-                            pel.dir =
-                                el.animationDirection === "right" ? 1 : -1;
+                            pel.dir = el.animationDirection === "right" ? 1 : -1;
                             break;
                         }
                     }
-                });
+                }
+                shootTimer -= dt;
                 break;
             case "kejar":
                 if (dis > 60) {
@@ -182,7 +196,11 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
                         el.vx = 200;
                     } else if (dx < -5) {
                         el.vx = -200;
+                    } else {
+                        el.vx = 0;
                     }
+                } else {
+                    el.vx = 0;
                 }
                 el.img = "guinLari";
                 break;
@@ -192,6 +210,8 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
                         el.vx = 90;
                     } else if (dx < -5) {
                         el.vx = -90;
+                    } else {
+                        el.vx = 0;
                     }
                 }
                 el.img = "guinLompat";
@@ -203,6 +223,8 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
                         el.vx = -200;
                     } else if (dx < -5) {
                         el.vx = 200;
+                    } else {
+                        el.vx = 0;
                     }
                 }
                 el.img = "guinLari";
@@ -219,9 +241,11 @@ function logikaGuinevere(dt, hero, hpBar, physics, utils) {
     });
 
     physics.aabb(hero, "guin", (g1, g2) => {
-        g1.hp--;
+        if(g2.scene === "inactive" || !g2.aktif) return;
+        g1.hp -= GAME_CONFIG.GUIN_ATTACK_DAMAGE;
         hpBar.setValue(g1.hp);
         g2.img = "guinUlti";
+        g1.tintColor = "red";
     });
 }
 
@@ -238,19 +262,19 @@ function updatePeluruGuin(dt) {
 
 function hpGuin(dt, monster, camera, renderer) {
     if (monster.hp <= 0) return;
-    monster.hpVisual ??= monster.hp;
+    monster.hpVisual = monster.hpVisual || monster.hp;
     monster.hpVisual -= (monster.hpVisual - monster.hp) * 5 * dt;
 
     renderer.fillRect(
         monster.x - camera.x,
-        monster.y - camera.y,
+        monster.y - camera.y - 10,
         monster.hpVisual,
         8,
         "maroon"
     );
     renderer.fillRect(
         monster.x - camera.x,
-        monster.y - camera.y,
+        monster.y - camera.y - 10,
         monster.hp,
         8,
         "red"
@@ -261,14 +285,16 @@ function panahMiyaVsGuin(dt, panah, physics) {
     physics.aabb(panah, "guin", (g1, g2) => {
         if (g2.img === "guinDiam") return;
         if (!g2.aktif) return;
+        if (g2.scene === "inactive") return;
         g2.hp -= 2;
         g2.tintColor = "red";
         delete panah[g1.id];
     });
 }
+
 function peluruGuinVsMiya(dt, hero, hpBar, physics) {
     physics.aabb(hero, "peluruGuin", (g1, g2) => {
-        g1.hp -= 10;
+        g1.hp -= GAME_CONFIG.GUIN_DAMAGE;
         hpBar.setValue(g1.hp);
         g1.tintColor = "red";
         g2.scene = "inactive";

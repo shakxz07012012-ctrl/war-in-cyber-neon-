@@ -8,12 +8,26 @@
   <style>
     * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
+    body {
+      background: #0a0a1a;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
     canvas {
       display: block;
-      background: #2a1a3a;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #1a2a4a 0%, #2a1a3a 100%);
     }
     #loading {
       position: fixed;
@@ -21,7 +35,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: #1a0a2a;
+      background: #0a0a2a;
       color: #aa88ff;
       display: flex;
       justify-content: center;
@@ -33,8 +47,8 @@
       gap: 20px;
     }
     .loading-spinner {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       border: 5px solid #aa88ff;
       border-top-color: #ffcc00;
       border-radius: 50%;
@@ -44,7 +58,7 @@
       to { transform: rotate(360deg); }
     }
     
-    /* ===== LAYAR PEMILIHAN KARAKTER ===== */
+    /* LAYAR PEMILIHAN KARAKTER */
     #characterSelect {
       position: fixed;
       top: 0;
@@ -62,23 +76,24 @@
     
     #characterSelect h1 {
       color: #ffcc00;
-      font-size: 48px;
+      font-size: 42px;
       text-shadow: 0 0 20px #ff6600;
-      margin-bottom: 50px;
+      margin-bottom: 30px;
       letter-spacing: 5px;
     }
     
     .char-container {
       display: flex;
-      gap: 50px;
+      gap: 40px;
       justify-content: center;
       flex-wrap: wrap;
       padding: 20px;
+      margin-bottom: 30px;
     }
     
     .char-card {
       width: 280px;
-      padding: 20px;
+      padding: 25px;
       background: rgba(0,0,0,0.6);
       border-radius: 20px;
       text-align: center;
@@ -100,12 +115,14 @@
     }
     
     .char-avatar {
-      width: 150px;
-      height: 150px;
-      margin: 0 auto 20px;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 15px;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
+      border-radius: 60px;
+      background-color: rgba(255,255,255,0.1);
     }
     
     .char-avatar.miya {
@@ -117,7 +134,7 @@
     }
     
     .char-name {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: bold;
       margin-bottom: 10px;
     }
@@ -126,22 +143,20 @@
     .char-name.shuken { color: #aa44ff; text-shadow: 0 0 10px #aa44ff; }
     
     .char-stats {
-      font-size: 14px;
+      font-size: 13px;
       color: #ccc;
       text-align: left;
       margin-top: 15px;
-      padding: 10px;
+      padding: 12px;
       background: rgba(0,0,0,0.5);
       border-radius: 10px;
-    }
-    
-    .char-stats span {
-      color: #ffcc00;
+      line-height: 1.6;
     }
     
     .btn-start {
-      margin-top: 40px;
-      padding: 15px 50px;
+      margin-top: 20px;
+      margin-bottom: 40px;
+      padding: 14px 55px;
       font-size: 24px;
       font-weight: bold;
       background: linear-gradient(135deg, #ff6600, #ffcc00);
@@ -151,10 +166,11 @@
       transition: all 0.3s ease;
       font-family: monospace;
       color: #1a0a2a;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     }
     
     .btn-start:hover {
-      transform: scale(1.1);
+      transform: scale(1.05);
       box-shadow: 0 0 30px #ffcc00;
     }
     
@@ -164,11 +180,156 @@
       cursor: not-allowed;
     }
     
-    @media (max-width: 700px) {
-      .char-container { gap: 25px; }
-      .char-card { width: 250px; padding: 15px; }
-      .char-name { font-size: 30px; }
-      .char-stats { font-size: 12px; }
+    @media (max-width: 650px) {
+      .char-card { width: 240px; padding: 15px; }
+      .char-name { font-size: 26px; }
+      .char-stats { font-size: 11px; }
+      .btn-start { padding: 12px 45px; font-size: 20px; }
+    }
+    
+    /* UI Game - Tombol Analog dan Skill */
+    .game-ui {
+      position: fixed;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    
+    .analog-container {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 130px;
+      height: 130px;
+      border-radius: 65px;
+      background: rgba(30,30,60,0.5);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255,255,255,0.3);
+      pointer-events: auto;
+      touch-action: none;
+    }
+    
+    .analog-base {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 110px;
+      height: 110px;
+      border-radius: 55px;
+      background: rgba(0,0,0,0.4);
+      border: 2px solid #888;
+    }
+    
+    .analog-stick {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+      background: rgba(200,200,255,0.9);
+      border: 2px solid white;
+      transition: transform 0.05s ease;
+    }
+    
+    .buttons-container {
+      position: fixed;
+      bottom: 30px;
+      right: 20px;
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    
+    .game-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 35px;
+      background: rgba(50,50,100,0.8);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.05s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .game-btn:active {
+      transform: scale(0.92);
+    }
+    
+    .btn-jump { background: rgba(0,150,100,0.8); border-color: #00ffaa; }
+    .btn-skill1 { background: rgba(100,50,200,0.8); border-color: #aa44ff; }
+    .btn-skill2 { background: rgba(150,50,200,0.8); border-color: #dd77ff; }
+    .btn-ulti { background: rgba(200,50,255,0.9); border-color: #ff88ff; font-size: 22px; }
+    .btn-attack { background: rgba(200,100,50,0.8); border-color: #ffaa66; }
+    
+    .hp-bar-container {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 10px;
+      padding: 8px 15px;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+    
+    .hp-bar-bg {
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .hp-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff4444, #ff8888);
+      border-radius: 10px;
+      transition: width 0.2s ease;
+    }
+    
+    .mp-bar-bg {
+      height: 10px;
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    
+    .mp-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #44ff44, #aaffaa);
+      border-radius: 5px;
+      transition: width 0.2s ease;
+    }
+    
+    .stats-text {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      color: white;
+      font-size: 14px;
+      font-family: monospace;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 12px;
+      border-radius: 8px;
+      z-index: 100;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -207,6 +368,26 @@
   
   <canvas id="canvas"></canvas>
   
+  <div class="game-ui" id="gameUI" style="display: none;">
+    <div class="analog-container" id="analogContainer">
+      <div class="analog-base"></div>
+      <div class="analog-stick" id="analogStick"></div>
+    </div>
+    <div class="buttons-container">
+      <div class="game-btn btn-attack" id="btnAttack">👊</div>
+      <div class="game-btn btn-skill1" id="btnSkill1">⚡</div>
+      <div class="game-btn btn-skill2" id="btnSkill2">🌩️</div>
+      <div class="game-btn btn-jump" id="btnJump">↑</div>
+      <div class="game-btn btn-ulti" id="btnUlti">💜⚡</div>
+    </div>
+  </div>
+  
+  <div class="hp-bar-container" id="hpBarContainer" style="display: none;">
+    <div class="hp-bar-bg"><div class="hp-bar-fill" id="hpFill"></div></div>
+    <div class="mp-bar-bg"><div class="mp-bar-fill" id="mpFill"></div></div>
+  </div>
+  <div class="stats-text" id="statsText" style="display: none;">⚡ SHUKEN</div>
+  
   <script src="AdivaClient.js"></script>
   <script src="AdivaServer.js"></script>
   <script src="./data.js"></script>
@@ -223,13 +404,22 @@
     const renderer = new Renderer(gl, canvas)
     const utils = new Utils()
     
+    function resizeCanvas() {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+      if (game.gl) game.gl.viewport(0, 0, canvas.width, canvas.height)
+    }
+    window.addEventListener('resize', resizeCanvas)
+    resizeCanvas()
+    
     const physics = new Collision(150)
     physics.gameState.add("1")
-    physics.grid.buildStatic(tembok)
+    if (typeof tembok !== 'undefined') physics.grid.buildStatic(tembok)
     
     let selectedHero = null
-    let loadedTexture = null
-    let gameStarted = false
+    let analogX = 0, analogY = 0
+    let isTouchingAnalog = false
+    const analogMaxDist = 45
     
     const listImg = {
       idle: { path: "Diam1.png" }, lari1: { path: "Lari1.png" }, lari2: { path: "Lari2.png" }, lari3: { path: "Lari3.png" },
@@ -248,7 +438,7 @@
     
     const hero = {
       miya: {
-        x: 0, y: -800, width: 130, height: 130, hp: 150, maxHp: 150,
+        x: 0, y: -500, width: 130, height: 130, hp: 150, maxHp: 150,
         energi: 100, maxEnergi: 100, gravity: 2000, jumpPower: 700,
         useCollider: true, colliderBox: { width: 60, height: 110 },
         useHurtBox: true, hurtBox: { x: 0, y: 0, width: 60, height: 130 },
@@ -258,7 +448,7 @@
         currentHero: null, canMove: true, canAttack: true
       },
       shuken: {
-        x: 0, y: -800, width: 140, height: 150, hp: 120, maxHp: 120,
+        x: 0, y: -500, width: 140, height: 150, hp: 120, maxHp: 120,
         energi: 100, maxEnergi: 100, gravity: 2000, jumpPower: 680,
         speed: 550, attackDamage: 35,
         useCollider: true, colliderBox: { width: 65, height: 120 },
@@ -270,8 +460,40 @@
       }
     }
     
-    const selectScreen = document.getElementById("characterSelect")
     const loadingDiv = document.getElementById("loading")
+    const selectScreen = document.getElementById("characterSelect")
+    const gameUI = document.getElementById("gameUI")
+    const hpBarContainer = document.getElementById("hpBarContainer")
+    const statsText = document.getElementById("statsText")
+    const hpFill = document.getElementById("hpFill")
+    const mpFill = document.getElementById("mpFill")
+    
+    const analogContainer = document.getElementById("analogContainer")
+    const analogStick = document.getElementById("analogStick")
+    
+    function getAnalogPos(e) {
+      const rect = analogContainer.getBoundingClientRect()
+      const centerX = rect.left + rect.width/2
+      const centerY = rect.top + rect.height/2
+      let clientX, clientY
+      if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY }
+      else { clientX = e.clientX; clientY = e.clientY }
+      let dx = clientX - centerX, dy = clientY - centerY
+      const dist = Math.hypot(dx, dy)
+      if (dist > analogMaxDist) { dx = dx / dist * analogMaxDist; dy = dy / dist * analogMaxDist }
+      return { dx, dy }
+    }
+    
+    function updateAnalogPosition(dx, dy) {
+      analogStick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`
+      analogX = dx / analogMaxDist
+      analogY = dy / analogMaxDist
+    }
+    
+    analogContainer.addEventListener('touchstart', (e) => { e.preventDefault(); isTouchingAnalog = true; const { dx, dy } = getAnalogPos(e); updateAnalogPosition(dx, dy) })
+    analogContainer.addEventListener('touchmove', (e) => { if (!isTouchingAnalog) return; e.preventDefault(); const { dx, dy } = getAnalogPos(e); updateAnalogPosition(dx, dy) })
+    analogContainer.addEventListener('touchend', () => { isTouchingAnalog = false; analogX = 0; analogY = 0; analogStick.style.transform = 'translate(-50%, -50%)' })
+    
     const cardMiya = document.getElementById("cardMiya")
     const cardShuken = document.getElementById("cardShuken")
     const btnStart = document.getElementById("btnStart")
@@ -288,6 +510,11 @@
     cardMiya.onclick = () => selectCharacter("miya")
     cardShuken.onclick = () => selectCharacter("shuken")
     
+    let loadedTexture = null
+    let listPanahMiya = {}
+    let lariFrame = 1, lariTimer = 0, lariFrameShuken = 1, lariTimerShuken = 0
+    const lariSpeed = 0.15
+    
     btnStart.onclick = async () => {
       if (!selectedHero) return
       selectScreen.style.display = "none"
@@ -303,18 +530,200 @@
       hero.shuken.x = hero.miya.x
       hero.shuken.y = hero.miya.y
       
-      startGame()
+      gameUI.style.display = "block"
+      hpBarContainer.style.display = "block"
+      statsText.style.display = "block"
+      
+      updateUI()
+      startGameLoop()
     }
     
-    function startGame() {
-      gameStarted = true
-      // Game loop sederhana tanpa tombol analog kompleks
-      // (kode game loop di sini, tapi terlalu panjang)
-      console.log("Game started with:", selectedHero)
-      alert("Game mulai! Pilih karakter: " + selectedHero)
+    function updateUI() {
+      const active = selectedHero === "miya" ? hero.miya : hero.shuken
+      hpFill.style.width = `${(active.hp / active.maxHp) * 100}%`
+      mpFill.style.width = `${(active.energi / active.maxEnergi) * 100}%`
+      statsText.innerHTML = `${selectedHero === "miya" ? "🏹 MIYA" : "⚡ SHUKEN"} ${Math.floor(active.hp)}/${active.maxHp} HP`
     }
     
-    // Load assets awal
+    function startGameLoop() {
+      const btnAttack = document.getElementById("btnAttack")
+      const btnSkill1 = document.getElementById("btnSkill1")
+      const btnSkill2 = document.getElementById("btnSkill2")
+      const btnJump = document.getElementById("btnJump")
+      const btnUlti = document.getElementById("btnUlti")
+      
+      btnJump.onclick = () => { const active = selectedHero === "miya" ? hero.miya : hero.shuken; if (active.canMove) active.jumpBufferTimer = 0.15 }
+      
+      if (selectedHero === "miya") {
+        btnAttack.onclick = () => {
+          const miya = hero.miya
+          if (miya.superState || miya.energi < 5) return
+          miya.isAttack = true; miya.canMove = false; miya.canAttack = false
+          miya.energi -= 5; miya.superState = true; miya.state = "panah"
+          updateUI()
+          const id = crypto.randomUUID()
+          listPanahMiya[id] = { id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3, width: 40, height: 40, scene: "1", dir: miya.animationDirection === "right" ? 1 : -1, speed: 500, lifeTime: 3, img: "panahMisil" }
+          miya.superTimer = 0.25
+        }
+        btnSkill1.style.display = "none"
+        btnSkill2.style.display = "none"
+        btnUlti.style.display = "none"
+      } else {
+        btnAttack.onclick = () => {
+          const player = hero.shuken
+          if (player.superState || player.energi < 5) return
+          player.isAttacking = true; player.canMove = false; player.canAttack = false
+          player.energi -= 5; player.superState = true; player.state = "attack"; player.img = "shukenAttack1"
+          player.superTimer = 0.25; updateUI()
+        }
+        btnSkill1.onclick = () => {
+          const player = hero.shuken
+          if (player.superState || player.energi < 12) return
+          player.isUsingSkill = true; player.canMove = false; player.canAttack = false
+          player.energi -= 12; player.superState = true; player.state = "skill1"; player.img = "shukenSkill1"
+          updateUI()
+          const id = crypto.randomUUID()
+          if (typeof bolaPetir !== 'undefined') bolaPetir[id] = { id, x: player.x + player.width/2 - 20, y: player.y + player.height/3, width: 45, height: 45, scene: "1", dir: player.animationDirection === "right" ? 1 : -1, speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir" }
+          player.superTimer = 0.35
+        }
+        btnSkill2.onclick = () => {
+          const player = hero.shuken
+          if (player.superState || player.energi < 25) return
+          player.isUsingSkill = true; player.canMove = false; player.canAttack = false
+          player.energi -= 25; player.superState = true; player.state = "skill2"; player.img = "shukenSkill2"
+          updateUI()
+          const areaX = player.animationDirection === "right" ? player.x + player.width + 20 : player.x - 140
+          const id = crypto.randomUUID()
+          if (typeof petirArea !== 'undefined') petirArea[id] = { id, x: areaX, y: player.y + player.height/2 - 60, width: 140, height: 120, scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea" }
+          player.superTimer = 0.4
+        }
+        btnUlti.onclick = () => {
+          const player = hero.shuken
+          if (player.superState || player.energi < 50) return
+          player.isUsingSkill = true; player.canMove = false; player.canAttack = false
+          player.energi -= 50; player.superState = true; player.state = "ulti"; player.img = "shukenUlti"
+          updateUI()
+          const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
+          const id = crypto.randomUUID()
+          if (typeof petirAtas !== 'undefined') petirAtas[id] = { id, x: targetX, y: -50, width: 120, height: 900, scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas" }
+          player.superTimer = 0.6
+        }
+        btnSkill1.style.display = "flex"
+        btnSkill2.style.display = "flex"
+        btnUlti.style.display = "flex"
+      }
+      
+      const listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem]
+      if (typeof bolaPetir !== 'undefined') listDraw.push(bolaPetir, petirArea, petirAtas)
+      const listUpdateDraw = []
+      listDraw.forEach(entitas => { if (entitas) listUpdateDraw.push(new Draw(entitas, loadedTexture, renderer, physics.gameState)) })
+      
+      game.render(dt => {
+        physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem)
+        const activeHeroObj = selectedHero === "miya" ? hero.miya : hero.shuken
+        game.cameraOn({ active: activeHeroObj }, "active")
+        for (let entitas of listUpdateDraw) { entitas.update(dt, game.camera) }
+        
+        let moveX = 0
+        if (Math.abs(analogX) > 0.1) moveX = analogX * (selectedHero === "miya" ? 400 : 550)
+        
+        if (selectedHero === "miya") {
+          const miya = hero.miya
+          if (miya.canMove && !miya.superState) miya.vx = moveX
+          else miya.vx = 0
+          
+          if (miya.state === "run" && miya.canMove && !miya.superState) {
+            lariTimer += dt
+            if (lariTimer >= lariSpeed) { lariTimer = 0; lariFrame++; if (lariFrame > 3) lariFrame = 1 }
+            miya.img = `lari${lariFrame}`
+          } else if (!miya.superState) { miya.img = miya.state === "jump" ? "jump" : miya.state === "fall" ? "fall" : "idle"; lariTimer = 0 }
+          
+          physics.applyPhysics(dt, miya)
+          physics.platformerLogic(dt, miya)
+          miya.vy += miya.gravity * dt
+          utils.activeHurtBox(miya)
+          
+          if (miya.superTimer > 0) { miya.superTimer -= dt; if (miya.superTimer <= 0) { miya.superState = false; miya.isAttack = false; miya.canMove = true; miya.canAttack = true; miya.state = "idle" } }
+          miya.energi = Math.min(miya.maxEnergi, miya.energi + 1.5 * dt)
+          for (let id in listPanahMiya) { let panah = listPanahMiya[id]; panah.x += panah.dir * panah.speed * dt; panah.lifeTime -= dt; if (panah.lifeTime <= 0) delete listPanahMiya[id] }
+          
+          if (typeof panahMiyaVsMonster === 'function') panahMiyaVsMonster(dt, listPanahMiya, physics)
+          if (typeof miyaVsMonster === 'function') miyaVsMonster(dt, hero, hpBar, physics)
+          if (typeof panahMiyaVsKelomang === 'function') panahMiyaVsKelomang(dt, listPanahMiya, physics)
+          if (typeof miyaVsKelomang === 'function') miyaVsKelomang(dt, hero, hpBar, physics)
+          if (typeof panahMiyaVsGuin === 'function') panahMiyaVsGuin(dt, listPanahMiya, physics)
+          
+          if (miya.vy > 3000 || miya.hp <= 0) resetGame(miya)
+        } else {
+          const shuken = hero.shuken
+          if (shuken.canMove && !shuken.superState) shuken.vx = moveX
+          else shuken.vx = 0
+          
+          if (shuken.state === "run" && shuken.canMove && !shuken.superState) {
+            lariTimerShuken += dt
+            if (lariTimerShuken >= lariSpeed) { lariTimerShuken = 0; lariFrameShuken++; if (lariFrameShuken > 3) lariFrameShuken = 1 }
+            shuken.img = `shukenRun${lariFrameShuken}`
+          } else if (!shuken.superState) {
+            if (shuken.state === "jump") shuken.img = "shukenJump"
+            else if (shuken.state === "fall") shuken.img = "shukenFall"
+            else shuken.img = "shukenIdle"
+            lariTimerShuken = 0
+          }
+          
+          physics.applyPhysics(dt, shuken)
+          physics.platformerLogic(dt, shuken)
+          shuken.vy += shuken.gravity * dt
+          utils.activeHurtBox(shuken)
+          
+          if (shuken.superTimer > 0) { shuken.superTimer -= dt; if (shuken.superTimer <= 0) { shuken.superState = false; shuken.isAttacking = false; shuken.isUsingSkill = false; shuken.canMove = true; shuken.canAttack = true; shuken.state = "idle" } }
+          shuken.energi = Math.min(shuken.maxEnergi, shuken.energi + 2 * dt)
+          
+          if (typeof updateBolaPetir === 'function') updateBolaPetir(dt, physics)
+          if (typeof updatePetirArea === 'function') updatePetirArea(dt, physics)
+          if (typeof updatePetirAtas === 'function') updatePetirAtas(dt, physics)
+          
+          if (shuken.isAttacking && shuken.superState) {
+            const attackX = shuken.animationDirection === "right" ? shuken.x + shuken.width : shuken.x - 60
+            const attackHitbox = { x: attackX, y: shuken.y + shuken.height/3, width: 60, height: 70, damage: shuken.attackDamage, scene: "1" }
+            if (typeof physics !== 'undefined') {
+              physics.aabb({ temp: attackHitbox }, "buff", (hit, musuh) => { musuh.hp -= shuken.attackDamage; musuh.tintColor = "purple" })
+              physics.aabb({ temp: attackHitbox }, "kelomang", (hit, musuh) => { musuh.hp -= shuken.attackDamage; musuh.tintColor = "purple" })
+              physics.aabb({ temp: attackHitbox }, "guin", (hit, musuh) => { if (musuh.aktif) musuh.hp -= shuken.attackDamage; musuh.tintColor = "purple" })
+            }
+          }
+          
+          if (typeof shukenVsMusuh === 'function') shukenVsMusuh(dt, hero, hpBar, physics)
+          if (shuken.vy > 3000 || shuken.hp <= 0) resetGame(shuken)
+        }
+        
+        const currentPlayer = selectedHero === "miya" ? hero.miya : hero.shuken
+        if (typeof buff !== 'undefined') for (let id in buff) if (typeof logikaMonsterJungler === 'function') logikaMonsterJungler(dt, currentPlayer, buff[id], physics)
+        if (typeof logikaKelomang === 'function') logikaKelomang(dt, currentPlayer, physics)
+        if (typeof updateBulletKelomang === 'function') updateBulletKelomang(dt, physics)
+        if (typeof kelomang !== 'undefined') Object.values(kelomang).forEach(el => { if (typeof hpKelomang === 'function') hpKelomang(dt, el, game.camera, renderer) })
+        if (typeof guin !== 'undefined') Object.values(guin).forEach(el => { if (typeof hpGuin === 'function') hpGuin(dt, el, game.camera, renderer) })
+        if (typeof anakKelomangVsMiya === 'function') anakKelomangVsMiya(dt, hero, hpBar, physics)
+        if (typeof logikaGuinevere === 'function') logikaGuinevere(dt, hero, hpBar, physics, utils)
+        if (typeof updatePeluruGuin === 'function') updatePeluruGuin(dt)
+        if (typeof peluruGuinVsMiya === 'function') peluruGuinVsMiya(dt, hero, hpBar, physics)
+        if (typeof miyaMengambilItem === 'function') miyaMengambilItem(hero, physics)
+        if (typeof miyaMenerimaEfekItem === 'function') miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
+        
+        updateUI()
+      })
+    }
+    
+    function resetGame(playerObj) {
+      if (typeof tembok !== 'undefined') Object.values(tembok).forEach(wl => { if (wl.img === "gerbang") wl.scene = "1" })
+      if (typeof kelomang !== 'undefined') Object.values(kelomang).forEach(el => { el.x = el.originalX; el.y = el.originalY; el.hp = el.originalHp; el.scene = "1"; el.isChase = false; el.isDead = false; el.vx = 0 })
+      if (typeof buff !== 'undefined') Object.values(buff).forEach(el => { el.x = el.originalX; el.y = el.originalY; el.hp = el.originalHp; el.scene = "1"; el.isChase = false; el.isDead = false; el.vx = 0 })
+      if (typeof guin !== 'undefined') Object.values(guin).forEach(el => { el.x = el.originalX; el.y = el.originalY; el.hp = el.originalHp; el.scene = "1"; el.isChase = false; el.isDead = false; el.vx = 0 })
+      playerObj.vy = 0; playerObj.x = 0; playerObj.y = 0; playerObj.hp = playerObj.maxHp; playerObj.energi = playerObj.maxEnergi
+      playerObj.superState = false; playerObj.superTimer = 0; playerObj.canMove = true; playerObj.canAttack = true
+      playerObj.isAttacking = false; playerObj.isUsingSkill = false
+      updateUI()
+    }
+    
     (async () => {
       const aset = new Aset(gl, listImg)
       loadedTexture = await aset.load()

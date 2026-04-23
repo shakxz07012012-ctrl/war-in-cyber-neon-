@@ -30,68 +30,47 @@ function miyaMengambilItem(hero, physics){
   })
 }
 
-// Timer untuk efek blinking yang aman
-let itemBlinkTimers = {};
-
 function miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils){
   const miya = hero.miya
-  const GAME_CONFIG = {
-    HEAL_AMOUNT: 5,
-    ENERGI_AMOUNT: 5,
-    MAX_HP: 150,
-    MAX_ENERGI: 100
-  };
   
   switch(miya.statusItem){
     case "heal":
-      miya.hp = Math.min(GAME_CONFIG.MAX_HP, miya.hp + GAME_CONFIG.HEAL_AMOUNT * dt)
+      miya.hp = Math.min(150, miya.hp + 5 *dt)
       hpBar.setValue(miya.hp)
       
       miya.durasiItem -= dt
-      // Efek blinking sederhana tanpa splitTime
-      if(Math.floor(Date.now() / 100) % 2 === 0) {
-        miya.tintColor = "lime"
-      } else {
-        miya.tintColor = "white"
-      }
-      
+      utils.splitTime(dt,"heal","0.3 0.3", (on)=>{
+        if(on.timer1) miya.tintColor = "lime"
+        if(on.timer2) miya.tintColor = "white"
+      })
       if(miya.durasiItem<=0){
         miya.statusItem = ""
         miya.durasiItem = 0
-        miya.tintColor = "white"
       }
       break
     case "energi":
-      miya.energi = Math.min(GAME_CONFIG.MAX_ENERGI, miya.energi + GAME_CONFIG.ENERGI_AMOUNT * dt)
+      miya.energi = Math.min(100, miya.energi + 5 *dt)
       manaBar.setValue(miya.energi)
       
       miya.durasiItem -= dt
-      // Efek blinking sederhana tanpa splitTime
-      if(Math.floor(Date.now() / 100) % 2 === 0) {
-        miya.tintColor = "yellow"
-      } else {
-        miya.tintColor = "white"
-      }
-      
+      utils.splitTime(dt,"energi","0.3 0.3", (on)=>{
+        if(on.timer1) miya.tintColor = "yellow"
+        if(on.timer2) miya.tintColor = "white"
+      })
       if(miya.durasiItem<=0){
         miya.statusItem = ""
         miya.durasiItem = 0
-        miya.tintColor = "white"
       }
       break
     case "peluruGanda":
       miya.durasiItem -= dt
-      // Efek blinking sederhana tanpa splitTime
-      if(Math.floor(Date.now() / 100) % 2 === 0) {
-        miya.tintColor = "purple"
-      } else {
-        miya.tintColor = "white"
-      }
-      
+      utils.splitTime(dt,"energi","0.3 0.3", (on)=>{
+        if(on.timer1) miya.tintColor = "purple"
+        if(on.timer2) miya.tintColor = "white"
+      })
       if(miya.durasiItem<=0){
         miya.statusItem = ""
         miya.durasiItem = 0
-        miya.tintColor = "white"
       }
       break
   }

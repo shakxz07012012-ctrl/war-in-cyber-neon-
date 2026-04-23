@@ -54,14 +54,6 @@
         ARROW_LIFETIME: 3,
         LARI_FRAME_SPEED: 0.15,
         ENERGI_RECHARGE_RATE: 1,
-        MONSTER_CHASE_DISTANCE: 300,
-        MONSTER_ATTACK_DISTANCE: 60,
-        KELOMANG_DAMAGE: 0.8,
-        KELOMANG_BULLET_DAMAGE: 10,
-        GUIN_DAMAGE: 10,
-        GUIN_ATTACK_DAMAGE: 1,
-        ITEM_HEAL_AMOUNT: 5,
-        ITEM_ENERGI_AMOUNT: 5
     };
 
     const canvas = document.getElementById("canvas")
@@ -238,22 +230,81 @@
     }
     
     const aset = new Aset(gl, listImg)
-    // Hanya masukkan entitas statis ke listDraw
+    
+    // Semua entitas termasuk dinamis dimasukkan ke listDraw
+    // Tapi kita akan update manual untuk yang dinamis
     const listDraw = [hero, tembok, buff, kelomang, guin]
     const listUpdateDraw = []
     
-    // Variabel global untuk texture
-    let globalTexture = null;
+    // Array terpisah untuk menyimpan Draw object dari entitas dinamis
+    let dynamicDrawObjects = {
+      panah: {},
+      bulletKelomang: {},
+      peluruGuin: {},
+      items: {}
+    };
+    
+    // Fungsi untuk update Draw object dari entitas dinamis
+    function updateDynamicDraws(texture) {
+      // Panah Miya
+      for(let id in listPanahMiya) {
+        if(!dynamicDrawObjects.panah[id]) {
+          dynamicDrawObjects.panah[id] = new Draw(listPanahMiya[id], texture, renderer, physics.gameState);
+        }
+      }
+      // Hapus yang sudah tidak ada
+      for(let id in dynamicDrawObjects.panah) {
+        if(!listPanahMiya[id]) {
+          delete dynamicDrawObjects.panah[id];
+        }
+      }
+      
+      // Bullet Kelomang
+      for(let id in bulletKelomang) {
+        if(!dynamicDrawObjects.bulletKelomang[id]) {
+          dynamicDrawObjects.bulletKelomang[id] = new Draw(bulletKelomang[id], texture, renderer, physics.gameState);
+        }
+      }
+      for(let id in dynamicDrawObjects.bulletKelomang) {
+        if(!bulletKelomang[id]) {
+          delete dynamicDrawObjects.bulletKelomang[id];
+        }
+      }
+      
+      // Peluru Guin
+      for(let id in peluruGuin) {
+        if(!dynamicDrawObjects.peluruGuin[id]) {
+          dynamicDrawObjects.peluruGuin[id] = new Draw(peluruGuin[id], texture, renderer, physics.gameState);
+        }
+      }
+      for(let id in dynamicDrawObjects.peluruGuin) {
+        if(!peluruGuin[id]) {
+          delete dynamicDrawObjects.peluruGuin[id];
+        }
+      }
+      
+      // Item
+      for(let id in drawItem) {
+        if(!dynamicDrawObjects.items[id]) {
+          dynamicDrawObjects.items[id] = new Draw(drawItem[id], texture, renderer, physics.gameState);
+        }
+      }
+      for(let id in dynamicDrawObjects.items) {
+        if(!drawItem[id]) {
+          delete dynamicDrawObjects.items[id];
+        }
+      }
+    }
     
     async function init(){
       const loading = document.getElementById("loading")
-      globalTexture = await aset.load()
+      const texture = await aset.load()
       loading.style.display = "none"
       hpBar.el.style.display = "block"
       manaBar.el.style.display = "block"
       
       listDraw.forEach(entitas => {
-        listUpdateDraw.push(new Draw(entitas, globalTexture, renderer, physics.gameState))
+        listUpdateDraw.push(new Draw(entitas, texture, renderer, physics.gameState))
       })
       
       const dialog = new VirtualLyrics(canvas)
@@ -310,37 +361,35 @@
           dialog.play(dt)
           game.cameraOn(hero, "miya")
           
+          // Update Draw objects untuk entitas statis
           for(let entitas of listUpdateDraw){
             entitas.update(dt, game.camera)
           }
           
-          // ========== GAMBAR ENTITAS DINAMIS ==========
+          // Update Draw objects untuk entitas dinamis
+          updateDynamicDraws(texture);
+          
           // Gambar panah Miya
-          for(let id in listPanahMiya) {
-            const drawObj = new Draw(listPanahMiya[id], globalTexture, renderer, physics.gameState);
-            drawObj.update(dt, game.camera);
+          for(let id in dynamicDrawObjects.panah) {
+            dynamicDrawObjects.panah[id].update(dt, game.camera);
           }
           
           // Gambar bullet kelomang
-          for(let id in bulletKelomang) {
-            const drawObj = new Draw(bulletKelomang[id], globalTexture, renderer, physics.gameState);
-            drawObj.update(dt, game.camera);
+          for(let id in dynamicDrawObjects.bulletKelomang) {
+            dynamicDrawObjects.bulletKelomang[id].update(dt, game.camera);
           }
           
           // Gambar peluru Guin
-          for(let id in peluruGuin) {
-            if(peluruGuin[id].scene !== "inactive") {
-              const drawObj = new Draw(peluruGuin[id], globalTexture, renderer, physics.gameState);
-              drawObj.update(dt, game.camera);
+          for(let id in dynamicDrawObjects.peluruGuin) {
+            if(peluruGuin[id] && peluruGuin[id].scene !== "inactive") {
+              dynamicDrawObjects.peluruGuin[id].update(dt, game.camera);
             }
           }
           
           // Gambar item
-          for(let id in drawItem) {
-            const drawObj = new Draw(drawItem[id], globalTexture, renderer, physics.gameState);
-            drawObj.update(dt, game.camera);
+          for(let id in dynamicDrawObjects.items) {
+            dynamicDrawObjects.items[id].update(dt, game.camera);
           }
-          // ========== END GAMBAR ENTITAS DINAMIS ==========
           
           // Animasi lari
           if(hero.miya.state === "run") {
@@ -361,7 +410,6 @@
             hero.miya.tintColor = "white"
           })
           
-          // Kontrol player
           if(tombolKanan.press){
             hero.miya.vx = GAME_CONFIG.PLAYER_SPEED
           }else if(tombolKiri.press){
@@ -385,7 +433,6 @@
           miya.energi = Math.min(GAME_CONFIG.PLAYER_MAX_ENERGI, miya.energi + GAME_CONFIG.ENERGI_RECHARGE_RATE * dt)
           manaBar.setValue(miya.energi)
           
-          // Reset game jika mati
           if(miya.vy > 3000 || miya.hp <= 0){
             Object.values(tembok).forEach(wl=>{
               if(wl.img === "gerbang") wl.scene = "1"
@@ -408,13 +455,20 @@
             hpBar.setValue(miya.hp)
             manaBar.setValue(miya.energi)
             
-            // Bersihkan entitas dinamis
+            // Bersihkan semua entitas dinamis
             for(let id in listPanahMiya) delete listPanahMiya[id];
             for(let id in bulletKelomang) delete bulletKelomang[id];
             for(let id in drawItem) delete drawItem[id];
             for(let id in peluruGuin) {
               if(peluruGuin[id].scene !== "inactive") peluruGuin[id].scene = "inactive";
             }
+            // Bersihkan juga draw objects
+            dynamicDrawObjects = {
+              panah: {},
+              bulletKelomang: {},
+              peluruGuin: {},
+              items: {}
+            };
           }
           
           // Update panah
@@ -426,7 +480,6 @@
             if(panah.lifeTime <= 0) delete listPanahMiya[panah.id]
           }
           
-          // Update monster
           for(let id in buff){
             const monster = buff[id]
             if(monster.scene === miya.scene) {
@@ -435,13 +488,11 @@
             }
           }
           
-          // Collision
           panahMiyaVsMonster(dt, listPanahMiya, physics)
           miyaVsMonster(dt, hero, hpBar, physics)
           logikaKelomang(dt, miya, physics)
           updateBulletKelomang(dt, physics)
           
-          // HP bars
           Object.values(kelomang).forEach(el => {
             if(el.scene === miya.scene) hpKelomang(dt, el, game.camera, renderer)
           })
@@ -449,7 +500,6 @@
             if(el.scene === miya.scene) hpGuin(dt, el, game.camera, renderer)
           })
           
-          // Combat
           panahMiyaVsKelomang(dt, listPanahMiya, physics)
           panahMiyaVsGuin(dt, listPanahMiya, physics)
           miyaVsKelomang(dt, hero, hpBar, physics)

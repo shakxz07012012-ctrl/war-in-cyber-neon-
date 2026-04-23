@@ -12,7 +12,7 @@ class AnalogController {
         style.textContent = `
             .analog-container {
                 position: fixed;
-                bottom: 30px;
+                bottom: 80px;
                 left: 30px;
                 width: 140px;
                 height: 140px;
@@ -23,7 +23,7 @@ class AnalogController {
                 position: absolute;
                 width: 100%;
                 height: 100%;
-                background: rgba(30,30,40,0.5);
+                background: rgba(30,30,40,0.6);
                 border-radius: 50%;
                 backdrop-filter: blur(8px);
                 border: 2px solid rgba(255,255,255,0.3);
@@ -33,7 +33,7 @@ class AnalogController {
                 position: absolute;
                 width: 55px;
                 height: 55px;
-                background: rgba(255,255,255,0.85);
+                background: rgba(255,255,255,0.9);
                 border-radius: 50%;
                 top: 50%;
                 left: 50%;
@@ -62,25 +62,24 @@ class AnalogController {
                 color: white;
                 font-size: 11px;
                 font-family: monospace;
-                background: rgba(0,0,0,0.5);
+                background: rgba(0,0,0,0.6);
                 padding: 2px 8px;
                 border-radius: 20px;
                 white-space: nowrap;
             }
             
-            /* Tombol Attack terpisah untuk Miya & Shuken */
-            .attack-btn-miya, .attack-btn-shuken {
+            .attack-btn-miya {
                 position: fixed;
-                bottom: 100px;
+                bottom: 120px;
                 right: 20px;
                 width: 70px;
                 height: 70px;
                 border-radius: 50%;
                 border: none;
-                background: rgba(0,150,255,0.8);
+                background: rgba(0,150,255,0.85);
                 backdrop-filter: blur(8px);
                 color: white;
-                font-size: 28px;
+                font-size: 32px;
                 font-weight: bold;
                 z-index: 10000;
                 cursor: pointer;
@@ -88,42 +87,40 @@ class AnalogController {
                 transition: transform 0.08s ease;
                 box-shadow: 0 0 15px rgba(0,150,255,0.5);
             }
-            .attack-btn-miya:active, .attack-btn-shuken:active {
-                transform: scale(0.9);
-            }
             
-            /* Tombol Skill Shuken */
-            .skill1-shuken, .skill2-shuken, .ulti-shuken {
+            .attack-btn-shuken {
                 position: fixed;
-                width: 60px;
-                height: 60px;
+                bottom: 180px;
+                right: 20px;
+                width: 70px;
+                height: 70px;
                 border-radius: 50%;
                 border: none;
-                background: rgba(100,50,200,0.8);
+                background: rgba(200,100,50,0.85);
                 backdrop-filter: blur(8px);
                 color: white;
-                font-size: 24px;
+                font-size: 32px;
                 font-weight: bold;
                 z-index: 10000;
                 cursor: pointer;
                 touch-action: none;
                 transition: transform 0.08s ease;
-                box-shadow: 0 0 12px rgba(100,50,200,0.5);
+                box-shadow: 0 0 15px rgba(200,100,50,0.5);
             }
-            .skill1-shuken:active, .skill2-shuken:active, .ulti-shuken:active {
+            
+            .attack-btn-miya:active, .attack-btn-shuken:active {
                 transform: scale(0.9);
             }
             
-            /* Tombol Lompat */
-            .jump-btn {
+            .skill1-shuken {
                 position: fixed;
-                bottom: 100px;
-                right: 110px;
-                width: 70px;
-                height: 70px;
+                bottom: 120px;
+                right: 20px;
+                width: 65px;
+                height: 65px;
                 border-radius: 50%;
                 border: none;
-                background: rgba(0,200,100,0.8);
+                background: rgba(100,50,200,0.85);
                 backdrop-filter: blur(8px);
                 color: white;
                 font-size: 28px;
@@ -132,18 +129,90 @@ class AnalogController {
                 cursor: pointer;
                 touch-action: none;
                 transition: transform 0.08s ease;
-                box-shadow: 0 0 12px rgba(0,200,100,0.5);
+                box-shadow: 0 0 12px rgba(100,50,200,0.5);
+            }
+            
+            .skill2-shuken {
+                position: fixed;
+                bottom: 120px;
+                right: 100px;
+                width: 65px;
+                height: 65px;
+                border-radius: 50%;
+                border: none;
+                background: rgba(150,50,200,0.85);
+                backdrop-filter: blur(8px);
+                color: white;
+                font-size: 26px;
+                font-weight: bold;
+                z-index: 10000;
+                cursor: pointer;
+                touch-action: none;
+                transition: transform 0.08s ease;
+                box-shadow: 0 0 12px rgba(150,50,200,0.5);
+            }
+            
+            .ulti-shuken {
+                position: fixed;
+                bottom: 180px;
+                right: 100px;
+                width: 65px;
+                height: 65px;
+                border-radius: 50%;
+                border: none;
+                background: rgba(200,50,255,0.9);
+                backdrop-filter: blur(8px);
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                z-index: 10000;
+                cursor: pointer;
+                touch-action: none;
+                transition: transform 0.08s ease;
+                box-shadow: 0 0 12px rgba(200,50,255,0.5);
+            }
+            
+            .skill1-shuken:active, .skill2-shuken:active, .ulti-shuken:active {
+                transform: scale(0.9);
+            }
+            
+            .jump-btn {
+                position: fixed;
+                bottom: 120px;
+                right: 180px;
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                border: none;
+                background: rgba(0,200,100,0.85);
+                backdrop-filter: blur(8px);
+                color: white;
+                font-size: 32px;
+                font-weight: bold;
+                z-index: 10000;
+                cursor: pointer;
+                touch-action: none;
+                transition: transform 0.08s ease;
+                box-shadow: 0 0 15px rgba(0,200,100,0.5);
             }
             .jump-btn:active {
                 transform: scale(0.9);
             }
             
             @media (max-width: 600px) {
-                .analog-container { width: 110px; height: 110px; bottom: 20px; left: 20px; }
+                .analog-container { width: 110px; height: 110px; bottom: 60px; left: 20px; }
                 .analog-stick { width: 45px; height: 45px; }
-                .attack-btn-miya, .attack-btn-shuken { width: 60px; height: 60px; font-size: 24px; bottom: 80px; right: 15px; }
-                .jump-btn { width: 60px; height: 60px; font-size: 24px; bottom: 80px; right: 90px; }
-                .skill1-shuken, .skill2-shuken, .ulti-shuken { width: 52px; height: 52px; font-size: 20px; }
+                .attack-btn-miya { width: 60px; height: 60px; font-size: 28px; bottom: 100px; right: 15px; }
+                .attack-btn-shuken { width: 60px; height: 60px; font-size: 28px; bottom: 150px; right: 15px; }
+                .skill1-shuken { width: 55px; height: 55px; font-size: 24px; bottom: 100px; right: 15px; }
+                .skill2-shuken { width: 55px; height: 55px; font-size: 22px; bottom: 100px; right: 85px; }
+                .ulti-shuken { width: 55px; height: 55px; font-size: 18px; bottom: 150px; right: 85px; }
+                .jump-btn { width: 60px; height: 60px; font-size: 28px; bottom: 100px; right: 155px; }
+            }
+            
+            @media (max-width: 450px) {
+                .jump-btn { right: 140px; }
+                .skill2-shuken { right: 80px; }
             }
         `;
         document.head.appendChild(style);
@@ -218,7 +287,6 @@ class AnalogController {
         const onStart = (e) => {
             e.preventDefault();
             this.active = true;
-            this.onMoveStart?.();
         };
         
         const onMove = (e) => {
@@ -299,13 +367,9 @@ class AnalogController {
     }
 }
 
-// ==========================================
-// CONTROLLER MANAGER - Mengatur semua tombol
-// ==========================================
-
 class GameController {
     constructor(heroType, callbacks = {}) {
-        this.heroType = heroType; // "miya" atau "shuken"
+        this.heroType = heroType;
         this.callbacks = callbacks;
         this.analog = null;
         this.jumpBtn = null;
@@ -318,11 +382,10 @@ class GameController {
     }
     
     createControls() {
-        // Hapus controller lama jika ada
         this.destroy();
         
-        // Joystick Analog
         this.analog = new AnalogController({
+            size: 140,
             onMove: (data) => {
                 if (this.callbacks.onMove) this.callbacks.onMove(data);
             },
@@ -331,7 +394,6 @@ class GameController {
             }
         });
         
-        // Tombol Lompat
         this.jumpBtn = document.createElement("button");
         this.jumpBtn.className = "jump-btn";
         this.jumpBtn.textContent = "▲";
@@ -344,7 +406,6 @@ class GameController {
         this.jumpBtn.onpointerleave = () => { this.jumpBtn.style.transform = "scale(1)"; };
         document.body.appendChild(this.jumpBtn);
         
-        // Tombol berdasarkan tipe hero
         if (this.heroType === "miya") {
             this.attackBtn = document.createElement("button");
             this.attackBtn.className = "attack-btn-miya";
@@ -359,12 +420,9 @@ class GameController {
             document.body.appendChild(this.attackBtn);
             
         } else if (this.heroType === "shuken") {
-            // Tombol Attack Dasar
             this.attackBtn = document.createElement("button");
             this.attackBtn.className = "attack-btn-shuken";
             this.attackBtn.textContent = "👊";
-            this.attackBtn.style.background = "rgba(200,100,50,0.8)";
-            this.attackBtn.style.bottom = "160px";
             this.attackBtn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onAttack) this.callbacks.onAttack();
@@ -374,12 +432,9 @@ class GameController {
             this.attackBtn.onpointerleave = () => { this.attackBtn.style.transform = "scale(1)"; };
             document.body.appendChild(this.attackBtn);
             
-            // Skill 1
             this.skill1Btn = document.createElement("button");
             this.skill1Btn.className = "skill1-shuken";
             this.skill1Btn.textContent = "⚡";
-            this.skill1Btn.style.bottom = "100px";
-            this.skill1Btn.style.right = "20px";
             this.skill1Btn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onSkill1) this.callbacks.onSkill1();
@@ -389,12 +444,9 @@ class GameController {
             this.skill1Btn.onpointerleave = () => { this.skill1Btn.style.transform = "scale(1)"; };
             document.body.appendChild(this.skill1Btn);
             
-            // Skill 2
             this.skill2Btn = document.createElement("button");
             this.skill2Btn.className = "skill2-shuken";
             this.skill2Btn.textContent = "🌩️";
-            this.skill2Btn.style.bottom = "100px";
-            this.skill2Btn.style.right = "95px";
             this.skill2Btn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onSkill2) this.callbacks.onSkill2();
@@ -404,13 +456,9 @@ class GameController {
             this.skill2Btn.onpointerleave = () => { this.skill2Btn.style.transform = "scale(1)"; };
             document.body.appendChild(this.skill2Btn);
             
-            // Ultimate
             this.ultiBtn = document.createElement("button");
             this.ultiBtn.className = "ulti-shuken";
             this.ultiBtn.textContent = "💜⚡";
-            this.ultiBtn.style.bottom = "160px";
-            this.ultiBtn.style.right = "95px";
-            this.ultiBtn.style.fontSize = "18px";
             this.ultiBtn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onUlti) this.callbacks.onUlti();
@@ -440,7 +488,6 @@ class GameController {
     }
 }
 
-// Export untuk digunakan
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { AnalogController, GameController };
 }

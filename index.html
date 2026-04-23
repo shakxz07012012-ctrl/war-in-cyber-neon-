@@ -43,6 +43,28 @@
   <script src="./kura.js"></script>
   <script src="./laba.js"></script>
   <script>
+    // Konfigurasi game
+    const GAME_CONFIG = {
+        PLAYER_SPEED: 400,
+        PLAYER_JUMP_POWER: 700,
+        GRAVITY: 2000,
+        PLAYER_MAX_HP: 150,
+        PLAYER_MAX_ENERGI: 100,
+        ARROW_DAMAGE: 10,
+        ARROW_SPEED: 500,
+        ARROW_LIFETIME: 3,
+        LARI_FRAME_SPEED: 0.15,
+        ENERGI_RECHARGE_RATE: 1,
+        MONSTER_CHASE_DISTANCE: 300,
+        MONSTER_ATTACK_DISTANCE: 60,
+        KELOMANG_DAMAGE: 0.8,
+        KELOMANG_BULLET_DAMAGE: 10,
+        GUIN_DAMAGE: 10,
+        GUIN_ATTACK_DAMAGE: 1,
+        ITEM_HEAL_AMOUNT: 5,
+        ITEM_ENERGI_AMOUNT: 5
+    };
+
     const canvas = document.getElementById("canvas")
     const game = new GameLoop(canvas)
     const gl = game.gl
@@ -87,15 +109,27 @@
         height : 100,
         hp : 150,
         energi : 100,
-        gravity : 2000,
-        jumpPower :700,
+        gravity : GAME_CONFIG.GRAVITY,
+        jumpPower : GAME_CONFIG.PLAYER_JUMP_POWER,
         useCollider : true,
-        colliderBox : {width :50, height:100},
+        colliderBox : {width : 50, height: 100},
         useHurtBox : true,
-        hurtBox : {x:0,y:0,width :50, height:120},
+        hurtBox : {x:0,y:0,width : 50, height: 120},
         vx : 0,
         vy : 0,
-        scene :"1"
+        scene :"1",
+        // Properti tambahan yang diinisialisasi
+        jumpBufferTimer: 0,
+        jumpBufferMax: 0.2,
+        isAttack: false,
+        superState: false,
+        superTimer: 0,
+        statusItem: "",
+        durasiItem: 0,
+        tintColor: "white",
+        state: "idle",
+        animationDirection: "right",
+        img: "idle"
       }
     }
     
@@ -181,8 +215,8 @@
           dir : miya.animationDirection === "right" ? 1 : -1,
           dirY : miya.statusItem === "peluruGanda" ? utils.rand(-0.5,0.5) : 0,
           animationDirection : miya.animationDirection,
-          speed : 500,
-          lifeTime : 3,
+          speed : GAME_CONFIG.ARROW_SPEED,
+          lifeTime : GAME_CONFIG.ARROW_LIFETIME,
           img : "panahMisil"
         }
         miya.superTimer = 0.1
@@ -195,7 +229,7 @@
 
     let lariFrame = 1;
     let lariTimer = 0;
-    const lariSpeed = 0.15;
+    const lariSpeed = GAME_CONFIG.LARI_FRAME_SPEED;
 
     const baseAnimasi = {
       idle : "idle",
@@ -206,8 +240,17 @@
     }
     
     const aset = new Aset(gl, listImg)
-    const listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem]
+    // Hanya masukkan entitas statis ke listDraw
+    const listDraw = [hero, tembok, buff, kelomang, guin]
     const listUpdateDraw = []
+    
+    // Array terpisah untuk entitas dinamis
+    let dynamicEntities = {
+      panah: listPanahMiya,
+      bulletKelomang: {},
+      peluruGuin: {},
+      items: drawItem
+    };
     
     async function init(){
       const loading = document.getElementById("loading")
@@ -267,107 +310,167 @@
         border: "1px solid white"
       });
       
+      // Fungsi helper untuk menggambar entitas dinamis
+      function drawDynamicEntities(dt, camera) {
+        // Gambar panah Miya
+        for(let id in listPanahMiya) {
+          const drawObj = new Draw(listPanahMiya[id], texture, renderer, physics.gameState);
+          drawObj.update(dt, camera);
+        }
+        
+        // Gambar bullet kelomang
+        for(let id in bulletKelomang) {
+          const drawObj = new Draw(bulletKelomang[id], texture, renderer, physics.gameState);
+          drawObj.update(dt, camera);
+        }
+        
+        // Gambar peluru Guin
+        for(let id in peluruGuin) {
+          if(peluruGuin[id].scene !== "inactive") {
+            const drawObj = new Draw(peluruGuin[id], texture, renderer, physics.gameState);
+            drawObj.update(dt, camera);
+          }
+        }
+        
+        // Gambar item
+        for(let id in drawItem) {
+          const drawObj = new Draw(drawItem[id], texture, renderer, physics.gameState);
+          drawObj.update(dt, camera);
+        }
+      }
+      
       game.render(dt =>{
-        physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem)
-        
-        dialog.play(dt)
-        game.cameraOn(hero, "miya")
-        
-        for(let entitas of listUpdateDraw){
-          entitas.update(dt, game.camera)
-        }
-        
-        // Animasi lari 3 frame
-        if(hero.miya.state === "run") {
-          lariTimer += dt;
-          if(lariTimer >= lariSpeed) {
+        try {
+          physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem)
+          
+          dialog.play(dt)
+          game.cameraOn(hero, "miya")
+          
+          for(let entitas of listUpdateDraw){
+            entitas.update(dt, game.camera)
+          }
+          
+          // Gambar entitas dinamis
+          drawDynamicEntities(dt, game.camera);
+          
+          // Animasi lari 3 frame
+          if(hero.miya.state === "run") {
+            lariTimer += dt;
+            if(lariTimer >= lariSpeed) {
+              lariTimer = 0;
+              lariFrame++;
+              if(lariFrame > 3) lariFrame = 1;
+            }
+            hero.miya.img = `lari${lariFrame}`;
+          } else {
+            hero.miya.img = baseAnimasi[hero.miya.state];
             lariTimer = 0;
-            lariFrame++;
-            if(lariFrame > 3) lariFrame = 1;
+            lariFrame = 1;
           }
-          hero.miya.img = `lari${lariFrame}`;
-        } else {
-          hero.miya.img = baseAnimasi[hero.miya.state];
-          lariTimer = 0;
-          lariFrame = 1;
-        }
-        
-        utils.timer(dt,"timeColorMiya", 0.5,()=>{
-          hero.miya.tintColor = "white"
-        })
-        
-        if(tombolKanan.press){
-          hero.miya.vx = 400
-        }else if(tombolKiri.press){
-          hero.miya.vx = -400
-        }else hero.miya.vx = 0
-        
-        physics.applyPhysics(dt, hero.miya)
-        physics.platformerLogic(dt, hero.miya)
-        
-        hero.miya.vy += hero.miya.gravity * dt
-        utils.activeHurtBox(hero.miya)
-        const miya = hero.miya
-        if(miya.superTimer > 0){
-          miya.superTimer -= dt
-          if(miya.superTimer <= 0){
-            miya.superState = false
+          
+          utils.timer(dt,"timeColorMiya", 0.5,()=>{
+            hero.miya.tintColor = "white"
+          })
+          
+          if(tombolKanan.press){
+            hero.miya.vx = GAME_CONFIG.PLAYER_SPEED
+          }else if(tombolKiri.press){
+            hero.miya.vx = -GAME_CONFIG.PLAYER_SPEED
+          }else hero.miya.vx = 0
+          
+          physics.applyPhysics(dt, hero.miya)
+          physics.platformerLogic(dt, hero.miya)
+          
+          hero.miya.vy += hero.miya.gravity * dt
+          utils.activeHurtBox(hero.miya)
+          const miya = hero.miya
+          if(miya.superTimer > 0){
+            miya.superTimer -= dt
+            if(miya.superTimer <= 0){
+              miya.superState = false
+            }
           }
-        }
-        miya.energi = Math.min(100, miya.energi + 1 * dt)
-        manaBar.setValue(miya.energi)
-        
-        if(miya.vy > 3000 || miya.hp <= 0){
-          Object.values(tembok).forEach(wl=>{
-            if(wl.img === "gerbang") wl.scene = "1"
-          })
-          Object.values({...kelomang, ...buff, ...guin}).forEach(el=>{
-            el.x = el.originalX
-            el.y = el.originalY
-            el.hp = el.originalHp
-            el.scene = "1"
-            el.isChase = false
-            el.isDead = false
-            el.vx = 0
-          })
-          miya.vy = 0
-          miya.x = 0
-          miya.y = 0
-          miya.hp = 150
-          miya.energi = 100
-          hpBar.setValue(miya.hp)
+          miya.energi = Math.min(GAME_CONFIG.PLAYER_MAX_ENERGI, miya.energi + GAME_CONFIG.ENERGI_RECHARGE_RATE * dt)
           manaBar.setValue(miya.energi)
+          
+          if(miya.vy > 3000 || miya.hp <= 0){
+            // Reset game
+            Object.values(tembok).forEach(wl=>{
+              if(wl.img === "gerbang") wl.scene = "1"
+            })
+            Object.values({...kelomang, ...buff, ...guin}).forEach(el=>{
+              el.x = el.originalX
+              el.y = el.originalY
+              el.hp = el.originalHp
+              el.scene = "1"
+              el.isChase = false
+              el.isDead = false
+              el.vx = 0
+              if(el.hpVisual) el.hpVisual = el.hp;
+            })
+            miya.vy = 0
+            miya.x = 0
+            miya.y = 0
+            miya.hp = GAME_CONFIG.PLAYER_MAX_HP
+            miya.energi = GAME_CONFIG.PLAYER_MAX_ENERGI
+            hpBar.setValue(miya.hp)
+            manaBar.setValue(miya.energi)
+            
+            // Bersihkan semua entitas dinamis
+            for(let id in listPanahMiya) delete listPanahMiya[id];
+            for(let id in bulletKelomang) delete bulletKelomang[id];
+            for(let id in drawItem) delete drawItem[id];
+            for(let id in peluruGuin) {
+              if(peluruGuin[id].scene !== "inactive") peluruGuin[id].scene = "inactive";
+            }
+          }
+          
+          // Update panah Miya
+          for(let id in listPanahMiya){
+            let panah = listPanahMiya[id]
+            panah.x += panah.dir * panah.speed * dt
+            panah.y += panah.dirY * panah.speed * dt
+            panah.lifeTime -= dt
+            if(panah.lifeTime <= 0) delete listPanahMiya[panah.id]
+          }
+          
+          // Update logika monster
+          for(let id in buff){
+            const monster = buff[id]
+            if(monster.scene === miya.scene) {
+              logikaMonsterJungler(dt, miya, monster, physics)
+              hpMonster(dt, monster, game.camera, renderer)
+            }
+          }
+          
+          // Collision detection
+          panahMiyaVsMonster(dt, listPanahMiya, physics)
+          miyaVsMonster(dt, hero, hpBar, physics)
+          logikaKelomang(dt, miya, physics)
+          updateBulletKelomang(dt, physics)
+          
+          // HP bars untuk monster
+          Object.values(kelomang).forEach(el => {
+            if(el.scene === miya.scene) hpKelomang(dt, el, game.camera, renderer)
+          })
+          Object.values(guin).forEach(el => {
+            if(el.scene === miya.scene) hpGuin(dt, el, game.camera, renderer)
+          })
+          
+          // Collision dengan kelomang
+          panahMiyaVsKelomang(dt, listPanahMiya, physics)
+          panahMiyaVsGuin(dt, listPanahMiya, physics)
+          miyaVsKelomang(dt, hero, hpBar, physics)
+          anakKelomangVsMiya(dt, hero, hpBar, physics)
+          logikaGuinevere(dt, hero, hpBar, physics, utils)
+          updatePeluruGuin(dt)
+          peluruGuinVsMiya(dt, hero, hpBar, physics)
+          miyaMengambilItem(hero, physics)
+          miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
+          
+        } catch(error) {
+          console.error("Game error:", error);
         }
-        
-        for(let id in listPanahMiya){
-          let panah = listPanahMiya[id]
-          panah.x += panah.dir * panah.speed * dt
-          panah.y += panah.dirY * panah.speed * dt
-          panah.lifeTime -= dt
-          if(panah.lifeTime <= 0) delete listPanahMiya[panah.id]
-        }
-        
-        for(let id in buff){
-          const monster = buff[id]
-          logikaMonsterJungler(dt, hero.miya, monster, physics)
-          hpMonster(dt, monster, game.camera, renderer)
-        }
-        
-        panahMiyaVsMonster(dt, listPanahMiya, physics)
-        miyaVsMonster(dt, hero, hpBar, physics)
-        logikaKelomang(dt, hero.miya, physics)
-        updateBulletKelomang(dt, physics)
-        Object.values(kelomang).forEach(el => hpKelomang(dt, el, game.camera, renderer))
-        Object.values(guin).forEach(el => hpGuin(dt, el, game.camera, renderer))
-        panahMiyaVsKelomang(dt, listPanahMiya, physics)
-        panahMiyaVsGuin(dt, listPanahMiya, physics)
-        miyaVsKelomang(dt, hero, hpBar, physics)
-        anakKelomangVsMiya(dt, hero, hpBar, physics)
-        logikaGuinevere(dt, hero, hpBar, physics, utils)
-        updatePeluruGuin(dt)
-        peluruGuinVsMiya(dt, hero, hpBar, physics)
-        miyaMengambilItem(hero, physics)
-        miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
       })
     }
     init()

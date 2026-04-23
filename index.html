@@ -54,7 +54,6 @@
       to { transform: rotate(360deg); }
     }
     
-    /* ===== LAYAR PEMILIHAN KARAKTER ===== */
     #characterSelect {
       position: fixed;
       top: 0;
@@ -181,15 +180,6 @@
       box-shadow: none;
     }
     
-    /* HP & MP Bar container */
-    .bars-container {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 10001;
-      pointer-events: none;
-    }
-    
     @media (max-width: 600px) {
       .char-container { gap: 20px; }
       .char-card { width: 170px; padding: 10px; }
@@ -250,6 +240,7 @@
   <script src="./kura.js"></script>
   <script src="./laba.js"></script>
   <script src="./shuken.js"></script>
+  <script src="AnalogController.js"></script>
   
   <script>
     (function() {
@@ -265,7 +256,7 @@
       
       let selectedHero = null
       let loadedTexture = null
-      let gameStarted = false
+      let gameController = null
       
       const listImg = {
         idle: { path: "Diam1.png" },
@@ -347,15 +338,12 @@
         background: "#222", border: "1px solid black", lerpSpeed: 5
       })
       
-      // Force bars to be visible and on top
       hpBar.el.style.position = "fixed"
       hpBar.el.style.zIndex = "10001"
+      hpBar.el.style.display = "none"
       manaBar.el.style.position = "fixed"
       manaBar.el.style.zIndex = "10001"
-      
-      let tombolKiri, tombolKanan, tombolLompat
-      let tombolPanah = null, tombolShukenAttack = null
-      let tombolShukenSkill1 = null, tombolShukenSkill2 = null, tombolShukenUlti = null
+      manaBar.el.style.display = "none"
       
       let listPanahMiya = {}
       let listUpdateDraw = []
@@ -386,7 +374,6 @@
         if (!selectedHero) return
         selectScreen.style.display = "none"
         
-        // Show and set bars
         hpBar.el.style.display = "block"
         manaBar.el.style.display = "block"
         
@@ -406,94 +393,130 @@
       }
       
       function initGame() {
-        const oldButtons = document.querySelectorAll('.vbtn');
-        oldButtons.forEach(btn => btn.remove());
+        if (gameController) gameController.destroy()
         
-        tombolKiri = new VirtualButton({ text: "◀", bottom: 15, left: 30, background: "rgba(0,0,0,0.5)", onPress: () => tombolKiri.press = true, onRelease: () => tombolKiri.press = false })
-        tombolKanan = new VirtualButton({ text: "▶", bottom: 15, left: 120, background: "rgba(0,0,0,0.5)", onPress: () => tombolKanan.press = true, onRelease: () => tombolKanan.press = false })
-        tombolLompat = new VirtualButton({ text: "▲", bottom: 100, right: 200, background: "rgba(0,0,0,0.5)", onPress: () => { const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken; if (activeHero.canMove) activeHero.jumpBufferTimer = 0.15 } })
-        
-        if (selectedHero === "miya") {
-          tombolPanah = new VirtualButton({ img: "Misil1.png", bottom: 100, right: 20, background: "rgba(0,150,255,0.7)", onPress: () => {
-            const miya = hero.miya
-            if (miya.superState) return
-            if (miya.energi < 5) return
-            miya.isAttack = true
-            miya.canMove = false
-            miya.energi -= 5
-            manaBar.setValue(miya.energi)
-            miya.superState = true
-            miya.state = "panah"
-            const id = crypto.randomUUID()
-            listPanahMiya[id] = { id: id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3, width: miya.statusItem === "peluruGanda" ? 60 : 40, height: miya.statusItem === "peluruGanda" ? 60 : 40, scene: miya.scene, dir: miya.animationDirection === "right" ? 1 : -1, dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0, speed: 500, lifeTime: 3, img: "panahMisil" }
-            miya.superTimer = 0.25
-          }})
-        } else if (selectedHero === "shuken") {
-          tombolShukenAttack = new VirtualButton({ text: "👊", bottom: 160, right: 20, background: "rgba(200,100,50,0.8)", fontSize: 32, onPress: () => {
-            const player = hero.shuken
-            if (player.superState) return
-            if (player.energi < 5) return
-            player.isAttacking = true
-            player.canMove = false
-            player.energi -= 5
-            manaBar.setValue(player.energi)
-            player.superState = true
-            player.state = "attack"
-            player.img = "shukenAttack1"
-            player.superTimer = 0.25
-          }})
-          
-          tombolShukenSkill1 = new VirtualButton({ text: "⚡", bottom: 100, right: 20, background: "rgba(100,50,200,0.8)", fontSize: 32, onPress: () => {
-            const player = hero.shuken
-            if (player.superState) return
-            if (player.energi < 12) return
-            player.isUsingSkill = true
-            player.canMove = false
-            player.energi -= 12
-            manaBar.setValue(player.energi)
-            player.superState = true
-            player.state = "skill1"
-            player.img = "shukenSkill1"
-            const id = crypto.randomUUID()
-            bolaPetir[id] = { id: id, x: player.x + player.width/2 - 20, y: player.y + player.height/3, width: 45, height: 45, scene: "1", dir: player.animationDirection === "right" ? 1 : -1, speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir" }
-            player.superTimer = 0.35
-          }})
-          
-          tombolShukenSkill2 = new VirtualButton({ text: "🌩️", bottom: 100, right: 110, background: "rgba(150,50,200,0.8)", fontSize: 28, onPress: () => {
-            const player = hero.shuken
-            if (player.superState) return
-            if (player.energi < 25) return
-            player.isUsingSkill = true
-            player.canMove = false
-            player.energi -= 25
-            manaBar.setValue(player.energi)
-            player.superState = true
-            player.state = "skill2"
-            player.img = "shukenSkill2"
-            const areaX = player.animationDirection === "right" ? player.x + player.width + 20 : player.x - 140
-            const areaY = player.y + player.height/2
-            const id = crypto.randomUUID()
-            petirArea[id] = { id: id, x: areaX, y: areaY - 60, width: 140, height: 120, scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea" }
-            player.superTimer = 0.4
-          }})
-          
-          tombolShukenUlti = new VirtualButton({ text: "💜⚡", bottom: 160, right: 110, background: "rgba(200,50,255,0.9)", fontSize: 24, onPress: () => {
-            const player = hero.shuken
-            if (player.superState) return
-            if (player.energi < 50) return
-            player.isUsingSkill = true
-            player.canMove = false
-            player.energi -= 50
-            manaBar.setValue(player.energi)
-            player.superState = true
-            player.state = "ulti"
-            player.img = "shukenUlti"
-            const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
-            const id = crypto.randomUUID()
-            petirAtas[id] = { id: id, x: targetX, y: -50, width: 120, height: 850, scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas", isFalling: true }
-            player.superTimer = 0.6
-          }})
-        }
+        gameController = new GameController(selectedHero, {
+          onMove: (data) => {
+            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
+            if (activeHero.canMove && !activeHero.superState) {
+              activeHero.moveAnalog = data.dx
+              // Update animation direction
+              if (Math.abs(data.dx) > 0.1) {
+                activeHero.animationDirection = data.dx > 0 ? "right" : "left"
+              }
+            }
+          },
+          onMoveStop: () => {
+            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
+            activeHero.moveAnalog = 0
+          },
+          onJump: () => {
+            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
+            if (activeHero.canMove && !activeHero.superState) {
+              activeHero.jumpBufferTimer = 0.15
+            }
+          },
+          onAttack: () => {
+            if (selectedHero === "miya") {
+              const miya = hero.miya
+              if (miya.superState) return
+              if (miya.energi < 5) return
+              miya.isAttack = true
+              miya.canMove = false
+              miya.energi -= 5
+              manaBar.setValue(miya.energi)
+              miya.superState = true
+              miya.state = "panah"
+              const id = crypto.randomUUID()
+              listPanahMiya[id] = {
+                id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3,
+                width: miya.statusItem === "peluruGanda" ? 60 : 40,
+                height: miya.statusItem === "peluruGanda" ? 60 : 40,
+                scene: miya.scene, dir: miya.animationDirection === "right" ? 1 : -1,
+                dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
+                speed: 500, lifeTime: 3, img: "panahMisil"
+              }
+              miya.superTimer = 0.25
+            } else if (selectedHero === "shuken") {
+              const player = hero.shuken
+              if (player.superState) return
+              if (player.energi < 5) return
+              player.isAttacking = true
+              player.canMove = false
+              player.energi -= 5
+              manaBar.setValue(player.energi)
+              player.superState = true
+              player.state = "attack"
+              player.img = "shukenAttack1"
+              player.superTimer = 0.25
+            }
+          },
+          onSkill1: () => {
+            if (selectedHero === "shuken") {
+              const player = hero.shuken
+              if (player.superState) return
+              if (player.energi < 12) return
+              player.isUsingSkill = true
+              player.canMove = false
+              player.energi -= 12
+              manaBar.setValue(player.energi)
+              player.superState = true
+              player.state = "skill1"
+              player.img = "shukenSkill1"
+              const id = crypto.randomUUID()
+              bolaPetir[id] = {
+                id, x: player.x + player.width/2 - 20, y: player.y + player.height/3,
+                width: 45, height: 45, scene: "1",
+                dir: player.animationDirection === "right" ? 1 : -1,
+                speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir"
+              }
+              player.superTimer = 0.35
+            }
+          },
+          onSkill2: () => {
+            if (selectedHero === "shuken") {
+              const player = hero.shuken
+              if (player.superState) return
+              if (player.energi < 25) return
+              player.isUsingSkill = true
+              player.canMove = false
+              player.energi -= 25
+              manaBar.setValue(player.energi)
+              player.superState = true
+              player.state = "skill2"
+              player.img = "shukenSkill2"
+              const areaX = player.animationDirection === "right" ? player.x + player.width + 20 : player.x - 140
+              const areaY = player.y + player.height/2
+              const id = crypto.randomUUID()
+              petirArea[id] = {
+                id, x: areaX, y: areaY - 60, width: 140, height: 120,
+                scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea"
+              }
+              player.superTimer = 0.4
+            }
+          },
+          onUlti: () => {
+            if (selectedHero === "shuken") {
+              const player = hero.shuken
+              if (player.superState) return
+              if (player.energi < 50) return
+              player.isUsingSkill = true
+              player.canMove = false
+              player.energi -= 50
+              manaBar.setValue(player.energi)
+              player.superState = true
+              player.state = "ulti"
+              player.img = "shukenUlti"
+              const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
+              const id = crypto.randomUUID()
+              petirAtas[id] = {
+                id, x: targetX, y: -50, width: 120, height: 850,
+                scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas", isFalling: true
+              }
+              player.superTimer = 0.6
+            }
+          }
+        })
         
         startGameLoop()
       }
@@ -523,6 +546,8 @@
           
           if (selectedHero === "miya") {
             const miya = hero.miya
+            const moveDir = gameController?.getMoveDirection().dx || 0
+            
             if (miya.state === "run" && miya.canMove && !miya.superState) {
               lariTimer += dt
               if (lariTimer >= lariSpeed) { lariTimer = 0; lariFrame++; if (lariFrame > 3) lariFrame = 1 }
@@ -530,9 +555,7 @@
             } else if (!miya.superState) { miya.img = baseAnimasi[miya.state] || "idle"; lariTimer = 0; lariFrame = 1 }
             
             if (miya.canMove && !miya.superState) {
-              if (tombolKanan.press) miya.vx = miya.speed
-              else if (tombolKiri.press) miya.vx = -miya.speed
-              else miya.vx = 0
+              miya.vx = moveDir * miya.speed
             } else { miya.vx = 0 }
             
             physics.applyPhysics(dt, miya)
@@ -567,10 +590,10 @@
           
           if (selectedHero === "shuken") {
             const shukenHero = hero.shuken
+            const moveDir = gameController?.getMoveDirection().dx || 0
+            
             if (shukenHero.canMove && !shukenHero.superState) {
-              if (tombolKanan.press) shukenHero.vx = shukenHero.speed
-              else if (tombolKiri.press) shukenHero.vx = -shukenHero.speed
-              else shukenHero.vx = 0
+              shukenHero.vx = moveDir * shukenHero.speed
             } else { shukenHero.vx = 0 }
             
             physics.applyPhysics(dt, shukenHero)

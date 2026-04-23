@@ -92,7 +92,6 @@
       padding: 20px;
     }
     
-    /* CARD LEBIH KECIL */
     .char-card {
       width: 220px;
       padding: 15px;
@@ -117,7 +116,6 @@
       background: rgba(0,0,0,0.8);
     }
     
-    /* AVATAR LEBIH KECIL */
     .char-avatar {
       width: 130px;
       height: 130px;
@@ -127,15 +125,9 @@
       background-position: center;
     }
     
-    .char-avatar.miya {
-      background-image: url('Avatar1.png');
-    }
+    .char-avatar.miya { background-image: url('Avatar1.png'); }
+    .char-avatar.shuken { background-image: url('ShukenIdle1.png'); }
     
-    .char-avatar.shuken {
-      background-image: url('ShukenIdle1.png');
-    }
-    
-    /* NAMA LEBIH KECIL */
     .char-name {
       font-size: 28px;
       font-weight: bold;
@@ -145,7 +137,6 @@
     .char-name.miya { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
     .char-name.shuken { color: #aa44ff; text-shadow: 0 0 10px #aa44ff; }
     
-    /* STATS LEBIH KECIL */
     .char-stats {
       font-size: 11px;
       color: #ccc;
@@ -156,11 +147,8 @@
       border-radius: 10px;
     }
     
-    .char-stats span {
-      color: #ffcc00;
-    }
+    .char-stats span { color: #ffcc00; }
     
-    /* TOMBOL MULAI DI TENGAH */
     .btn-start-wrapper {
       display: flex;
       justify-content: center;
@@ -193,7 +181,15 @@
       box-shadow: none;
     }
     
-    /* RESPONSIVE */
+    /* HP & MP Bar container */
+    .bars-container {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 10001;
+      pointer-events: none;
+    }
+    
     @media (max-width: 600px) {
       .char-container { gap: 20px; }
       .char-card { width: 170px; padding: 10px; }
@@ -220,39 +216,24 @@
     <div>⚡ Loading Assets... ⚡</div>
   </div>
   
-  <!-- LAYAR PEMILIHAN KARAKTER -->
   <div id="characterSelect">
     <h1>⚔️ PILIH KARAKTER ⚔️</h1>
     <div class="char-container">
-      
-      <!-- MIYA CARD -->
       <div class="char-card" data-hero="miya" id="cardMiya">
         <div class="char-avatar miya"></div>
         <div class="char-name miya">MIYA</div>
         <div class="char-stats">
-          📊 STATS<br>
-          ❤️ HP: 150<br>
-          💛 ENERGI: 100<br>
-          🏃 SPEED: 400<br>
-          🏹 ATK: 10<br>
-          ⚡ SKILL: Panah
+          📊 STATS<br>❤️ HP: 150<br>💛 ENERGI: 100<br>🏃 SPEED: 400<br>🏹 ATK: 10<br>⚡ SKILL: Panah
         </div>
       </div>
       
-      <!-- SHUKEN CARD -->
       <div class="char-card" data-hero="shuken" id="cardShuken">
         <div class="char-avatar shuken"></div>
         <div class="char-name shuken">SHUKEN</div>
         <div class="char-stats">
-          📊 STATS<br>
-          ❤️ HP: 120<br>
-          💛 ENERGI: 100<br>
-          🏃 SPEED: 550<br>
-          👊 ATK: 35<br>
-          ⚡ SKILL: 3 Petir
+          📊 STATS<br>❤️ HP: 120<br>💛 ENERGI: 100<br>🏃 SPEED: 550<br>👊 ATK: 35<br>⚡ SKILL: 3 Petir
         </div>
       </div>
-      
     </div>
     <div class="btn-start-wrapper">
       <button class="btn-start disabled" id="btnStart">▶ START GAME ◀</button>
@@ -282,11 +263,10 @@
       physics.gameState.add("1")
       physics.grid.buildStatic(tembok)
       
-      // ===== VARIABEL KARAKTER TERPILIH =====
       let selectedHero = null
       let loadedTexture = null
+      let gameStarted = false
       
-      // ===== ASET GAMBAR =====
       const listImg = {
         idle: { path: "Diam1.png" },
         lari1: { path: "Lari1.png" },
@@ -296,26 +276,21 @@
         fall: { path: "Turun1.png" },
         panah: { path: "Pnh2.png" },
         panahMisil: { path: "Misil1.png" },
-        
         wall: { path: "Walll1.png" },
         gerbang: { path: "WallRentak1.png" },
-        
         buff: { path: "Semut2.png" },
         heal: { path: "Heal1.png" },
         energi: { path: "Energi1.png" },
         peluruGanda: { path: "PeluruGanda1.png" },
-        
         kelomang: { path: "Kura3.png" },
         kelomangDiam: { path: "Kura1.png" },
         kelomangNembak: { path: "Kura2.png" },
-        
         guinLari: { path: "LabaLari2.png" },
         guinDiam: { path: "LabaLari1.png" },
         guinLompat: { path: "LabaNembak1.png" },
         guinUlti: { path: "LabaMakan2.png" },
         guinShoot: { path: "LabaNembak2.png" },
         bolaGuin: { path: "BolaUlti2.png" },
-        
         shukenIdle: { path: "ShukenIdle1.png" },
         shukenRun1: { path: "ShukenRun1.png" },
         shukenRun2: { path: "ShukenRun2.png" },
@@ -332,134 +307,63 @@
         petirAtas: { path: "PetirAtas1.png" }
       }
       
-      // ===== DATA HERO =====
       const hero = {
         miya: {
-          x: 0,
-          y: -800,
-          width: 130,
-          height: 130,
-          hp: 150,
-          maxHp: 150,
-          energi: 100,
-          maxEnergi: 100,
-          gravity: 2000,
-          jumpPower: 700,
-          speed: 400,
-          useCollider: true,
-          colliderBox: { width: 60, height: 110 },
-          useHurtBox: true,
-          hurtBox: { x: 0, y: 0, width: 60, height: 130 },
-          vx: 0,
-          vy: 0,
-          scene: "1",
-          isAttack: false,
-          superState: false,
-          superTimer: 0,
-          state: "idle",
-          img: "idle",
-          animationDirection: "right",
-          statusItem: "",
-          durasiItem: 0,
-          tintColor: "white",
-          currentHero: "miya",
-          canMove: true,
-          canAttack: true
+          x: 0, y: -800, width: 130, height: 130,
+          hp: 150, maxHp: 150, energi: 100, maxEnergi: 100,
+          gravity: 2000, jumpPower: 700, speed: 400,
+          useCollider: true, colliderBox: { width: 60, height: 110 },
+          useHurtBox: true, hurtBox: { x: 0, y: 0, width: 60, height: 130 },
+          vx: 0, vy: 0, scene: "1",
+          isAttack: false, superState: false, superTimer: 0,
+          state: "idle", img: "idle", animationDirection: "right",
+          statusItem: "", durasiItem: 0, tintColor: "white",
+          currentHero: "miya", canMove: true, canAttack: true
         },
         shuken: {
-          x: 0,
-          y: -800,
-          width: 140,
-          height: 150,
-          hp: 120,
-          maxHp: 120,
-          energi: 100,
-          maxEnergi: 100,
-          gravity: 2000,
-          jumpPower: 680,
-          speed: 550,
-          attackDamage: 35,
-          useCollider: true,
-          colliderBox: { width: 65, height: 120 },
-          useHurtBox: true,
-          hurtBox: { x: 0, y: 0, width: 65, height: 140 },
-          vx: 0,
-          vy: 0,
-          scene: "1",
-          isAttacking: false,
-          isUsingSkill: false,
-          superState: false,
-          superTimer: 0,
-          state: "idle",
-          img: "shukenIdle",
-          animationDirection: "right",
-          tintColor: "white",
-          currentHero: "shuken",
-          canMove: true,
-          canAttack: true
+          x: 0, y: -800, width: 140, height: 150,
+          hp: 120, maxHp: 120, energi: 100, maxEnergi: 100,
+          gravity: 2000, jumpPower: 680, speed: 550, attackDamage: 35,
+          useCollider: true, colliderBox: { width: 65, height: 120 },
+          useHurtBox: true, hurtBox: { x: 0, y: 0, width: 65, height: 140 },
+          vx: 0, vy: 0, scene: "1",
+          isAttacking: false, isUsingSkill: false,
+          superState: false, superTimer: 0,
+          state: "idle", img: "shukenIdle", animationDirection: "right",
+          tintColor: "white", currentHero: "shuken", canMove: true, canAttack: true
         }
       }
       
-      // HP Bar & Mana Bar
+      // HP & MP Bars
       const hpBar = new VirtualBarDiv({
-        value: 100,
-        maxValue: 100,
-        width: 200,
-        height: 18,
-        top: 38,
-        left: 82,
-        fillColor: "lime",
-        visualColor: "maroon",
-        background: "#222",
-        border: "2px solid black",
-        lerpSpeed: 5
+        value: 100, maxValue: 100, width: 200, height: 18,
+        top: 15, left: 85, fillColor: "lime", visualColor: "maroon",
+        background: "#222", border: "2px solid black", lerpSpeed: 5
       })
       
       const manaBar = new VirtualBarDiv({
-        value: 100,
-        maxValue: 100,
-        width: 200,
-        height: 12,
-        top: 58,
-        left: 82,
-        fillColor: "#ffcc00",
-        visualColor: "#aa8800",
-        background: "#222",
-        border: "1px solid black",
-        lerpSpeed: 5
+        value: 100, maxValue: 100, width: 200, height: 12,
+        top: 38, left: 85, fillColor: "#ffcc00", visualColor: "#aa8800",
+        background: "#222", border: "1px solid black", lerpSpeed: 5
       })
       
-      hpBar.el.style.display = "none"
-      manaBar.el.style.display = "none"
+      // Force bars to be visible and on top
+      hpBar.el.style.position = "fixed"
+      hpBar.el.style.zIndex = "10001"
+      manaBar.el.style.position = "fixed"
+      manaBar.el.style.zIndex = "10001"
       
-      // ===== TOMBOL GLOBAL =====
       let tombolKiri, tombolKanan, tombolLompat
-      let tombolPanah = null
-      let tombolShukenAttack = null
-      let tombolShukenSkill1 = null
-      let tombolShukenSkill2 = null
-      let tombolShukenUlti = null
+      let tombolPanah = null, tombolShukenAttack = null
+      let tombolShukenSkill1 = null, tombolShukenSkill2 = null, tombolShukenUlti = null
       
-      // ===== DATA GAME =====
       let listPanahMiya = {}
       let listUpdateDraw = []
       let dialog, text, text2, text3, avatar
-      
-      let lariFrame = 1
-      let lariTimer = 0
-      let lariFrameShuken = 1
-      let lariTimerShuken = 0
+      let lariFrame = 1, lariTimer = 0, lariFrameShuken = 1, lariTimerShuken = 0
       const lariSpeed = 0.12
+      const baseAnimasi = { idle: "idle", run: "run", jump: "jump", fall: "fall", panah: "panah" }
       
-      const baseAnimasi = {
-        idle: "idle",
-        run: "run",
-        jump: "jump",
-        fall: "fall",
-        panah: "panah"
-      }
-      
-      // ===== LOGIKA PEMILIHAN KARAKTER =====
       const cardMiya = document.getElementById("cardMiya")
       const cardShuken = document.getElementById("cardShuken")
       const btnStart = document.getElementById("btnStart")
@@ -469,13 +373,8 @@
       function selectCharacter(heroName) {
         cardMiya.classList.remove("selected")
         cardShuken.classList.remove("selected")
-        
-        if (heroName === "miya") {
-          cardMiya.classList.add("selected")
-        } else if (heroName === "shuken") {
-          cardShuken.classList.add("selected")
-        }
-        
+        if (heroName === "miya") cardMiya.classList.add("selected")
+        else if (heroName === "shuken") cardShuken.classList.add("selected")
         btnStart.classList.remove("disabled")
         selectedHero = heroName
       }
@@ -486,323 +385,155 @@
       btnStart.onclick = () => {
         if (!selectedHero) return
         selectScreen.style.display = "none"
+        
+        // Show and set bars
+        hpBar.el.style.display = "block"
+        manaBar.el.style.display = "block"
+        
+        if (selectedHero === "miya") {
+          hpBar.setMaxValue(hero.miya.maxHp)
+          hpBar.setValue(hero.miya.hp)
+          manaBar.setMaxValue(hero.miya.maxEnergi)
+          manaBar.setValue(hero.miya.energi)
+        } else {
+          hpBar.setMaxValue(hero.shuken.maxHp)
+          hpBar.setValue(hero.shuken.hp)
+          manaBar.setMaxValue(hero.shuken.maxEnergi)
+          manaBar.setValue(hero.shuken.energi)
+        }
+        
         startGameAfterLoad()
       }
       
-      // ===== INIT GAME =====
       function initGame() {
-        // HAPUS TOMBOL LAMA
         const oldButtons = document.querySelectorAll('.vbtn');
         oldButtons.forEach(btn => btn.remove());
         
-        // ===== TOMBOL MOVEMENT =====
-        tombolKiri = new VirtualButton({
-          text: "◀",
-          bottom: 15,
-          left: 30,
-          background: "rgba(0,0,0,0.5)",
-          onPress: () => tombolKiri.press = true,
-          onRelease: () => tombolKiri.press = false
-        })
+        tombolKiri = new VirtualButton({ text: "◀", bottom: 15, left: 30, background: "rgba(0,0,0,0.5)", onPress: () => tombolKiri.press = true, onRelease: () => tombolKiri.press = false })
+        tombolKanan = new VirtualButton({ text: "▶", bottom: 15, left: 120, background: "rgba(0,0,0,0.5)", onPress: () => tombolKanan.press = true, onRelease: () => tombolKanan.press = false })
+        tombolLompat = new VirtualButton({ text: "▲", bottom: 100, right: 200, background: "rgba(0,0,0,0.5)", onPress: () => { const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken; if (activeHero.canMove) activeHero.jumpBufferTimer = 0.15 } })
         
-        tombolKanan = new VirtualButton({
-          text: "▶",
-          bottom: 15,
-          left: 120,
-          background: "rgba(0,0,0,0.5)",
-          onPress: () => tombolKanan.press = true,
-          onRelease: () => tombolKanan.press = false
-        })
-        
-        tombolLompat = new VirtualButton({
-          text: "▲",
-          bottom: 100,
-          right: 200,
-          background: "rgba(0,0,0,0.5)",
-          onPress: () => {
-            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
-            if (activeHero.canMove) {
-              activeHero.jumpBufferTimer = 0.15
-            }
-          }
-        })
-        
-        // ===== TOMBOL BERDASARKAN KARAKTER =====
         if (selectedHero === "miya") {
-          tombolPanah = new VirtualButton({
-            img: "Misil1.png",
-            bottom: 100,
-            right: 20,
-            background: "rgba(0,150,255,0.7)",
-            onPress: () => {
-              const miya = hero.miya
-              if (miya.superState) return
-              if (miya.energi < 5) return
-              
-              miya.isAttack = true
-              miya.canMove = false
-              miya.energi -= 5
-              manaBar.setValue(miya.energi)
-              miya.superState = true
-              miya.state = "panah"
-              
-              const id = crypto.randomUUID()
-              listPanahMiya[id] = {
-                id: id,
-                x: miya.x + miya.width/2 - 15,
-                y: miya.y + miya.height/3,
-                width: miya.statusItem === "peluruGanda" ? 60 : 40,
-                height: miya.statusItem === "peluruGanda" ? 60 : 40,
-                scene: miya.scene,
-                dir: miya.animationDirection === "right" ? 1 : -1,
-                dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
-                speed: 500,
-                lifeTime: 3,
-                img: "panahMisil"
-              }
-              miya.superTimer = 0.25
-            }
-          })
-        } 
-        else if (selectedHero === "shuken") {
-          tombolShukenAttack = new VirtualButton({
-            text: "👊",
-            bottom: 160,
-            right: 20,
-            background: "rgba(200,100,50,0.8)",
-            fontSize: 32,
-            onPress: () => {
-              const player = hero.shuken
-              if (player.superState) return
-              if (player.energi < 5) return
-              
-              player.isAttacking = true
-              player.canMove = false
-              player.energi -= 5
-              manaBar.setValue(player.energi)
-              player.superState = true
-              player.state = "attack"
-              player.img = "shukenAttack1"
-              player.superTimer = 0.25
-            }
-          })
+          tombolPanah = new VirtualButton({ img: "Misil1.png", bottom: 100, right: 20, background: "rgba(0,150,255,0.7)", onPress: () => {
+            const miya = hero.miya
+            if (miya.superState) return
+            if (miya.energi < 5) return
+            miya.isAttack = true
+            miya.canMove = false
+            miya.energi -= 5
+            manaBar.setValue(miya.energi)
+            miya.superState = true
+            miya.state = "panah"
+            const id = crypto.randomUUID()
+            listPanahMiya[id] = { id: id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3, width: miya.statusItem === "peluruGanda" ? 60 : 40, height: miya.statusItem === "peluruGanda" ? 60 : 40, scene: miya.scene, dir: miya.animationDirection === "right" ? 1 : -1, dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0, speed: 500, lifeTime: 3, img: "panahMisil" }
+            miya.superTimer = 0.25
+          }})
+        } else if (selectedHero === "shuken") {
+          tombolShukenAttack = new VirtualButton({ text: "👊", bottom: 160, right: 20, background: "rgba(200,100,50,0.8)", fontSize: 32, onPress: () => {
+            const player = hero.shuken
+            if (player.superState) return
+            if (player.energi < 5) return
+            player.isAttacking = true
+            player.canMove = false
+            player.energi -= 5
+            manaBar.setValue(player.energi)
+            player.superState = true
+            player.state = "attack"
+            player.img = "shukenAttack1"
+            player.superTimer = 0.25
+          }})
           
-          tombolShukenSkill1 = new VirtualButton({
-            text: "⚡",
-            bottom: 100,
-            right: 20,
-            background: "rgba(100,50,200,0.8)",
-            fontSize: 32,
-            onPress: () => {
-              const player = hero.shuken
-              if (player.superState) return
-              if (player.energi < 12) return
-              
-              player.isUsingSkill = true
-              player.canMove = false
-              player.energi -= 12
-              manaBar.setValue(player.energi)
-              player.superState = true
-              player.state = "skill1"
-              player.img = "shukenSkill1"
-              
-              const id = crypto.randomUUID()
-              bolaPetir[id] = {
-                id: id,
-                x: player.x + player.width/2 - 20,
-                y: player.y + player.height/3,
-                width: 45,
-                height: 45,
-                scene: "1",
-                dir: player.animationDirection === "right" ? 1 : -1,
-                speed: 600,
-                damage: 20,
-                lifeTime: 2,
-                img: "bolaPetir"
-              }
-              player.superTimer = 0.35
-            }
-          })
+          tombolShukenSkill1 = new VirtualButton({ text: "⚡", bottom: 100, right: 20, background: "rgba(100,50,200,0.8)", fontSize: 32, onPress: () => {
+            const player = hero.shuken
+            if (player.superState) return
+            if (player.energi < 12) return
+            player.isUsingSkill = true
+            player.canMove = false
+            player.energi -= 12
+            manaBar.setValue(player.energi)
+            player.superState = true
+            player.state = "skill1"
+            player.img = "shukenSkill1"
+            const id = crypto.randomUUID()
+            bolaPetir[id] = { id: id, x: player.x + player.width/2 - 20, y: player.y + player.height/3, width: 45, height: 45, scene: "1", dir: player.animationDirection === "right" ? 1 : -1, speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir" }
+            player.superTimer = 0.35
+          }})
           
-          tombolShukenSkill2 = new VirtualButton({
-            text: "🌩️",
-            bottom: 100,
-            right: 110,
-            background: "rgba(150,50,200,0.8)",
-            fontSize: 28,
-            onPress: () => {
-              const player = hero.shuken
-              if (player.superState) return
-              if (player.energi < 25) return
-              
-              player.isUsingSkill = true
-              player.canMove = false
-              player.energi -= 25
-              manaBar.setValue(player.energi)
-              player.superState = true
-              player.state = "skill2"
-              player.img = "shukenSkill2"
-              
-              const areaX = player.animationDirection === "right"
-                ? player.x + player.width + 20
-                : player.x - 140
-              const areaY = player.y + player.height/2
-              
-              const id = crypto.randomUUID()
-              petirArea[id] = {
-                id: id,
-                x: areaX,
-                y: areaY - 60,
-                width: 140,
-                height: 120,
-                scene: "1",
-                damage: 30,
-                lifeTime: 0.35,
-                img: "petirArea"
-              }
-              player.superTimer = 0.4
-            }
-          })
+          tombolShukenSkill2 = new VirtualButton({ text: "🌩️", bottom: 100, right: 110, background: "rgba(150,50,200,0.8)", fontSize: 28, onPress: () => {
+            const player = hero.shuken
+            if (player.superState) return
+            if (player.energi < 25) return
+            player.isUsingSkill = true
+            player.canMove = false
+            player.energi -= 25
+            manaBar.setValue(player.energi)
+            player.superState = true
+            player.state = "skill2"
+            player.img = "shukenSkill2"
+            const areaX = player.animationDirection === "right" ? player.x + player.width + 20 : player.x - 140
+            const areaY = player.y + player.height/2
+            const id = crypto.randomUUID()
+            petirArea[id] = { id: id, x: areaX, y: areaY - 60, width: 140, height: 120, scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea" }
+            player.superTimer = 0.4
+          }})
           
-          tombolShukenUlti = new VirtualButton({
-            text: "💜⚡",
-            bottom: 160,
-            right: 110,
-            background: "rgba(200,50,255,0.9)",
-            fontSize: 24,
-            onPress: () => {
-              const player = hero.shuken
-              if (player.superState) return
-              if (player.energi < 50) return
-              
-              player.isUsingSkill = true
-              player.canMove = false
-              player.energi -= 50
-              manaBar.setValue(player.energi)
-              player.superState = true
-              player.state = "ulti"
-              player.img = "shukenUlti"
-              
-              const targetX = player.animationDirection === "right"
-                ? player.x + player.width + 50
-                : player.x - 150
-              
-              const id = crypto.randomUUID()
-              petirAtas[id] = {
-                id: id,
-                x: targetX,
-                y: -50,
-                width: 120,
-                height: 850,
-                scene: "1",
-                damage: 60,
-                lifeTime: 0.5,
-                img: "petirAtas",
-                isFalling: true
-              }
-              player.superTimer = 0.6
-            }
-          })
+          tombolShukenUlti = new VirtualButton({ text: "💜⚡", bottom: 160, right: 110, background: "rgba(200,50,255,0.9)", fontSize: 24, onPress: () => {
+            const player = hero.shuken
+            if (player.superState) return
+            if (player.energi < 50) return
+            player.isUsingSkill = true
+            player.canMove = false
+            player.energi -= 50
+            manaBar.setValue(player.energi)
+            player.superState = true
+            player.state = "ulti"
+            player.img = "shukenUlti"
+            const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
+            const id = crypto.randomUUID()
+            petirAtas[id] = { id: id, x: targetX, y: -50, width: 120, height: 850, scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas", isFalling: true }
+            player.superTimer = 0.6
+          }})
         }
         
         startGameLoop()
       }
       
-      // ===== GAME LOOP =====
       let listDraw
       
       function startGameLoop() {
         listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas]
         listUpdateDraw = []
+        listDraw.forEach(entitas => { listUpdateDraw.push(new Draw(entitas, loadedTexture, renderer, physics.gameState)) })
         
-        listDraw.forEach(entitas => {
-          listUpdateDraw.push(new Draw(entitas, loadedTexture, renderer, physics.gameState))
-        })
+        dialog = new VirtualLyrics(canvas).startX(10).startY(100).color("white")
+          .fill("ibill .....").fill("kesadaran yg engkau miliki").fill("menjadikan dirimu sebagai puncak").fill("rantai makanan").fill("tetap tenang, dan terus maju")
         
-        dialog = new VirtualLyrics(canvas)
-          .startX(10)
-          .startY(100)
-          .color("white")
-          .fill("ibill .....")
-          .fill("kesadaran yg engkau miliki")
-          .fill("menjadikan dirimu sebagai puncak")
-          .fill("rantai makanan")
-          .fill("tetap tenang, dan terus maju")
-        
-        text = new VirtualText({
-          text: selectedHero === "miya" ? "MIYA" : "SHUKEN",
-          color: selectedHero === "miya" ? "#00ff88" : "#aa44ff",
-          fontSize: 26,
-          padding: "2px 10px",
-          textShadow: "2px 1px 1px black",
-          top: 5,
-          left: 80
-        })
-        
-        text2 = new VirtualText({
-          text: "support via DANA",
-          color: "white",
-          fontSize: 9,
-          padding: "2px 8px",
-          top: 5,
-          right: 5
-        })
-        
-        text3 = new VirtualText({
-          text: "0821-1602-3162",
-          color: "white",
-          fontSize: 9,
-          padding: "2px 8px",
-          top: 18,
-          right: 5
-        })
-        
-        avatar = new VirtualImg({
-          src: selectedHero === "miya" ? "Avatar1.png" : "ShukenIdle1.png",
-          width: 65, height: 65,
-          top: 5, left: 5,
-          borderRadius: "50%",
-          background: "#eee",
-          border: "2px solid gold"
-        })
+        text = new VirtualText({ text: selectedHero === "miya" ? "MIYA" : "SHUKEN", color: selectedHero === "miya" ? "#00ff88" : "#aa44ff", fontSize: 24, padding: "2px 10px", textShadow: "2px 1px 1px black", top: 5, left: 290 })
+        text2 = new VirtualText({ text: "support via DANA", color: "white", fontSize: 9, padding: "2px 8px", top: 5, right: 5 })
+        text3 = new VirtualText({ text: "0821-1602-3162", color: "white", fontSize: 9, padding: "2px 8px", top: 18, right: 5 })
+        avatar = new VirtualImg({ src: selectedHero === "miya" ? "Avatar1.png" : "ShukenIdle1.png", width: 60, height: 60, top: 5, left: 5, borderRadius: "50%", background: "#eee", border: "2px solid gold" })
         
         game.render(dt => {
           physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas)
-          
           dialog.play(dt)
           
           const activeHeroObj = selectedHero === "miya" ? hero.miya : hero.shuken
           game.cameraOn({ active: activeHeroObj }, "active", 4, 2.5)
+          for (let entitas of listUpdateDraw) { entitas.update(dt, game.camera) }
           
-          for (let entitas of listUpdateDraw) {
-            entitas.update(dt, game.camera)
-          }
-          
-          // ===== MIYA LOGIC =====
           if (selectedHero === "miya") {
             const miya = hero.miya
-            
             if (miya.state === "run" && miya.canMove && !miya.superState) {
               lariTimer += dt
-              if (lariTimer >= lariSpeed) {
-                lariTimer = 0
-                lariFrame++
-                if (lariFrame > 3) lariFrame = 1
-              }
+              if (lariTimer >= lariSpeed) { lariTimer = 0; lariFrame++; if (lariFrame > 3) lariFrame = 1 }
               miya.img = `lari${lariFrame}`
-            } else if (!miya.superState) {
-              miya.img = baseAnimasi[miya.state] || "idle"
-              lariTimer = 0
-              lariFrame = 1
-            }
+            } else if (!miya.superState) { miya.img = baseAnimasi[miya.state] || "idle"; lariTimer = 0; lariFrame = 1 }
             
             if (miya.canMove && !miya.superState) {
               if (tombolKanan.press) miya.vx = miya.speed
               else if (tombolKiri.press) miya.vx = -miya.speed
               else miya.vx = 0
-            } else {
-              miya.vx = 0
-            }
+            } else { miya.vx = 0 }
             
             physics.applyPhysics(dt, miya)
             physics.platformerLogic(dt, miya)
@@ -811,16 +542,12 @@
             
             if (miya.superTimer > 0) {
               miya.superTimer -= dt
-              if (miya.superTimer <= 0) {
-                miya.superState = false
-                miya.isAttack = false
-                miya.canMove = true
-                miya.state = "idle"
-              }
+              if (miya.superTimer <= 0) { miya.superState = false; miya.isAttack = false; miya.canMove = true; miya.state = "idle" }
             }
             
             miya.energi = Math.min(miya.maxEnergi, miya.energi + 1.5 * dt)
             manaBar.setValue(miya.energi)
+            hpBar.setValue(miya.hp)
             
             for (let id in listPanahMiya) {
               let panah = listPanahMiya[id]
@@ -835,21 +562,16 @@
             panahMiyaVsKelomang(dt, listPanahMiya, physics)
             miyaVsKelomang(dt, hero, hpBar, physics)
             panahMiyaVsGuin(dt, listPanahMiya, physics)
-            
             if (miya.vy > 3000 || miya.hp <= 0) resetGame(miya)
           }
           
-          // ===== SHUKEN LOGIC =====
           if (selectedHero === "shuken") {
             const shukenHero = hero.shuken
-            
             if (shukenHero.canMove && !shukenHero.superState) {
               if (tombolKanan.press) shukenHero.vx = shukenHero.speed
               else if (tombolKiri.press) shukenHero.vx = -shukenHero.speed
               else shukenHero.vx = 0
-            } else {
-              shukenHero.vx = 0
-            }
+            } else { shukenHero.vx = 0 }
             
             physics.applyPhysics(dt, shukenHero)
             physics.platformerLogic(dt, shukenHero)
@@ -857,22 +579,14 @@
             utils.activeHurtBox(shukenHero)
             
             if (!shukenHero.superState) {
-              if (!shukenHero.onGround) {
-                shukenHero.state = shukenHero.vy < 0 ? "jump" : "fall"
-              } else if (Math.abs(shukenHero.vx) > 10) {
-                shukenHero.state = "run"
-              } else {
-                shukenHero.state = "idle"
-              }
+              if (!shukenHero.onGround) shukenHero.state = shukenHero.vy < 0 ? "jump" : "fall"
+              else if (Math.abs(shukenHero.vx) > 10) shukenHero.state = "run"
+              else shukenHero.state = "idle"
             }
             
             if (shukenHero.state === "run" && shukenHero.canMove && !shukenHero.superState) {
               lariTimerShuken += dt
-              if (lariTimerShuken >= lariSpeed) {
-                lariTimerShuken = 0
-                lariFrameShuken++
-                if (lariFrameShuken > 3) lariFrameShuken = 1
-              }
+              if (lariTimerShuken >= lariSpeed) { lariTimerShuken = 0; lariFrameShuken++; if (lariFrameShuken > 3) lariFrameShuken = 1 }
               shukenHero.img = `shukenRun${lariFrameShuken}`
             } else if (!shukenHero.superState) {
               if (shukenHero.state === "jump") shukenHero.img = "shukenJump"
@@ -882,35 +596,20 @@
             
             if (shukenHero.superTimer > 0) {
               shukenHero.superTimer -= dt
-              if (shukenHero.superTimer <= 0) {
-                shukenHero.superState = false
-                shukenHero.isAttacking = false
-                shukenHero.isUsingSkill = false
-                shukenHero.canMove = true
-                shukenHero.state = "idle"
-              }
+              if (shukenHero.superTimer <= 0) { shukenHero.superState = false; shukenHero.isAttacking = false; shukenHero.isUsingSkill = false; shukenHero.canMove = true; shukenHero.state = "idle" }
             }
             
             shukenHero.energi = Math.min(shukenHero.maxEnergi, shukenHero.energi + 2 * dt)
             manaBar.setValue(shukenHero.energi)
+            hpBar.setValue(shukenHero.hp)
             
             updateBolaPetir(dt, physics)
             updatePetirArea(dt, physics)
             updatePetirAtas(dt, physics)
             
             if (shukenHero.isAttacking && shukenHero.superState) {
-              const attackX = shukenHero.animationDirection === "right"
-                ? shukenHero.x + shukenHero.width
-                : shukenHero.x - 60
-              const attackHitbox = {
-                x: attackX,
-                y: shukenHero.y + shukenHero.height/3,
-                width: 60,
-                height: 70,
-                damage: shukenHero.attackDamage,
-                scene: "1"
-              }
-              
+              const attackX = shukenHero.animationDirection === "right" ? shukenHero.x + shukenHero.width : shukenHero.x - 60
+              const attackHitbox = { x: attackX, y: shukenHero.y + shukenHero.height/3, width: 60, height: 70, damage: shukenHero.attackDamage, scene: "1" }
               physics.aabb({ temp: attackHitbox }, "buff", (hit, musuh) => { musuh.hp -= shukenHero.attackDamage; musuh.tintColor = "purple" })
               physics.aabb({ temp: attackHitbox }, "kelomang", (hit, musuh) => { musuh.hp -= shukenHero.attackDamage; musuh.tintColor = "purple" })
               physics.aabb({ temp: attackHitbox }, "guin", (hit, musuh) => { if (musuh.aktif) musuh.hp -= shukenHero.attackDamage; musuh.tintColor = "purple" })
@@ -920,67 +619,47 @@
             if (shukenHero.vy > 3000 || shukenHero.hp <= 0) resetGame(shukenHero)
           }
           
-          // ===== MONSTER LOGIC =====
           const currentPlayer = selectedHero === "miya" ? hero.miya : hero.shuken
-          
-          for (let id in buff) {
-            logikaMonsterJungler(dt, currentPlayer, buff[id], physics)
-            hpMonster(dt, buff[id], game.camera, renderer)
-          }
-          
+          for (let id in buff) { logikaMonsterJungler(dt, currentPlayer, buff[id], physics); hpMonster(dt, buff[id], game.camera, renderer) }
           logikaKelomang(dt, currentPlayer, physics)
           updateBulletKelomang(dt, physics)
           Object.values(kelomang).forEach(el => hpKelomang(dt, el, game.camera, renderer))
           Object.values(guin).forEach(el => hpGuin(dt, el, game.camera, renderer))
-          
           anakKelomangVsMiya(dt, hero, hpBar, physics)
           logikaGuinevere(dt, hero, hpBar, physics, utils)
           updatePeluruGuin(dt)
           peluruGuinVsMiya(dt, hero, hpBar, physics)
-          
           miyaMengambilItem(hero, physics)
           miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
-          
-          hpBar.moveTo({ left: 82, top: 38 })
-          manaBar.moveTo({ left: 82, top: 58 })
         })
       }
       
       function resetGame(playerObj) {
         Object.values(tembok).forEach(wl => { if (wl.img === "gerbang") wl.scene = "1" })
         Object.values({...kelomang, ...buff, ...guin}).forEach(el => {
-          if (el.originalX !== undefined) {
-            el.x = el.originalX
-            el.y = el.originalY
-            el.hp = el.originalHp
-            el.scene = "1"
-          }
-          el.isChase = false
-          el.isDead = false
-          el.vx = 0
+          if (el.originalX !== undefined) { el.x = el.originalX; el.y = el.originalY; el.hp = el.originalHp; el.scene = "1" }
+          el.isChase = false; el.isDead = false; el.vx = 0
         })
-        playerObj.vy = 0
-        playerObj.x = 0
-        playerObj.y = 0
-        playerObj.hp = playerObj.maxHp
-        playerObj.energi = playerObj.maxEnergi
-        playerObj.superState = false
-        playerObj.superTimer = 0
-        playerObj.canMove = true
-        playerObj.state = "idle"
-        hpBar.setValue(playerObj.hp)
-        manaBar.setValue(playerObj.energi)
+        playerObj.vy = 0; playerObj.x = 0; playerObj.y = 0
+        playerObj.hp = playerObj.maxHp; playerObj.energi = playerObj.maxEnergi
+        playerObj.superState = false; playerObj.superTimer = 0
+        playerObj.canMove = true; playerObj.state = "idle"
+        hpBar.setValue(playerObj.hp); manaBar.setValue(playerObj.energi)
       }
       
-      // ===== MULAI LOADING =====
+      async function startGameAfterLoad() {
+        const aset = new Aset(gl, listImg)
+        loadedTexture = await aset.load()
+        loadingDiv.style.display = "none"
+        initGame()
+      }
+      
       (async () => {
         const aset = new Aset(gl, listImg)
         loadedTexture = await aset.load()
         loadingDiv.style.display = "none"
         selectScreen.style.display = "flex"
       })()
-      
-      window.startGameAfterLoad = function() { initGame() }
     })()
   </script>
 </body>

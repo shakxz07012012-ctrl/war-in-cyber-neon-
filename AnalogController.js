@@ -422,7 +422,7 @@ class GameController {
         } else if (this.heroType === "shuken") {
             this.attackBtn = document.createElement("button");
             this.attackBtn.className = "attack-btn-shuken";
-            this.attackBtn.textContent = "basic attack";
+            this.attackBtn.textContent = "★";
             this.attackBtn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onAttack) this.callbacks.onAttack();

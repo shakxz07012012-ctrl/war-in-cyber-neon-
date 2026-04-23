@@ -422,7 +422,7 @@ class GameController {
         } else if (this.heroType === "shuken") {
             this.attackBtn = document.createElement("button");
             this.attackBtn.className = "attack-btn-shuken";
-            this.attackBtn.textContent = "👊";
+            this.attackBtn.textContent = "basic attack";
             this.attackBtn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onAttack) this.callbacks.onAttack();
@@ -434,7 +434,7 @@ class GameController {
             
             this.skill1Btn = document.createElement("button");
             this.skill1Btn.className = "skill1-shuken";
-            this.skill1Btn.textContent = "⚡";
+            this.skill1Btn.textContent = "skil 1";
             this.skill1Btn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onSkill1) this.callbacks.onSkill1();
@@ -446,7 +446,7 @@ class GameController {
             
             this.skill2Btn = document.createElement("button");
             this.skill2Btn.className = "skill2-shuken";
-            this.skill2Btn.textContent = "🌩️";
+            this.skill2Btn.textContent = "skil 2";
             this.skill2Btn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onSkill2) this.callbacks.onSkill2();
@@ -458,7 +458,7 @@ class GameController {
             
             this.ultiBtn = document.createElement("button");
             this.ultiBtn.className = "ulti-shuken";
-            this.ultiBtn.textContent = "💜⚡";
+            this.ultiBtn.textContent = "ULT";
             this.ultiBtn.onpointerdown = (e) => {
                 e.preventDefault();
                 if (this.callbacks.onUlti) this.callbacks.onUlti();

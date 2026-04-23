@@ -3,1115 +3,685 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ibill vs mosnyer - Full Upgrade</title>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ibill vs mosnyer - Shuken ⚡</title>
   <style>
     * {
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    
     canvas {
       display: block;
-      background: #0f172a;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+      background: #2a1a3a;
     }
-    
     #loading {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #0a0a1a, #1a1a2e);
-      color: white;
+      background: #1a0a2a;
+      color: #aa88ff;
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 30px;
       font-family: monospace;
       z-index: 9999;
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    #loading .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(255,255,255,0.3);
-      border-top: 4px solid #ff6600;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    body {
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-    }
-    
-    /* Tooltip untuk skill */
-    .skill-tooltip {
-      position: fixed;
-      bottom: 200px;
-      right: 250px;
-      background: rgba(0,0,0,0.8);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 12px;
-      font-family: monospace;
-      pointer-events: none;
-      z-index: 1000;
     }
   </style>
 </head>
 <body>
   <div id="loading">
-    <div class="spinner"></div>
-    <div>Loading Assets...</div>
-    <div style="font-size: 12px; color: #888;">ibill vs mosnyer</div>
+    ⚡ Loading Shuken... ⚡
   </div>
   <canvas id="canvas"></canvas>
   
+  <script src="AdivaClient.js"></script>
+  <script src="AdivaServer.js"></script>
+  <script src="./data.js"></script>
+  <script src="./item.js"></script>
+  <script src="./semut.js"></script>
+  <script src="./kura.js"></script>
+  <script src="./laba.js"></script>
+  <script src="./shuken.js"></script>
+  
   <script>
-    // ==================== ADIVA ENGINE CORE (MINIMAL VERSION) ====================
-    // Jika kamu punya file AdivaClient.js dan AdivaServer.js asli, 
-    // hapus bagian ini dan ganti dengan script src ke file asli
+    const canvas = document.getElementById("canvas")
+    const game = new GameLoop(canvas)
+    const gl = game.gl
+    const renderer = new Renderer(gl, canvas)
+    const utils = new Utils()
     
-    class GameLoop {
-      constructor(canvas) {
-        this.canvas = canvas;
-        this.gl = canvas.getContext('2d');
-        this.camera = { x: 0, y: 0 };
-        this.lastTime = 0;
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-      }
+    const physics = new Collision(150)
+    physics.gameState.add("1")
+    physics.grid.buildStatic(tembok)
+    
+    // ==========================================
+    // ASET GAMBAR (termasuk Shuken)
+    // ==========================================
+    const listImg = {
+      // Miya assets
+      idle: { path: "Diam1.png" },
+      lari1: { path: "Lari1.png" },
+      lari2: { path: "Lari2.png" },
+      lari3: { path: "Lari3.png" },
+      jump: { path: "Lompat1.png" },
+      fall: { path: "Turun1.png" },
+      panah: { path: "Pnh2.png" },
+      panahMisil: { path: "Misil1.png" },
       
-      resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-      }
+      // Wall & environment
+      wall: { path: "Walll1.png" },
+      gerbang: { path: "WallRentak1.png" },
       
-      render(callback) {
-        const loop = (currentTime) => {
-          let dt = Math.min(0.033, (currentTime - this.lastTime) / 1000);
-          if (dt <= 0) {
-            this.lastTime = currentTime;
-            requestAnimationFrame(loop);
-            return;
-          }
-          this.lastTime = currentTime;
-          
-          this.gl.clearRect(0, 0, this.canvas.width, this.canvas.height);
-          callback(dt);
-          requestAnimationFrame(loop);
-        };
-        
-        this.lastTime = performance.now();
-        requestAnimationFrame(loop);
-      }
+      // Items & buffs
+      buff: { path: "Semut2.png" },
+      heal: { path: "Heal1.png" },
+      energi: { path: "Energi1.png" },
+      peluruGanda: { path: "PeluruGanda1.png" },
       
-      cameraOn(obj, key) {
-        const target = obj[key];
-        if (target) {
-          this.camera.x = target.x + target.width/2 - this.canvas.width/2;
-          this.camera.y = target.y + target.height/2 - this.canvas.height/2;
-          this.camera.x = Math.max(0, this.camera.x);
-          this.camera.y = Math.max(0, this.camera.y);
-        }
-      }
+      // Kelomang (kura)
+      kelomang: { path: "Kura3.png" },
+      kelomangDiam: { path: "Kura1.png" },
+      kelomangNembak: { path: "Kura2.png" },
+      
+      // Guinevere (laba)
+      guinLari: { path: "LabaLari2.png" },
+      guinDiam: { path: "LabaLari1.png" },
+      guinLompat: { path: "LabaNembak1.png" },
+      guinUlti: { path: "LabaMakan2.png" },
+      guinShoot: { path: "LabaNembak2.png" },
+      bolaGuin: { path: "BolaUlti2.png" },
+      
+      // ===== SHUKEN ASSETS =====
+      shukenIdle: { path: "ShukenIdle1.png" },
+      shukenRun1: { path: "ShukenRun1.png" },
+      shukenRun2: { path: "ShukenRun2.png" },
+      shukenRun3: { path: "ShukenRun3.png" },
+      shukenJump: { path: "ShukenJump1.png" },
+      shukenFall: { path: "ShukenFall1.png" },
+      shukenAttack1: { path: "ShukenAttack1.png" },
+      shukenAttack2: { path: "ShukenAttack2.png" },
+      shukenSkill1: { path: "ShukenSkill1.png" },
+      shukenSkill2: { path: "ShukenSkill2.png" },
+      shukenUlti: { path: "ShukenUlti1.png" },
+      bolaPetir: { path: "BolaPetir1.png" },
+      petirArea: { path: "PetirArea1.png" },
+      petirAtas: { path: "PetirAtas1.png" }
     }
     
-    class Renderer {
-      constructor(gl, canvas) {
-        this.gl = gl;
-        this.canvas = canvas;
-        this.images = {};
-      }
-      
-      fillRect(x, y, width, height, color) {
-        this.gl.fillStyle = color;
-        this.gl.fillRect(x, y, width, height);
-      }
-      
-      drawImage(img, x, y, width, height, tintColor) {
-        if (!img) return;
-        if (tintColor && tintColor !== "white") {
-          this.gl.save();
-          this.gl.globalCompositeOperation = 'source-over';
-          this.gl.drawImage(img, x, y, width, height);
-          this.gl.fillStyle = tintColor;
-          this.gl.globalAlpha = 0.5;
-          this.gl.fillRect(x, y, width, height);
-          this.gl.restore();
-        } else {
-          this.gl.drawImage(img, x, y, width, height);
-        }
-      }
-    }
-    
-    class Utils {
-      constructor() {
-        this.timers = {};
-      }
-      
-      timer(dt, name, duration, callback) {
-        if (this.timers[name] === undefined) this.timers[name] = 0;
-        this.timers[name] += dt;
-        if (this.timers[name] >= duration) {
-          this.timers[name] = 0;
-          if (callback) callback();
-          return true;
-        }
-        return false;
-      }
-      
-      rand(min, max) {
-        return min + Math.random() * (max - min);
-      }
-      
-      activeHurtBox(hero) {
-        if (hero.useHurtBox && hero.hurtBox) {
-          hero.hurtBox.x = hero.x + (hero.width - hero.hurtBox.width) / 2;
-          hero.hurtBox.y = hero.y + hero.height - hero.hurtBox.height;
-        }
-      }
-      
-      splitTime(dt, name, pattern, callback) {
-        const times = pattern.split(' ').map(Number);
-        if (this.timers[name] === undefined) {
-          this.timers[name] = 0;
-          this.timers[name + '_index'] = 0;
-        }
-        this.timers[name] += dt;
-        const currentIndex = this.timers[name + '_index'];
-        if (this.timers[name] >= times[currentIndex]) {
-          this.timers[name] = 0;
-          this.timers[name + '_index'] = (currentIndex + 1) % times.length;
-          if (callback) {
-            const result = {};
-            result[`timer${currentIndex + 1}`] = true;
-            callback(result);
-          }
-        }
-      }
-    }
-    
-    class Collision {
-      constructor(gridSize) {
-        this.gridSize = gridSize || 150;
-        this.gameState = {
-          _data: {},
-          add: (scene) => { this.gameState._data[scene] = {}; },
-          get: (type) => this.gameState._data[type],
-          set: (type, data) => { this.gameState._data[type] = data; }
-        };
-        this.grid = {
-          buildStatic: (data) => { this.staticData = data; },
-          buildDynamic: (...args) => { this.dynamicData = args; }
-        };
-      }
-      
-      aabb(obj1, targetTypes, callback) {
-        const targets = targetTypes.split(",");
-        for (let type of targets) {
-          const trimmedType = type.trim();
-          const list = this.gameState.get(trimmedType);
-          if (!list) continue;
-          
-          for (let id in list) {
-            const obj2 = list[id];
-            if (obj2.scene === "inactive") continue;
-            if (obj2.hp !== undefined && obj2.hp <= 0) continue;
-            
-            const w1 = obj1.width || obj1.colliderBox?.width || 50;
-            const h1 = obj1.height || obj1.colliderBox?.height || 50;
-            const w2 = obj2.width || obj2.colliderBox?.width || 50;
-            const h2 = obj2.height || obj2.colliderBox?.height || 50;
-            
-            if (obj1.x < obj2.x + w2 && obj1.x + w1 > obj2.x &&
-                obj1.y < obj2.y + h2 && obj1.y + h1 > obj2.y) {
-              callback(obj1, obj2);
-            }
-          }
-        }
-      }
-      
-      aabbRange(x, y, width, height, targetTypes, callback) {
-        const targets = targetTypes.split(",");
-        for (let type of targets) {
-          const trimmedType = type.trim();
-          const list = this.gameState.get(trimmedType);
-          if (!list) continue;
-          
-          for (let id in list) {
-            const obj = list[id];
-            if (obj.scene === "inactive") continue;
-            if (obj.hp !== undefined && obj.hp <= 0) continue;
-            
-            const objW = obj.width || obj.colliderBox?.width || 50;
-            const objH = obj.height || obj.colliderBox?.height || 50;
-            
-            if (x < obj.x + objW && x + width > obj.x &&
-                y < obj.y + objH && y + height > obj.y) {
-              callback(obj);
-            }
-          }
-        }
-      }
-      
-      applyPhysics(dt, obj) {
-        if (!obj.useCollider) return;
-        obj.x += obj.vx * dt;
-        obj.y += obj.vy * dt;
-        
-        if (this.staticData) {
-          const w = obj.colliderBox?.width || obj.width || 50;
-          const h = obj.colliderBox?.height || obj.height || 50;
-          
-          for (let id in this.staticData) {
-            const wall = this.staticData[id];
-            if (wall.scene === "inactive") continue;
-            
-            if (obj.x < wall.x + wall.width && obj.x + w > wall.x &&
-                obj.y < wall.y + wall.height && obj.y + h > wall.y) {
-              
-              const overlapLeft = (obj.x + w) - wall.x;
-              const overlapRight = (wall.x + wall.width) - obj.x;
-              const overlapTop = (obj.y + h) - wall.y;
-              const overlapBottom = (wall.y + wall.height) - obj.y;
-              
-              const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
-              
-              if (minOverlap === overlapLeft || minOverlap === overlapRight) {
-                if (overlapLeft < overlapRight) obj.x = wall.x - w;
-                else obj.x = wall.x + wall.width;
-                obj.vx = 0;
-              } else {
-                if (overlapTop < overlapBottom) {
-                  obj.y = wall.y - h;
-                  obj.vy = 0;
-                  obj.isGrounded = true;
-                } else {
-                  obj.y = wall.y + wall.height;
-                  obj.vy = 0;
-                }
-              }
-            }
-          }
-        }
-      }
-      
-      platformerLogic(dt, obj) {
-        obj.isGrounded = false;
-        if (this.staticData) {
-          const w = obj.colliderBox?.width || obj.width || 50;
-          const h = obj.colliderBox?.height || obj.height || 50;
-          
-          for (let id in this.staticData) {
-            const wall = this.staticData[id];
-            if (wall.scene === "inactive") continue;
-            
-            if (obj.x < wall.x + wall.width && obj.x + w > wall.x &&
-                obj.y + h <= wall.y + 10 && obj.y + h + obj.vy * dt >= wall.y) {
-              obj.isGrounded = true;
-              obj.vy = 0;
-              obj.y = wall.y - h;
-            }
-          }
-        }
-      }
-    }
-    
-    class Aset {
-      constructor(gl, listImg) {
-        this.gl = gl;
-        this.listImg = listImg;
-        this.images = {};
-      }
-      
-      async load() {
-        const promises = [];
-        for (let key in this.listImg) {
-          const promise = new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-              this.images[key] = img;
-              resolve();
-            };
-            img.onerror = () => {
-              console.warn(`Gagal load: ${this.listImg[key].path}`);
-              this.images[key] = null;
-              resolve();
-            };
-            img.src = this.listImg[key].path;
-          });
-          promises.push(promise);
-        }
-        await Promise.all(promises);
-        return this.images;
-      }
-    }
-    
-    class Draw {
-      constructor(data, texture, renderer, gameState) {
-        this.data = data;
-        this.texture = texture;
-        this.renderer = renderer;
-        this.gameState = gameState;
-      }
-      
-      update(dt, camera) {
-        for (let key in this.data) {
-          const obj = this.data[key];
-          if (obj.scene === "inactive") continue;
-          
-          const img = this.texture[obj.img];
-          if (img) {
-            this.renderer.drawImage(
-              img, 
-              obj.x - camera.x, 
-              obj.y - camera.y, 
-              obj.width, 
-              obj.height,
-              obj.tintColor
-            );
-          } else {
-            this.renderer.fillRect(obj.x - camera.x, obj.y - camera.y, obj.width, obj.height, obj.color || "gray");
-          }
-        }
-      }
-    }
-    
-    class VirtualButton {
-      constructor(options) {
-        this.text = options.text;
-        this.img = options.img;
-        this.bottom = options.bottom;
-        this.right = options.right;
-        this.left = options.left;
-        this.width = options.width || 60;
-        this.height = options.height || 60;
-        this.fontSize = options.fontSize || 20;
-        this.background = options.background || "rgba(0,0,0,0.5)";
-        this.borderRadius = options.borderRadius || "10px";
-        this.border = options.border || "2px solid white";
-        this.onPress = options.onPress || (() => {});
-        this.onRelease = options.onRelease || (() => {});
-        this.press = false;
-        
-        this.el = document.createElement('div');
-        this.el.style.position = 'fixed';
-        this.el.style.bottom = this.bottom + 'px';
-        if (this.right) this.el.style.right = this.right + 'px';
-        if (this.left) this.el.style.left = this.left + 'px';
-        this.el.style.width = this.width + 'px';
-        this.el.style.height = this.height + 'px';
-        this.el.style.backgroundColor = this.background;
-        this.el.style.borderRadius = this.borderRadius;
-        this.el.style.border = this.border;
-        this.el.style.display = 'flex';
-        this.el.style.justifyContent = 'center';
-        this.el.style.alignItems = 'center';
-        this.el.style.fontSize = this.fontSize + 'px';
-        this.el.style.color = 'white';
-        this.el.style.cursor = 'pointer';
-        this.el.style.zIndex = '1000';
-        
-        if (this.text) this.el.innerText = this.text;
-        if (this.img) {
-          const imgEl = document.createElement('img');
-          imgEl.src = this.img;
-          imgEl.style.width = '80%';
-          imgEl.style.height = '80%';
-          this.el.appendChild(imgEl);
-        }
-        
-        this.el.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          this.press = true;
-          this.onPress();
-        });
-        this.el.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          this.press = false;
-          this.onRelease();
-        });
-        this.el.addEventListener('mousedown', () => {
-          this.press = true;
-          this.onPress();
-        });
-        this.el.addEventListener('mouseup', () => {
-          this.press = false;
-          this.onRelease();
-        });
-        
-        document.body.appendChild(this.el);
-      }
-    }
-    
-    class VirtualBarDiv {
-      constructor(options) {
-        this.value = options.value;
-        this.maxValue = options.maxValue;
-        this.width = options.width;
-        this.height = options.height;
-        this.top = options.top;
-        this.left = options.left;
-        this.fillColor = options.fillColor;
-        this.visualColor = options.visualColor;
-        this.background = options.background;
-        this.border = options.border;
-        this.lerpSpeed = options.lerpSpeed || 5;
-        this.visualValue = options.value;
-        
-        this.el = document.createElement('div');
-        this.el.style.position = 'fixed';
-        this.el.style.top = this.top + 'px';
-        this.el.style.left = this.left + 'px';
-        this.el.style.width = this.width + 'px';
-        this.el.style.height = this.height + 'px';
-        this.el.style.backgroundColor = this.background;
-        this.el.style.border = this.border;
-        this.el.style.overflow = 'hidden';
-        
-        this.fillEl = document.createElement('div');
-        this.fillEl.style.height = '100%';
-        this.fillEl.style.width = (this.value / this.maxValue) * 100 + '%';
-        this.fillEl.style.backgroundColor = this.fillColor;
-        this.fillEl.style.transition = `width ${this.lerpSpeed * 0.1}s linear`;
-        
-        this.visualEl = document.createElement('div');
-        this.visualEl.style.height = '100%';
-        this.visualEl.style.width = (this.value / this.maxValue) * 100 + '%';
-        this.visualEl.style.backgroundColor = this.visualColor;
-        this.visualEl.style.position = 'absolute';
-        this.visualEl.style.top = '0';
-        this.visualEl.style.left = '0';
-        
-        this.el.appendChild(this.visualEl);
-        this.el.appendChild(this.fillEl);
-        document.body.appendChild(this.el);
-      }
-      
-      setValue(value) {
-        this.value = Math.min(this.maxValue, Math.max(0, value));
-        const percent = (this.value / this.maxValue) * 100;
-        this.fillEl.style.width = percent + '%';
-      }
-      
-      setVisualValue(value) {
-        this.visualValue = Math.min(this.maxValue, Math.max(0, value));
-        const percent = (this.visualValue / this.maxValue) * 100;
-        this.visualEl.style.width = percent + '%';
-      }
-    }
-    
-    class VirtualText {
-      constructor(options) {
-        this.el = document.createElement('div');
-        this.el.innerText = options.text;
-        this.el.style.position = 'fixed';
-        this.el.style.color = options.color || 'white';
-        this.el.style.fontSize = options.fontSize + 'px';
-        this.el.style.padding = options.padding || '2px 10px';
-        this.el.style.textShadow = options.textShadow || 'none';
-        if (options.top) this.el.style.top = options.top + 'px';
-        if (options.left) this.el.style.left = options.left + 'px';
-        if (options.right) this.el.style.right = options.right + 'px';
-        document.body.appendChild(this.el);
-      }
-    }
-    
-    class VirtualImg {
-      constructor(options) {
-        this.el = document.createElement('img');
-        this.el.src = options.src;
-        this.el.style.position = 'fixed';
-        this.el.style.width = options.width + 'px';
-        this.el.style.height = options.height + 'px';
-        this.el.style.top = options.top + 'px';
-        this.el.style.left = options.left + 'px';
-        this.el.style.borderRadius = options.borderRadius || '0';
-        this.el.style.backgroundColor = options.background || 'transparent';
-        this.el.style.border = options.border || 'none';
-        document.body.appendChild(this.el);
-      }
-    }
-    
-    class VirtualLyrics {
-      constructor(canvas) {
-        this.canvas = canvas;
-        this.lines = [];
-        this.currentIndex = 0;
-        this.timer = 0;
-        this.delay = 3;
-        this.active = false;
-        this.x = 10;
-        this.y = 100;
-        this.color = "white";
-        this.el = null;
-      }
-      
-      startX(x) { this.x = x; return this; }
-      startY(y) { this.y = y; return this; }
-      color(c) { this.color = c; return this; }
-      fill(text) { this.lines.push(text); return this; }
-      
-      play(dt) {
-        if (!this.active && this.lines.length > 0) {
-          this.active = true;
-          this.showCurrentLine();
-        }
-        if (this.active) {
-          this.timer += dt;
-          if (this.timer >= this.delay) {
-            this.timer = 0;
-            this.currentIndex++;
-            if (this.currentIndex >= this.lines.length) {
-              this.active = false;
-              if (this.el) this.el.remove();
-            } else {
-              this.showCurrentLine();
-            }
-          }
-        }
-      }
-      
-      showCurrentLine() {
-        if (this.el) this.el.remove();
-        this.el = document.createElement('div');
-        this.el.innerText = this.lines[this.currentIndex];
-        this.el.style.position = 'fixed';
-        this.el.style.left = this.x + 'px';
-        this.el.style.top = this.y + 'px';
-        this.el.style.color = this.color;
-        this.el.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        this.el.style.padding = '10px 20px';
-        this.el.style.borderRadius = '10px';
-        this.el.style.fontFamily = 'monospace';
-        this.el.style.fontSize = '14px';
-        this.el.style.maxWidth = '80%';
-        this.el.style.zIndex = '1000';
-        document.body.appendChild(this.el);
-      }
-    }
-    
-    // ==================== DATA GAME ====================
-    
-    const tembok = {
-      "wall-1": { id: "wall-1", x: 0, y: 400, originalX: 0, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-2": { id: "wall-2", x: 80, y: 400, originalX: 80, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-3": { id: "wall-3", x: 160, y: 400, originalX: 160, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-4": { id: "wall-4", x: 240, y: 400, originalX: 240, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-5": { id: "wall-5", x: 320, y: 400, originalX: 320, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-6": { id: "wall-6", x: 400, y: 400, originalX: 400, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-7": { id: "wall-7", x: 480, y: 400, originalX: 480, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "wall-8": { id: "wall-8", x: 560, y: 400, originalX: 560, originalY: 400, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "wall" },
-      "gerbang-1": { id: "gerbang-1", x: 5680, y: 480, originalX: 5680, originalY: 480, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "gerbang" },
-      "gerbang-2": { id: "gerbang-2", x: 5680, y: 560, originalX: 5680, originalY: 560, width: 80, height: 80, type: "wall", scene: "1", hp: 100, originalHp: 100, img: "gerbang" },
-    };
-    
-    const buff = {
-      "buff-1": { id: "buff-1", x: 560, y: 320, originalX: 560, originalY: 320, width: 80, height: 50, type: "buff", scene: "1", hp: 100, originalHp: 100, img: "buff", isChase: false, vx: 0, vy: 0 },
-      "buff-2": { id: "buff-2", x: 1120, y: 160, originalX: 1120, originalY: 160, width: 80, height: 50, type: "buff", scene: "1", hp: 100, originalHp: 100, img: "buff", isChase: false, vx: 0, vy: 0 },
-      "buff-3": { id: "buff-3", x: 2480, y: 160, originalX: 2480, originalY: 160, width: 80, height: 50, type: "buff", scene: "1", hp: 100, originalHp: 100, img: "buff", isChase: false, vx: 0, vy: 0 },
-    };
-    
-    const kelomang = {
-      "kelomang-1": { id: "kelomang-1", x: 400, y: 320, originalX: 400, originalY: 320, width: 80, height: 80, type: "kelomang", scene: "1", hp: 100, originalHp: 100, img: "kelomangDiam", vx: 0, vy: 0 },
-      "kelomang-2": { id: "kelomang-2", x: 960, y: 160, originalX: 960, originalY: 160, width: 80, height: 80, type: "kelomang", scene: "1", hp: 100, originalHp: 100, img: "kelomangDiam", vx: 0, vy: 0 },
-      "kelomang-3": { id: "kelomang-3", x: 1920, y: 160, originalX: 1920, originalY: 160, width: 80, height: 80, type: "kelomang", scene: "1", hp: 100, originalHp: 100, img: "kelomangDiam", vx: 0, vy: 0 },
-    };
-    
-    const guin = {
-      "guin-1": { id: "guin-1", x: 5360, y: 800, originalX: 5360, originalY: 800, width: 80, height: 60, type: "guin", scene: "1", hp: 200, originalHp: 200, img: "guinDiam", aktif: false, vx: 0, vy: 0 }
-    };
-    
+    // ==========================================
+    // DATA HERO (Miya + Shuken)
+    // ==========================================
     const hero = {
       miya: {
-        x: 0, y: -800, width: 100, height: 100, hp: 150, energi: 100,
-        gravity: 2000, jumpPower: 700, useCollider: true,
-        colliderBox: { width: 50, height: 100 }, useHurtBox: true,
-        hurtBox: { x: 0, y: 0, width: 50, height: 120 }, vx: 0, vy: 0,
-        scene: "1", state: "idle", img: "idle", animationDirection: "right",
-        statusItem: "", durasiItem: 0, isAttack: false, superState: false, superTimer: 0,
-        jumpBufferTimer: 0, jumpBufferMax: 0.15, tintColor: "white",
-        cd_pukul: 0, cd_uppercut: 0, cd_rush: 0, cd_hadouken: 0, cd_shoryuken: 0,
-        currentSkill: "", skillTimer: 0, invincible: false
-      }
-    };
-    
-    const drawItem = {};
-    const item = {
-      heal: { width: 40, height: 40, img: "heal", lifeTime: 10, duration: 4, scene: "1", type: "item" },
-      energi: { width: 40, height: 40, img: "energi", lifeTime: 10, duration: 5, scene: "1", type: "item" },
-      peluruGanda: { width: 40, height: 40, img: "peluruGanda", lifeTime: 10, duration: 4, scene: "1", type: "item" },
-    };
-    
-    const listItemDrop = [
-      { nama: "heal", peluang: 0.3 },
-      { nama: "energi", peluang: 0.3 },
-      { nama: "peluruGanda", peluang: 0.4 },
-    ];
-    
-    function getItem() {
-      let step = 0;
-      let rand = Math.random();
-      for (let itm of listItemDrop) {
-        step += itm.peluang;
-        if (rand < step) return itm.nama;
-      }
-      return null;
-    }
-    
-    const listPanahMiya = {};
-    const bulletKelomang = {};
-    const peluruGuin = {};
-    
-    const listImg = {
-      idle: { path: "Diam1.png" }, lari1: { path: "Lari1.png" }, lari2: { path: "Lari2.png" }, lari3: { path: "Lari3.png" },
-      jump: { path: "Lompat1.png" }, fall: { path: "Turun1.png" }, wall: { path: "Walll1.png" }, gerbang: { path: "WallRentak1.png" },
-      panah: { path: "Pnh2.png" }, panahMisil: { path: "Misil1.png" }, buff: { path: "Semut2.png" },
-      kelomang: { path: "Kura3.png" }, kelomangDiam: { path: "Kura1.png" }, kelomangNembak: { path: "Kura2.png" },
-      guinLari: { path: "LabaLari2.png" }, guinDiam: { path: "LabaLari1.png" }, guinLompat: { path: "LabaNembak1.png" },
-      guinUlti: { path: "LabaMakan2.png" }, guinShoot: { path: "LabaNembak2.png" }, bolaGuin: { path: "BolaUlti2.png" },
-      heal: { path: "Heal1.png" }, energi: { path: "Energi1.png" }, peluruGanda: { path: "PeluruGanda1.png" },
-      shukenIdle: { path: "ShukenIdle.png" }, shukenPukul: { path: "ShukenPukul.png" }, shukenUppercut: { path: "ShukenUppercut.png" },
-      shukenRush: { path: "ShukenRush.png" }, shukenHadouken: { path: "ShukenHadouken.png" }, shukenUlti: { path: "ShukenUlti.png" },
-      projectileHadouken: { path: "Hadouken.png" }
-    };
-    
-    // ==================== SHU KEN DATA & FUNCTIONS ====================
-    
-    const shukenEnemy = {
-      "shuken-1": {
-        id: "shuken-1", x: 6800, y: 0, originalX: 6800, originalY: 0,
-        width: 80, height: 80, type: "shuken", scene: "1", originalScene: "1",
-        hp: 300, originalHp: 300, img: "shukenIdle", gravity: 2000, vx: 0, vy: 0,
-        useCollider: true, colliderBox: { width: 50, height: 70 }, isDead: false,
-        animationDirection: "right"
-      }
-    };
-    
-    const listProjectileShuken = {};
-    
-    function updateShukenCooldowns(hero, dt) {
-      const cds = ["cd_pukul", "cd_uppercut", "cd_rush", "cd_hadouken", "cd_shoryuken"];
-      cds.forEach(s => { if (hero[s] > 0) hero[s] = Math.max(0, hero[s] - dt); });
-      if (hero.skillTimer > 0) {
-        hero.skillTimer -= dt;
-        if (hero.skillTimer <= 0 && hero.currentSkill) {
-          hero.currentSkill = "";
-          hero.invincible = false;
-        }
-      }
-    }
-    
-    function updateHadoukenProjectile(dt, physics) {
-      for (let id in listProjectileShuken) {
-        const p = listProjectileShuken[id];
-        p.x += p.dir * p.speed * dt;
-        p.lifeTime -= dt;
-        if (p.lifeTime <= 0) { delete listProjectileShuken[id]; continue; }
-        physics.aabb(p, "kelomang,buff,guin,shuken", (proj, enemy) => {
-          enemy.hp -= p.damage;
-          enemy.tintColor = "red";
-          delete listProjectileShuken[proj.id];
-        });
-      }
-    }
-    
-    function logikaShuKen(dt, miya, physics) {
-      Object.values(shukenEnemy).forEach(el => {
-        if (el.hp <= 0) {
-          el.scene = "inactive";
-          Object.values(tembok).forEach(w => { if (w.img === "gerbang") w.scene = "inactive"; });
-          return;
-        }
-        el.vx = el.vx || 0; el.vy = el.vy || 0;
-        physics.applyPhysics(dt, el);
-        el.vy += 2000 * dt;
-        const dx = miya.x - el.x;
-        if (Math.abs(dx) > 60) el.vx = dx > 0 ? 120 : -120;
-        else el.vx = 0;
-        el.img = "shukenIdle";
-      });
-    }
-    
-    function panahMiyaVsShuKen(panah, physics) {
-      physics.aabb(panah, "shuken", (p, enemy) => {
-        if (enemy.hp <= 0) return;
-        enemy.hp -= 8;
-        enemy.tintColor = "red";
-        delete panah[p.id];
-      });
-    }
-    
-    function miyaVsShuKen(hero, hpBar, physics) {
-      physics.aabb(hero, "shuken", (h, enemy) => {
-        if (h.invincible) return;
-        h.hp -= 5;
-        hpBar.setValue(h.hp);
-        h.tintColor = "red";
-      });
-    }
-    
-    function hpShuKen(dt, monster, camera, renderer) {
-      if (monster.hp <= 0 || monster.scene === "inactive") return;
-      monster.hpVisual = monster.hpVisual || monster.hp;
-      monster.hpVisual -= (monster.hpVisual - monster.hp) * 5 * dt;
-      const bw = 80, bx = monster.x - camera.x, by = monster.y - camera.y - 15;
-      renderer.fillRect(bx, by, bw, 10, "#330000");
-      renderer.fillRect(bx, by, (monster.hpVisual / monster.originalHp) * bw, 10, "#ff6600");
-      renderer.fillRect(bx, by, (monster.hp / monster.originalHp) * bw, 10, "#ff0000");
-    }
-    
-    // ==================== LOGIKA MUSUH ====================
-    
-    function logikaBuff(dt, miya, monster, physics) {
-      monster.vx = monster.vx || 0; monster.vy = monster.vy || 0;
-      physics.applyPhysics(dt, monster);
-      monster.vy += 2000 * dt;
-      if (Math.abs(miya.x - monster.x) < 300) monster.isChase = true;
-      if (monster.hp <= 0) monster.scene = "inactive";
-      if (monster.isChase && Math.abs(miya.x - monster.x) > 60) {
-        monster.vx += (miya.x - monster.x) > 0 ? 1 : -1;
-      }
-    }
-    
-    function hpBarGeneric(dt, monster, camera, renderer) {
-      if (monster.hp <= 0 || monster.scene === "inactive") return;
-      monster.hpVisual = monster.hpVisual || monster.hp;
-      monster.hpVisual -= (monster.hpVisual - monster.hp) * 5 * dt;
-      renderer.fillRect(monster.x - camera.x, monster.y - camera.y, monster.hpVisual, 8, "maroon");
-      renderer.fillRect(monster.x - camera.x, monster.y - camera.y, monster.hp, 8, "red");
-    }
-    
-    function panahVsMonster(panah, physics) {
-      physics.aabb(panah, "buff", (p, m) => { m.hp -= 10; m.tintColor = "red"; delete panah[p.id]; });
-      physics.aabb(panah, "kelomang", (p, m) => { m.hp -= 10; m.tintColor = "red"; delete panah[p.id]; });
-      physics.aabb(panah, "guin", (p, m) => { if(m.aktif) { m.hp -= 5; m.tintColor = "red"; } delete panah[p.id]; });
-    }
-    
-    function miyaVsMonster(hero, hpBar, physics) {
-      physics.aabb(hero, "buff", (h, m) => { h.hp -= 0.8; hpBar.setValue(h.hp); });
-      physics.aabb(hero, "kelomang", (h, m) => { h.hp -= 0.8; hpBar.setValue(h.hp); });
-      physics.aabb(hero, "guin", (h, m) => { if(m.aktif) { h.hp -= 5; hpBar.setValue(h.hp); } });
-    }
-    
-    function logikaKelomang(dt, miya, physics) {
-      Object.values(kelomang).forEach(el => {
-        if (el.hp <= 0) {
-          el.scene = "inactive";
-          const drop = getItem();
-          if (drop && !el.isDead) {
-            el.isDead = true;
-            const id = crypto.randomUUID();
-            drawItem[id] = { ...item[drop], x: el.x + el.width/2, y: el.y + el.height/2, id: id };
-          }
-          return;
-        }
-        el.vx = el.vx || 0; el.vy = el.vy || 0;
-        physics.applyPhysics(dt, el);
-        el.vy += 2000 * dt;
-        const dx = miya.x - el.x;
-        if (Math.abs(dx) < 300) {
-          el.vx = dx > 0 ? 100 : -100;
-          el.img = "kelomang";
-        } else {
-          el.vx = 0;
-          el.img = "kelomangDiam";
-        }
-      });
-    }
-    
-    function logikaGuin(dt, miya, physics) {
-      Object.values(guin).forEach(el => {
-        if (Math.abs(miya.x - el.x) < 500) el.aktif = true;
-        if (!el.aktif) return;
-        if (el.hp <= 0) { el.scene = "inactive"; return; }
-        el.vx = el.vx || 0; el.vy = el.vy || 0;
-        physics.applyPhysics(dt, el);
-        el.vy += 2000 * dt;
-        const dx = miya.x - el.x;
-        if (Math.abs(dx) > 60) el.vx = dx > 0 ? 150 : -150;
-        else el.vx = 0;
-        el.img = "guinLari";
-      });
-    }
-    
-    function miyaMengambilItem(hero, physics) {
-      physics.aabb(hero, "item", (h, itm) => {
-        h.statusItem = itm.img;
-        h.durasiItem = itm.duration;
-        delete drawItem[itm.id];
-      });
-    }
-    
-    function miyaMenerimaEfekItem(hpBar, manaBar, hero, dt) {
-      const m = hero.miya;
-      switch(m.statusItem) {
-        case "heal": m.hp = Math.min(150, m.hp + 5*dt); hpBar.setValue(m.hp); m.durasiItem -= dt; if(m.durasiItem<=0) m.statusItem=""; break;
-        case "energi": m.energi = Math.min(100, m.energi + 5*dt); manaBar.setValue(m.energi); m.durasiItem -= dt; if(m.durasiItem<=0) m.statusItem=""; break;
-        case "peluruGanda": m.durasiItem -= dt; if(m.durasiItem<=0) m.statusItem=""; break;
-      }
-    }
-    
-    // ==================== INISIALISASI ====================
-    const canvasEl = document.getElementById("canvas");
-    const gameLoop = new GameLoop(canvasEl);
-    const render = new Renderer(gameLoop.gl, canvasEl);
-    const utilsGame = new Utils();
-    const physicsGame = new Collision(150);
-    
-    physicsGame.gameState.add("1");
-    physicsGame.grid.buildStatic(tembok);
-    
-    const hpBarUI = new VirtualBarDiv({
-      value: hero.miya.hp, maxValue: hero.miya.hp, width: hero.miya.hp, height: 15,
-      top: 38, left: 82, fillColor: "lime", visualColor: "maroon", background: "#222", border: "1px solid black", lerpSpeed: 5
-    });
-    
-    const manaBarUI = new VirtualBarDiv({
-      value: 100, maxValue: 100, width: 100, height: 10,
-      top: 55, left: 82, fillColor: "yellow", visualColor: "aqua", background: "#222", border: "1px solid black", lerpSpeed: 5
-    });
-    
-    hpBarUI.el.style.display = "none";
-    manaBarUI.el.style.display = "none";
-    
-    // Tombol gerak
-    const btnKiri = new VirtualButton({ text: "<=", bottom: 15, left: 30, width: 70, height: 60, fontSize: 28, onPress: () => btnKiri.press = true, onRelease: () => btnKiri.press = false });
-    const btnKanan = new VirtualButton({ text: "=>", bottom: 15, left: 120, width: 70, height: 60, fontSize: 28, onPress: () => btnKanan.press = true, onRelease: () => btnKanan.press = false });
-    const btnLompat = new VirtualButton({ text: "^", bottom: 100, right: 100, width: 60, height: 60, fontSize: 32, onPress: () => hero.miya.jumpBufferTimer = hero.miya.jumpBufferMax });
-    const btnPanah = new VirtualButton({
-      img: "Misil1.png", bottom: 100, right: 20, width: 60, height: 60,
-      onPress: () => {
-        const m = hero.miya;
-        if (m.energi <= 0 || m.isAttack) return;
-        m.isAttack = true;
-        m.energi -= 2;
-        manaBarUI.setValue(m.energi);
-        m.superState = true;
-        m.state = "panah";
-        const id = crypto.randomUUID();
-        listPanahMiya[id] = {
-          id, x: m.x + m.width/2 - 15, y: m.y + m.height/3,
-          width: m.statusItem === "peluruGanda" ? 50 : 30, height: m.statusItem === "peluruGanda" ? 50 : 30,
-          scene: m.scene, dir: m.animationDirection === "right" ? 1 : -1,
-          dirY: m.statusItem === "peluruGanda" ? utilsGame.rand(-0.5,0.5) : 0,
-          speed: 500, lifeTime: 3, img: "panahMisil"
-        };
-        m.superTimer = 0.1;
+        x: 0,
+        y: -800,
+        width: 100,
+        height: 100,
+        hp: 150,
+        maxHp: 150,
+        energi: 100,
+        maxEnergi: 100,
+        gravity: 2000,
+        jumpPower: 700,
+        useCollider: true,
+        colliderBox: { width: 50, height: 100 },
+        useHurtBox: true,
+        hurtBox: { x: 0, y: 0, width: 50, height: 120 },
+        vx: 0,
+        vy: 0,
+        scene: "1",
+        isAttack: false,
+        superState: false,
+        superTimer: 0,
+        state: "idle",
+        img: "idle",
+        animationDirection: "right",
+        statusItem: "",
+        durasiItem: 0,
+        tintColor: "white",
+        currentHero: "miya"
       },
-      onRelease: () => hero.miya.isAttack = false
-    });
-    
-    // Tombol skill Shu Ken
-    const btnPukul = new VirtualButton({
-      text: "👊", bottom: 15, right: 320, width: 55, height: 55, fontSize: 28,
-      background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid orange",
-      onPress: () => {
-        const m = hero.miya;
-        if (m.cd_pukul > 0) return;
-        m.cd_pukul = 0.5;
-        m.currentSkill = "pukul";
-        m.skillTimer = 0.2;
-        m.tintColor = "orange";
-        const xPos = m.x + (m.animationDirection === "right" ? 60 : -60);
-        physicsGame.aabbRange(xPos, m.y, 60, 80, "kelomang,buff,guin,shuken", (e) => { e.hp -= 15; e.tintColor = "red"; });
-        setTimeout(() => { if (m.currentSkill === "pukul") m.tintColor = "white"; }, 200);
+      shuken: {
+        x: 0,
+        y: -800,
+        width: 100,
+        height: 110,
+        hp: 120,
+        maxHp: 120,
+        energi: 100,
+        maxEnergi: 100,
+        gravity: 2000,
+        jumpPower: 680,
+        speed: 550,
+        attackDamage: 35,
+        useCollider: true,
+        colliderBox: { width: 50, height: 100 },
+        useHurtBox: true,
+        hurtBox: { x: 0, y: 0, width: 50, height: 120 },
+        vx: 0,
+        vy: 0,
+        scene: "1",
+        isAttacking: false,
+        isUsingSkill: false,
+        skill1Cooldown: 0,
+        skill2Cooldown: 0,
+        ultiCooldown: 0,
+        superState: false,
+        superTimer: 0,
+        state: "idle",
+        img: "shukenIdle",
+        animationDirection: "right",
+        tintColor: "white",
+        currentHero: "miya"
       }
-    });
-    
-    const btnUppercut = new VirtualButton({
-      text: "⬆️", bottom: 80, right: 320, width: 55, height: 55, fontSize: 28,
-      background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid yellow",
-      onPress: () => {
-        const m = hero.miya;
-        if (m.cd_uppercut > 0) return;
-        m.cd_uppercut = 2;
-        m.currentSkill = "uppercut";
-        m.skillTimer = 0.3;
-        m.vy = -400;
-        m.tintColor = "yellow";
-        physicsGame.aabbRange(m.x, m.y, 70, 100, "kelomang,buff,guin,shuken", (e) => { e.hp -= 25; e.vy = -300; e.tintColor = "red"; });
-        setTimeout(() => { if (m.currentSkill === "uppercut") m.tintColor = "white"; }, 300);
-      }
-    });
-    
-    const btnRush = new VirtualButton({
-      text: "💨", bottom: 145, right: 320, width: 55, height: 55, fontSize: 28,
-      background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid cyan",
-      onPress: () => {
-        const m = hero.miya;
-        if (m.cd_rush > 0) return;
-        m.cd_rush = 3;
-        m.currentSkill = "rush";
-        m.skillTimer = 0.4;
-        m.invincible = true;
-        m.tintColor = "cyan";
-        m.vx = m.animationDirection === "right" ? 600 : -600;
-        let hit = 0;
-        const iv = setInterval(() => {
-          if (m.skillTimer <= 0 || hit >= 3) { clearInterval(iv); m.invincible = false; if (m.currentSkill === "rush") m.tintColor = "white"; return; }
-          physicsGame.aabbRange(m.x, m.y, 80, 80, "kelomang,buff,guin,shuken", (e) => { e.hp -= 10; e.tintColor = "red"; });
-          hit++;
-        }, 130);
-      }
-    });
-    
-    const btnHadouken = new VirtualButton({
-      text: "🌊", bottom: 15, right: 250, width: 55, height: 55, fontSize: 28,
-      background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid blue",
-      onPress: () => {
-        const m = hero.miya;
-        if (m.cd_hadouken > 0) return;
-        if (m.energi < 15) return;
-        m.cd_hadouken = 1.5;
-        m.energi -= 15;
-        manaBarUI.setValue(m.energi);
-        m.currentSkill = "hadouken";
-        m.skillTimer = 0.3;
-        m.tintColor = "blue";
-        const id = crypto.randomUUID();
-        listProjectileShuken[id] = {
-          id, x: m.x + m.width/2, y: m.y + m.height/3, width: 40, height: 40,
-          scene: m.scene, dir: m.animationDirection === "right" ? 1 : -1,
-          speed: 550, damage: 20, lifeTime: 2.5, img: "projectileHadouken"
-        };
-        setTimeout(() => { if (m.currentSkill === "hadouken") m.tintColor = "white"; }, 300);
-      }
-    });
-    
-    const btnShoryuken = new VirtualButton({
-      text: "🔥", bottom: 80, right: 250, width: 55, height: 55, fontSize: 28,
-      background: "rgba(0,0,0,0.7)", borderRadius: "50%", border: "2px solid red",
-      onPress: () => {
-        const m = hero.miya;
-        if (m.cd_shoryuken > 0) return;
-        if (m.energi < 30) return;
-        m.cd_shoryuken = 8;
-        m.energi -= 30;
-        manaBarUI.setValue(m.energi);
-        m.currentSkill = "shoryuken";
-        m.skillTimer = 0.5;
-        m.vy = -500;
-        m.invincible = true;
-        m.tintColor = "red";
-        setTimeout(() => {
-          if (m.skillTimer > 0) physicsGame.aabbRange(m.x, m.y - 100, 120, 120, "kelomang,buff,guin,shuken", (e) => { e.hp -= 45; e.vy = -400; e.tintColor = "red"; });
-        }, 200);
-        setTimeout(() => { if (m.currentSkill === "shoryuken") { m.tintColor = "white"; m.invincible = false; } }, 500);
-      }
-    });
-    
-    // Animasi
-    let lariFrame = 1, lariTimer = 0;
-    const baseAnim = { idle: "idle", run: "run", jump: "jump", fall: "fall", panah: "panah" };
-    
-    // Asset load & game start
-    const asetGame = new Aset(gameLoop.gl, listImg);
-    const listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, listProjectileShuken, shukenEnemy];
-    const drawList = [];
-    
-    async function startGame() {
-      const loadingDiv = document.getElementById("loading");
-      await asetGame.load();
-      loadingDiv.style.display = "none";
-      hpBarUI.el.style.display = "block";
-      manaBarUI.el.style.display = "block";
-      
-      listDraw.forEach(data => { drawList.push(new Draw(data, asetGame.images, render, physicsGame.gameState)); });
-      
-      gameLoop.render(dt => {
-        physicsGame.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, shukenEnemy);
-        gameLoop.cameraOn(hero, "miya");
-        drawList.forEach(d => d.update(dt, gameLoop.camera));
-        
-        const m = hero.miya;
-        
-        // Animasi lari
-        if (m.state === "run") {
-          lariTimer += dt;
-          if (lariTimer >= 0.15) { lariTimer = 0; lariFrame = (lariFrame % 3) + 1; }
-          m.img = `lari${lariFrame}`;
-        } else { m.img = baseAnim[m.state] || "idle"; lariTimer = 0; lariFrame = 1; }
-        
-        // Gerakan
-        m.vx = btnKanan.press ? 400 : (btnKiri.press ? -400 : 0);
-        if (m.jumpBufferTimer > 0 && m.isGrounded) { m.vy = -m.jumpPower; m.jumpBufferTimer = 0; }
-        m.jumpBufferTimer -= dt;
-        
-        physicsGame.applyPhysics(dt, m);
-        physicsGame.platformerLogic(dt, m);
-        m.vy += m.gravity * dt;
-        utilsGame.activeHurtBox(m);
-        
-        if (m.superTimer > 0) { m.superTimer -= dt; if (m.superTimer <= 0) m.superState = false; }
-        m.energi = Math.min(100, m.energi + 1 * dt);
-        manaBarUI.setValue(m.energi);
-        
-        // Reset if dead
-        if (m.vy > 3000 || m.hp <= 0) {
-          Object.values(tembok).forEach(w => { if (w.img === "gerbang") w.scene = "1"; });
-          [...Object.values(buff), ...Object.values(kelomang), ...Object.values(guin), ...Object.values(shukenEnemy)].forEach(e => {
-            e.x = e.originalX; e.y = e.originalY; e.hp = e.originalHp; e.scene = "1"; e.isChase = false; e.isDead = false; e.vx = 0; e.aktif = false;
-          });
-          m.vy = 0; m.x = 0; m.y = 0; m.hp = 150; m.energi = 100;
-          hpBarUI.setValue(m.hp); manaBarUI.setValue(m.energi);
-        }
-        
-        // Update panah
-        for (let id in listPanahMiya) {
-          let p = listPanahMiya[id];
-          p.x += p.dir * p.speed * dt;
-          p.y += (p.dirY || 0) * p.speed * dt;
-          p.lifeTime -= dt;
-          if (p.lifeTime <= 0) delete listPanahMiya[id];
-        }
-        
-        // Update semua logika
-        Object.values(buff).forEach(b => logikaBuff(dt, m, b, physicsGame));
-        logikaKelomang(dt, m, physicsGame);
-        logikaGuin(dt, m, physicsGame);
-        logikaShuKen(dt, m, physicsGame);
-        
-        panahVsMonster(listPanahMiya, physicsGame);
-        miyaVsMonster(hero, hpBarUI, physicsGame);
-        panahMiyaVsShuKen(listPanahMiya, physicsGame);
-        miyaVsShuKen(hero, hpBarUI, physicsGame);
-        
-        updateHadoukenProjectile(dt, physicsGame);
-        updateShukenCooldowns(m, dt);
-        
-        miyaMengambilItem(hero, physicsGame);
-        miyaMenerimaEfekItem(hpBarUI, manaBarUI, hero, dt);
-        
-        // Health bars
-        Object.values(buff).forEach(b => hpBarGeneric(dt, b, gameLoop.camera, render));
-        Object.values(kelomang).forEach(k => hpBarGeneric(dt, k, gameLoop.camera, render));
-        Object.values(guin).forEach(g => hpBarGeneric(dt, g, gameLoop.camera, render));
-        Object.values(shukenEnemy).forEach(s => hpShuKen(dt, s, gameLoop.camera, render));
-        
-        utilsGame.timer(dt, "colorReset", 0.5, () => { m.tintColor = "white"; });
-      });
     }
     
-    startGame();
+    // HP Bar & Mana Bar
+    const hpBar = new VirtualBarDiv({
+      value: hero.miya.hp,
+      maxValue: hero.miya.maxHp,
+      width: 150,
+      height: 15,
+      top: 38,
+      left: 82,
+      fillColor: "lime",
+      visualColor: "maroon",
+      background: "#222",
+      border: "1px solid black",
+      lerpSpeed: 5
+    })
+    
+    const manaBar = new VirtualBarDiv({
+      value: 100,
+      maxValue: 100,
+      width: 150,
+      height: 10,
+      top: 55,
+      left: 82,
+      fillColor: "yellow",
+      visualColor: "aqua",
+      background: "#222",
+      border: "1px solid black",
+      lerpSpeed: 5
+    })
+    
+    hpBar.el.style.display = "none"
+    manaBar.el.style.display = "none"
+    
+    // ==========================================
+    // VIRTUAL BUTTONS (Miya + Shuken)
+    // ==========================================
+    
+    // Movement buttons
+    const tombolKiri = new VirtualButton({
+      text: "←",
+      bottom: 15,
+      left: 30,
+      onPress: () => tombolKiri.press = true,
+      onRelease: () => tombolKiri.press = false
+    })
+    
+    const tombolKanan = new VirtualButton({
+      text: "→",
+      bottom: 15,
+      left: 120,
+      onPress: () => tombolKanan.press = true,
+      onRelease: () => tombolKanan.press = false
+    })
+    
+    const tombolLompat = new VirtualButton({
+      text: "↑",
+      bottom: 100,
+      right: 200,
+      onPress: () => {
+        const activeHero = hero.miya.currentHero === "miya" ? hero.miya : hero.shuken
+        activeHero.jumpBufferTimer = activeHero.jumpBufferMax || 0.15
+      }
+    })
+    
+    // Miya's arrow
+    const listPanahMiya = {}
+    const tombolPanah = new VirtualButton({
+      img: "Misil1.png",
+      bottom: 100,
+      right: 20,
+      onPress: () => {
+        if (hero.miya.currentHero !== "miya") return
+        const miya = hero.miya
+        if (miya.energi <= 0) return
+        if (miya.isAttack) return
+        miya.isAttack = true
+        miya.energi -= 2
+        manaBar.setValue(miya.energi)
+        miya.superState = true
+        miya.state = "panah"
+        
+        const id = crypto.randomUUID()
+        listPanahMiya[id] = {
+          id: id,
+          x: miya.x + miya.width/2 - 15,
+          y: miya.y + miya.height/3,
+          width: miya.statusItem === "peluruGanda" ? 50 : 30,
+          height: miya.statusItem === "peluruGanda" ? 50 : 30,
+          scene: miya.scene,
+          dir: miya.animationDirection === "right" ? 1 : -1,
+          dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
+          animationDirection: miya.animationDirection,
+          speed: 500,
+          lifeTime: 3,
+          img: "panahMisil"
+        }
+        miya.superTimer = 0.1
+      },
+      onRelease: () => {
+        if (hero.miya.currentHero !== "miya") return
+        hero.miya.isAttack = false
+      }
+    })
+    
+    // ===== TOMBOL SWITCH KE SHUKEN =====
+    const tombolSwitchKeShuken = new VirtualButton({
+      text: "⚡",
+      bottom: 15,
+      right: 200,
+      background: "rgba(128,0,255,0.8)",
+      fontSize: 24,
+      onPress: () => {
+        const currentHero = hero.miya.currentHero || "miya"
+        
+        if (currentHero === "miya") {
+          hero.shuken.x = hero.miya.x
+          hero.shuken.y = hero.miya.y
+          hero.shuken.hp = hero.miya.hp
+          hero.shuken.energi = hero.miya.energi
+          hero.shuken.currentHero = "shuken"
+          hero.miya.currentHero = "shuken"
+          
+          hpBar.setMaxValue(hero.shuken.maxHp)
+          hpBar.setValue(hero.shuken.hp)
+          manaBar.setMaxValue(hero.shuken.maxEnergi)
+          manaBar.setValue(hero.shuken.energi)
+          
+          hero.shuken.tintColor = "#aa44ff"
+          setTimeout(() => {
+            if (hero.shuken.tintColor === "#aa44ff") hero.shuken.tintColor = "white"
+          }, 300)
+        }
+      }
+    })
+    
+    // ===== TOMBOL SWITCH KE MIYA =====
+    const tombolSwitchKeMiya = new VirtualButton({
+      text: "🏹",
+      bottom: 15,
+      right: 290,
+      background: "rgba(0,150,100,0.8)",
+      fontSize: 24,
+      onPress: () => {
+        const currentHero = hero.miya.currentHero || "miya"
+        
+        if (currentHero === "shuken") {
+          hero.miya.x = hero.shuken.x
+          hero.miya.y = hero.shuken.y
+          hero.miya.hp = hero.shuken.hp
+          hero.miya.energi = hero.shuken.energi
+          hero.miya.currentHero = "miya"
+          hero.shuken.currentHero = "miya"
+          
+          hpBar.setMaxValue(hero.miya.maxHp)
+          hpBar.setValue(hero.miya.hp)
+          manaBar.setMaxValue(hero.miya.maxEnergi)
+          manaBar.setValue(hero.miya.energi)
+          
+          hero.miya.tintColor = "#44ffaa"
+          setTimeout(() => {
+            if (hero.miya.tintColor === "#44ffaa") hero.miya.tintColor = "white"
+          }, 300)
+        }
+      }
+    })
+    
+    // ===== TOMBOL SKILL SHUKEN =====
+    let dtGlobal = 0
+    
+    const tombolShukenAttack = new VirtualButton({
+      text: "👊",
+      bottom: 160,
+      right: 20,
+      background: "rgba(200,100,50,0.8)",
+      onPress: () => {
+        const player = hero.shuken
+        if (player.currentHero !== "shuken") return
+        if (player.isAttacking || player.isUsingSkill) return
+        shukenBasicAttack(player, dtGlobal, utils, physics)
+      }
+    })
+    
+    const tombolShukenSkill1 = new VirtualButton({
+      text: "⚡",
+      bottom: 100,
+      right: 20,
+      background: "rgba(100,50,200,0.8)",
+      fontSize: 28,
+      onPress: () => {
+        const player = hero.shuken
+        if (player.currentHero !== "shuken") return
+        if (player.skill1Cooldown > 0) return
+        if (player.energi < 12) return
+        if (player.isAttacking || player.isUsingSkill) return
+        shukenSkill1BolaListrik(player, dtGlobal, utils)
+      }
+    })
+    
+    const tombolShukenSkill2 = new VirtualButton({
+      text: "🌩️",
+      bottom: 100,
+      right: 110,
+      background: "rgba(150,50,200,0.8)",
+      fontSize: 24,
+      onPress: () => {
+        const player = hero.shuken
+        if (player.currentHero !== "shuken") return
+        if (player.skill2Cooldown > 0) return
+        if (player.energi < 25) return
+        if (player.isAttacking || player.isUsingSkill) return
+        shukenSkill2PetirArea(player, dtGlobal, utils)
+      }
+    })
+    
+    const tombolShukenUlti = new VirtualButton({
+      text: "💜⚡",
+      bottom: 160,
+      right: 110,
+      background: "rgba(200,50,255,0.9)",
+      fontSize: 20,
+      onPress: () => {
+        const player = hero.shuken
+        if (player.currentHero !== "shuken") return
+        if (player.ultiCooldown > 0) return
+        if (player.energi < 50) return
+        if (player.isAttacking || player.isUsingSkill) return
+        shukenUltiPetirAtas(player, dtGlobal, utils)
+      }
+    })
+    
+    // Animasi variables
+    let lariFrame = 1
+    let lariTimer = 0
+    let lariFrameShuken = 1
+    let lariTimerShuken = 0
+    const lariSpeed = 0.15
+    
+    const baseAnimasi = {
+      idle: "idle",
+      run: "run",
+      jump: "jump",
+      fall: "fall",
+      panah: "panah"
+    }
+    
+    // Asset & Draw
+    const aset = new Aset(gl, listImg)
+    const listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas]
+    const listUpdateDraw = []
+    
+    async function init() {
+      const loading = document.getElementById("loading")
+      const texture = await aset.load()
+      loading.style.display = "none"
+      hpBar.el.style.display = "block"
+      manaBar.el.style.display = "block"
+      
+      listDraw.forEach(entitas => {
+        listUpdateDraw.push(new Draw(entitas, texture, renderer, physics.gameState))
+      })
+      
+      // Dialog
+      const dialog = new VirtualLyrics(canvas)
+        .startX(10)
+        .startY(100)
+        .color("white")
+        .fill("ibill .....")
+        .fill("kesadaran yg engkau miliki")
+        .fill("menjadikan dirimu sebagai puncak")
+        .fill("rantai makanan")
+        .fill("tetap tenang, dan terus maju")
+      
+      // UI Text
+      const text = new VirtualText({
+        text: "ibill",
+        color: "white",
+        fontSize: 25,
+        padding: "2px 10px",
+        textShadow: "2px 1px 1px red",
+        top: 5,
+        left: 70
+      })
+      
+      const text2 = new VirtualText({
+        text: "support development via DANA",
+        color: "white",
+        fontSize: 10,
+        padding: "2px 10px",
+        textShadow: "2px 1px 1px blue",
+        top: 5,
+        right: 5
+      })
+      
+      const text3 = new VirtualText({
+        text: "0821-1602-3162",
+        color: "white",
+        fontSize: 10,
+        padding: "2px 10px",
+        textShadow: "2px 1px 1px black",
+        top: 20,
+        right: 5
+      })
+      
+      const avatar = new VirtualImg({
+        src: "Avatar1.png",
+        width: 70, height: 70,
+        top: 5, left: 5,
+        borderRadius: "50%",
+        background: "#eee",
+        border: "1px solid white"
+      })
+      
+      game.render(dt => {
+        dtGlobal = dt
+        physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas)
+        
+        dialog.play(dt)
+        
+        // Camera follow active hero
+        const activeHero = hero.miya.currentHero === "miya" ? hero.miya : hero.shuken
+        game.cameraOn({ active: activeHero }, "active")
+        
+        for (let entitas of listUpdateDraw) {
+          entitas.update(dt, game.camera)
+        }
+        
+        // ===== MIYA LOGIC =====
+        if (hero.miya.currentHero === "miya") {
+          const miya = hero.miya
+          
+          // Animasi lari Miya
+          if (miya.state === "run") {
+            lariTimer += dt
+            if (lariTimer >= lariSpeed) {
+              lariTimer = 0
+              lariFrame++
+              if (lariFrame > 3) lariFrame = 1
+            }
+            miya.img = `lari${lariFrame}`
+          } else {
+            miya.img = baseAnimasi[miya.state] || "idle"
+            lariTimer = 0
+            lariFrame = 1
+          }
+          
+          utils.timer(dt, "timeColorMiya", 0.5, () => {
+            miya.tintColor = "white"
+          })
+          
+          // Movement
+          if (tombolKanan.press) {
+            miya.vx = 400
+          } else if (tombolKiri.press) {
+            miya.vx = -400
+          } else miya.vx = 0
+          
+          physics.applyPhysics(dt, miya)
+          physics.platformerLogic(dt, miya)
+          miya.vy += miya.gravity * dt
+          utils.activeHurtBox(miya)
+          
+          if (miya.superTimer > 0) {
+            miya.superTimer -= dt
+            if (miya.superTimer <= 0) miya.superState = false
+          }
+          
+          miya.energi = Math.min(miya.maxEnergi, miya.energi + 1 * dt)
+          manaBar.setValue(miya.energi)
+          
+          // Arrow update
+          for (let id in listPanahMiya) {
+            let panah = listPanahMiya[id]
+            panah.x += panah.dir * panah.speed * dt
+            panah.y += panah.dirY * panah.speed * dt
+            panah.lifeTime -= dt
+            if (panah.lifeTime <= 0) delete listPanahMiya[panah.id]
+          }
+          
+          // Collisions
+          panahMiyaVsMonster(dt, listPanahMiya, physics)
+          miyaVsMonster(dt, hero, hpBar, physics)
+          panahMiyaVsKelomang(dt, listPanahMiya, physics)
+          miyaVsKelomang(dt, hero, hpBar, physics)
+          panahMiyaVsGuin(dt, listPanahMiya, physics)
+          
+          // Death/respawn
+          if (miya.vy > 3000 || miya.hp <= 0) {
+            Object.values(tembok).forEach(wl => {
+              if (wl.img === "gerbang") wl.scene = "1"
+            })
+            Object.values({ ...kelomang, ...buff, ...guin }).forEach(el => {
+              el.x = el.originalX
+              el.y = el.originalY
+              el.hp = el.originalHp
+              el.scene = "1"
+              el.isChase = false
+              el.isDead = false
+              el.vx = 0
+            })
+            miya.vy = 0
+            miya.x = 0
+            miya.y = 0
+            miya.hp = miya.maxHp
+            miya.energi = miya.maxEnergi
+            hpBar.setValue(miya.hp)
+            manaBar.setValue(miya.energi)
+          }
+        }
+        
+        // ===== SHUKEN LOGIC =====
+        if (hero.shuken.currentHero === "shuken") {
+          const shukenHero = hero.shuken
+          
+          // Movement
+          if (tombolKanan.press) {
+            shukenHero.vx = shukenHero.speed
+          } else if (tombolKiri.press) {
+            shukenHero.vx = -shukenHero.speed
+          } else shukenHero.vx = 0
+          
+          physics.applyPhysics(dt, shukenHero)
+          physics.platformerLogic(dt, shukenHero)
+          shukenHero.vy += shukenHero.gravity * dt
+          utils.activeHurtBox(shukenHero)
+          
+          // Update Shuken logic from shuken.js
+          logikaShuken(dt, hero, hpBar, manaBar, physics, utils)
+          
+          // Animasi lari Shuken
+          if (shukenHero.state === "run" && !shukenHero.superState) {
+            lariTimerShuken += dt
+            if (lariTimerShuken >= lariSpeed) {
+              lariTimerShuken = 0
+              lariFrameShuken++
+              if (lariFrameShuken > 3) lariFrameShuken = 1
+            }
+            shukenHero.img = `shukenRun${lariFrameShuken}`
+          } else if (!shukenHero.superState) {
+            if (shukenHero.state === "jump") shukenHero.img = "shukenJump"
+            else if (shukenHero.state === "fall") shukenHero.img = "shukenFall"
+            else if (shukenHero.state === "idle") shukenHero.img = "shukenIdle"
+          }
+          
+          // Update cooldowns
+          if (shukenHero.skill1Cooldown > 0) shukenHero.skill1Cooldown -= dt
+          if (shukenHero.skill2Cooldown > 0) shukenHero.skill2Cooldown -= dt
+          if (shukenHero.ultiCooldown > 0) shukenHero.ultiCooldown -= dt
+          
+          // Update projectiles
+          updateBolaPetir(dt, physics)
+          updatePetirArea(dt, physics)
+          updatePetirAtas(dt, physics)
+          
+          // Shuken damage to enemies
+          shukenVsMusuh(dt, hero, hpBar, physics)
+          
+          // Death/respawn
+          if (shukenHero.vy > 3000 || shukenHero.hp <= 0) {
+            Object.values(tembok).forEach(wl => {
+              if (wl.img === "gerbang") wl.scene = "1"
+            })
+            Object.values({ ...kelomang, ...buff, ...guin }).forEach(el => {
+              el.x = el.originalX
+              el.y = el.originalY
+              el.hp = el.originalHp
+              el.scene = "1"
+              el.isChase = false
+              el.isDead = false
+              el.vx = 0
+            })
+            shukenHero.vy = 0
+            shukenHero.x = 0
+            shukenHero.y = 0
+            shukenHero.hp = shukenHero.maxHp
+            shukenHero.energi = shukenHero.maxEnergi
+            hpBar.setValue(shukenHero.hp)
+            manaBar.setValue(shukenHero.energi)
+          }
+        }
+        
+        // ===== COMMON MONSTER LOGIC =====
+        for (let id in buff) {
+          const monster = buff[id]
+          logikaMonsterJungler(dt, hero.miya.currentHero === "miya" ? hero.miya : hero.shuken, monster, physics)
+          hpMonster(dt, monster, game.camera, renderer)
+        }
+        
+        logikaKelomang(dt, hero.miya.currentHero === "miya" ? hero.miya : hero.shuken, physics)
+        updateBulletKelomang(dt, physics)
+        Object.values(kelomang).forEach(el => hpKelomang(dt, el, game.camera, renderer))
+        Object.values(guin).forEach(el => hpGuin(dt, el, game.camera, renderer))
+        
+        anakKelomangVsMiya(dt, hero, hpBar, physics)
+        logikaGuinevere(dt, hero, hpBar, physics, utils)
+        updatePeluruGuin(dt)
+        peluruGuinVsMiya(dt, hero, hpBar, physics)
+        
+        miyaMengambilItem(hero, physics)
+        miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
+      })
+    }
+    
+    init()
   </script>
 </body>
 </html>

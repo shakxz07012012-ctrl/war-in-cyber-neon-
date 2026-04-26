@@ -90,7 +90,7 @@ class AnalogController {
             
             .attack-btn-shuken {
                 position: fixed;
-                bottom: 180px;
+                bottom: 120px;
                 right: 20px;
                 width: 70px;
                 height: 70px;
@@ -108,14 +108,30 @@ class AnalogController {
                 box-shadow: 0 0 15px rgba(200,100,50,0.5);
             }
             
-            .attack-btn-miya:active, .attack-btn-shuken:active {
-                transform: scale(0.9);
-            }
-            
-            .skill1-shuken {
+            .attack-btn-subaru {
                 position: fixed;
                 bottom: 120px;
                 right: 20px;
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                border: none;
+                background: rgba(150,80,200,0.85);
+                backdrop-filter: blur(8px);
+                color: white;
+                font-size: 32px;
+                font-weight: bold;
+                z-index: 10000;
+                cursor: pointer;
+                touch-action: none;
+                transition: transform 0.08s ease;
+                box-shadow: 0 0 15px rgba(150,80,200,0.5);
+            }
+            
+            .skill1-shuken, .skill1-subaru {
+                position: fixed;
+                bottom: 120px;
+                right: 100px;
                 width: 65px;
                 height: 65px;
                 border-radius: 50%;
@@ -132,10 +148,10 @@ class AnalogController {
                 box-shadow: 0 0 12px rgba(100,50,200,0.5);
             }
             
-            .skill2-shuken {
+            .skill2-shuken, .skill2-subaru {
                 position: fixed;
                 bottom: 120px;
-                right: 100px;
+                right: 180px;
                 width: 65px;
                 height: 65px;
                 border-radius: 50%;
@@ -152,7 +168,7 @@ class AnalogController {
                 box-shadow: 0 0 12px rgba(150,50,200,0.5);
             }
             
-            .ulti-shuken {
+            .skill3-shuken, .skill3-subaru {
                 position: fixed;
                 bottom: 180px;
                 right: 100px;
@@ -172,14 +188,10 @@ class AnalogController {
                 box-shadow: 0 0 12px rgba(200,50,255,0.5);
             }
             
-            .skill1-shuken:active, .skill2-shuken:active, .ulti-shuken:active {
-                transform: scale(0.9);
-            }
-            
             .jump-btn {
                 position: fixed;
                 bottom: 120px;
-                right: 180px;
+                right: 260px;
                 width: 70px;
                 height: 70px;
                 border-radius: 50%;
@@ -195,24 +207,27 @@ class AnalogController {
                 transition: transform 0.08s ease;
                 box-shadow: 0 0 15px rgba(0,200,100,0.5);
             }
+            
+            .attack-btn-miya:active, .attack-btn-shuken:active, .attack-btn-subaru:active,
+            .skill1-shuken:active, .skill2-shuken:active, .skill3-shuken:active,
+            .skill1-subaru:active, .skill2-subaru:active, .skill3-subaru:active,
             .jump-btn:active {
                 transform: scale(0.9);
             }
             
-            @media (max-width: 600px) {
+            @media (max-width: 700px) {
                 .analog-container { width: 110px; height: 110px; bottom: 60px; left: 20px; }
                 .analog-stick { width: 45px; height: 45px; }
-                .attack-btn-miya { width: 60px; height: 60px; font-size: 28px; bottom: 100px; right: 15px; }
-                .attack-btn-shuken { width: 60px; height: 60px; font-size: 28px; bottom: 150px; right: 15px; }
-                .skill1-shuken { width: 55px; height: 55px; font-size: 24px; bottom: 100px; right: 15px; }
-                .skill2-shuken { width: 55px; height: 55px; font-size: 22px; bottom: 100px; right: 85px; }
-                .ulti-shuken { width: 55px; height: 55px; font-size: 18px; bottom: 150px; right: 85px; }
-                .jump-btn { width: 60px; height: 60px; font-size: 28px; bottom: 100px; right: 155px; }
+                .attack-btn-miya, .attack-btn-shuken, .attack-btn-subaru { width: 60px; height: 60px; font-size: 28px; bottom: 100px; right: 15px; }
+                .skill1-shuken, .skill1-subaru { width: 55px; height: 55px; font-size: 24px; bottom: 100px; right: 90px; }
+                .skill2-shuken, .skill2-subaru { width: 55px; height: 55px; font-size: 22px; bottom: 100px; right: 160px; }
+                .skill3-shuken, .skill3-subaru { width: 55px; height: 55px; font-size: 18px; bottom: 150px; right: 90px; }
+                .jump-btn { width: 60px; height: 60px; font-size: 28px; bottom: 100px; right: 230px; }
             }
             
-            @media (max-width: 450px) {
-                .jump-btn { right: 140px; }
-                .skill2-shuken { right: 80px; }
+            @media (max-width: 500px) {
+                .skill2-shuken, .skill2-subaru { right: 140px; }
+                .jump-btn { right: 210px; }
             }
         `;
         document.head.appendChild(style);
@@ -376,9 +391,38 @@ class GameController {
         this.attackBtn = null;
         this.skill1Btn = null;
         this.skill2Btn = null;
-        this.ultiBtn = null;
+        this.skill3Btn = null;
         
         this.createControls();
+    }
+    
+    createSkillBtn(text, bottom, right, bg, callback) {
+        const btn = document.createElement("button");
+        btn.textContent = text;
+        btn.style.position = "fixed";
+        btn.style.bottom = bottom + "px";
+        btn.style.right = right + "px";
+        btn.style.width = "65px";
+        btn.style.height = "65px";
+        btn.style.borderRadius = "50%";
+        btn.style.backgroundColor = bg;
+        btn.style.border = "none";
+        btn.style.fontSize = "28px";
+        btn.style.fontWeight = "bold";
+        btn.style.zIndex = "10000";
+        btn.style.cursor = "pointer";
+        btn.style.touchAction = "none";
+        btn.style.transition = "transform 0.08s ease";
+        btn.style.boxShadow = "0 0 12px rgba(0,0,0,0.3)";
+        btn.onpointerdown = (e) => {
+            e.preventDefault();
+            if (callback) callback();
+            btn.style.transform = "scale(0.9)";
+        };
+        btn.onpointerup = () => { btn.style.transform = "scale(1)"; };
+        btn.onpointerleave = () => { btn.style.transform = "scale(1)"; };
+        document.body.appendChild(btn);
+        return btn;
     }
     
     createControls() {
@@ -394,6 +438,7 @@ class GameController {
             }
         });
         
+        // Jump Button
         this.jumpBtn = document.createElement("button");
         this.jumpBtn.className = "jump-btn";
         this.jumpBtn.textContent = "▲";
@@ -406,67 +451,42 @@ class GameController {
         this.jumpBtn.onpointerleave = () => { this.jumpBtn.style.transform = "scale(1)"; };
         document.body.appendChild(this.jumpBtn);
         
-        if (this.heroType === "miya") {
-            this.attackBtn = document.createElement("button");
-            this.attackBtn.className = "attack-btn-miya";
-            this.attackBtn.textContent = "🏹";
-            this.attackBtn.onpointerdown = (e) => {
-                e.preventDefault();
-                if (this.callbacks.onAttack) this.callbacks.onAttack();
-                this.attackBtn.style.transform = "scale(0.9)";
-            };
-            this.attackBtn.onpointerup = () => { this.attackBtn.style.transform = "scale(1)"; };
-            this.attackBtn.onpointerleave = () => { this.attackBtn.style.transform = "scale(1)"; };
-            document.body.appendChild(this.attackBtn);
-            
-        } else if (this.heroType === "shuken") {
-            this.attackBtn = document.createElement("button");
-            this.attackBtn.className = "attack-btn-shuken";
-            this.attackBtn.textContent = "★";
-            this.attackBtn.onpointerdown = (e) => {
-                e.preventDefault();
-                if (this.callbacks.onAttack) this.callbacks.onAttack();
-                this.attackBtn.style.transform = "scale(0.9)";
-            };
-            this.attackBtn.onpointerup = () => { this.attackBtn.style.transform = "scale(1)"; };
-            this.attackBtn.onpointerleave = () => { this.attackBtn.style.transform = "scale(1)"; };
-            document.body.appendChild(this.attackBtn);
-            
-            this.skill1Btn = document.createElement("button");
-            this.skill1Btn.className = "skill1-shuken";
-            this.skill1Btn.textContent = "skil 1";
-            this.skill1Btn.onpointerdown = (e) => {
-                e.preventDefault();
-                if (this.callbacks.onSkill1) this.callbacks.onSkill1();
-                this.skill1Btn.style.transform = "scale(0.9)";
-            };
-            this.skill1Btn.onpointerup = () => { this.skill1Btn.style.transform = "scale(1)"; };
-            this.skill1Btn.onpointerleave = () => { this.skill1Btn.style.transform = "scale(1)"; };
-            document.body.appendChild(this.skill1Btn);
-            
-            this.skill2Btn = document.createElement("button");
-            this.skill2Btn.className = "skill2-shuken";
-            this.skill2Btn.textContent = "skil 2";
-            this.skill2Btn.onpointerdown = (e) => {
-                e.preventDefault();
-                if (this.callbacks.onSkill2) this.callbacks.onSkill2();
-                this.skill2Btn.style.transform = "scale(0.9)";
-            };
-            this.skill2Btn.onpointerup = () => { this.skill2Btn.style.transform = "scale(1)"; };
-            this.skill2Btn.onpointerleave = () => { this.skill2Btn.style.transform = "scale(1)"; };
-            document.body.appendChild(this.skill2Btn);
-            
-            this.ultiBtn = document.createElement("button");
-            this.ultiBtn.className = "ulti-shuken";
-            this.ultiBtn.textContent = "ULT";
-            this.ultiBtn.onpointerdown = (e) => {
-                e.preventDefault();
-                if (this.callbacks.onUlti) this.callbacks.onUlti();
-                this.ultiBtn.style.transform = "scale(0.9)";
-            };
-            this.ultiBtn.onpointerup = () => { this.ultiBtn.style.transform = "scale(1)"; };
-            this.ultiBtn.onpointerleave = () => { this.ultiBtn.style.transform = "scale(1)"; };
-            document.body.appendChild(this.ultiBtn);
+        // Attack Button berdasarkan hero
+        let attackClass = "attack-btn-miya";
+        let attackIcon = "🏹";
+        let attackBg = "rgba(0,150,255,0.85)";
+        
+        if (this.heroType === "shuken") {
+            attackClass = "attack-btn-shuken";
+            attackIcon = "👊";
+            attackBg = "rgba(200,100,50,0.85)";
+        } else if (this.heroType === "subaru") {
+            attackClass = "attack-btn-subaru";
+            attackIcon = "🗡️";
+            attackBg = "rgba(150,80,200,0.85)";
+        }
+        
+        this.attackBtn = document.createElement("button");
+        this.attackBtn.className = attackClass;
+        this.attackBtn.textContent = attackIcon;
+        this.attackBtn.onpointerdown = (e) => {
+            e.preventDefault();
+            if (this.callbacks.onAttack) this.callbacks.onAttack();
+            this.attackBtn.style.transform = "scale(0.9)";
+        };
+        this.attackBtn.onpointerup = () => { this.attackBtn.style.transform = "scale(1)"; };
+        this.attackBtn.onpointerleave = () => { this.attackBtn.style.transform = "scale(1)"; };
+        document.body.appendChild(this.attackBtn);
+        
+        // Skill Buttons
+        if (this.heroType === "shuken") {
+            this.skill1Btn = this.createSkillBtn("⚡", 120, 100, "rgba(100,50,200,0.85)", this.callbacks.onSkill1);
+            this.skill2Btn = this.createSkillBtn("🌊", 120, 180, "rgba(150,50,200,0.85)", this.callbacks.onSkill2);
+            this.skill3Btn = this.createSkillBtn("💥", 180, 100, "rgba(200,50,255,0.9)", this.callbacks.onUlti);
+        } else if (this.heroType === "subaru") {
+            this.skill1Btn = this.createSkillBtn("🌪️", 120, 100, "rgba(80,80,200,0.85)", this.callbacks.onSkill1);
+            this.skill2Btn = this.createSkillBtn("⚡", 120, 180, "rgba(200,80,200,0.85)", this.callbacks.onSkill2);
+            this.skill3Btn = this.createSkillBtn("💥", 180, 100, "rgba(200,50,100,0.85)", this.callbacks.onSkill3);
         }
     }
     
@@ -484,7 +504,7 @@ class GameController {
         if (this.attackBtn) this.attackBtn.remove();
         if (this.skill1Btn) this.skill1Btn.remove();
         if (this.skill2Btn) this.skill2Btn.remove();
-        if (this.ultiBtn) this.ultiBtn.remove();
+        if (this.skill3Btn) this.skill3Btn.remove();
     }
 }
 

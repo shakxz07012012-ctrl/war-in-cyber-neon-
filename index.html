@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>⚡ ibill vs mosnyer - Battle Arena ⚔️</title>
+  <title>⚡ IBILL VS MONSTER - Battle Arena ⚔️</title>
   <style>
     * {
       margin: 0;
@@ -126,6 +126,7 @@
     
     .char-avatar.miya { background-image: url('Avatar1.png'); }
     .char-avatar.shuken { background-image: url('ShukenIdle1.png'); }
+    .char-avatar.subaru { background-image: url('SubaruIdle1.png'); }
     
     .char-name {
       font-size: 28px;
@@ -135,6 +136,7 @@
     
     .char-name.miya { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
     .char-name.shuken { color: #aa44ff; text-shadow: 0 0 10px #aa44ff; }
+    .char-name.subaru { color: #aa66ff; text-shadow: 0 0 10px #aa66ff; }
     
     .char-stats {
       font-size: 11px;
@@ -224,6 +226,14 @@
           📊 STATS<br>❤️ HP: 120<br>💛 ENERGI: 100<br>🏃 SPEED: 550<br>👊 ATK: 35<br>⚡ SKILL: 3 Petir
         </div>
       </div>
+      
+      <div class="char-card" data-hero="subaru" id="cardSubaru">
+        <div class="char-avatar subaru"></div>
+        <div class="char-name subaru">SUBARU</div>
+        <div class="char-stats">
+          📊 STATS<br>❤️ HP: 120<br>💙 MP: 100<br>🏃 SPEED: 420<br>🗡️ ATK: 15<br>⚡ SKILL: Magic + Dash
+        </div>
+      </div>
     </div>
     <div class="btn-start-wrapper">
       <button class="btn-start disabled" id="btnStart">▶ START GAME ◀</button>
@@ -240,6 +250,7 @@
   <script src="./kura.js"></script>
   <script src="./laba.js"></script>
   <script src="./shuken.js"></script>
+  <script src="./subaru.js"></script>
   <script src="AnalogController.js"></script>
   
   <script>
@@ -295,7 +306,53 @@
         shukenUlti: { path: "ShukenUlti1.png" },
         bolaPetir: { path: "BolaPetir1.png" },
         petirArea: { path: "PetirArea1.png" },
-        petirAtas: { path: "PetirAtas1.png" }
+        petirAtas: { path: "PetirAtas1.png" },
+        // SUBARU ANIMATIONS (1 frame per file)
+        subaruIdle1: { path: "SubaruIdle1.png" },
+        subaruIdle2: { path: "SubaruIdle2.png" },
+        subaruIdle3: { path: "SubaruIdle3.png" },
+        subaruIdle4: { path: "SubaruIdle4.png" },
+        subaruIdle5: { path: "SubaruIdle5.png" },
+        subaruIdle6: { path: "SubaruIdle6.png" },
+        subaruRun1: { path: "SubaruRun1.png" },
+        subaruRun2: { path: "SubaruRun2.png" },
+        subaruRun3: { path: "SubaruRun3.png" },
+        subaruRun4: { path: "SubaruRun4.png" },
+        subaruRun5: { path: "SubaruRun5.png" },
+        subaruRun6: { path: "SubaruRun6.png" },
+        subaruRun7: { path: "SubaruRun7.png" },
+        subaruRun8: { path: "SubaruRun8.png" },
+        subaruJump1: { path: "SubaruJump1.png" },
+        subaruJump2: { path: "SubaruJump2.png" },
+        subaruJump3: { path: "SubaruJump3.png" },
+        subaruJump4: { path: "SubaruJump4.png" },
+        subaruDash1: { path: "SubaruDash1.png" },
+        subaruDash2: { path: "SubaruDash2.png" },
+        subaruDash3: { path: "SubaruDash3.png" },
+        subaruDash4: { path: "SubaruDash4.png" },
+        subaruAttack1_1: { path: "SubaruAttack1_1.png" },
+        subaruAttack1_2: { path: "SubaruAttack1_2.png" },
+        subaruAttack1_3: { path: "SubaruAttack1_3.png" },
+        subaruAttack1_4: { path: "SubaruAttack1_4.png" },
+        subaruAttack1_5: { path: "SubaruAttack1_5.png" },
+        subaruAttack1_6: { path: "SubaruAttack1_6.png" },
+        subaruAttack2_1: { path: "SubaruAttack2_1.png" },
+        subaruAttack2_2: { path: "SubaruAttack2_2.png" },
+        subaruAttack2_3: { path: "SubaruAttack2_3.png" },
+        subaruAttack2_4: { path: "SubaruAttack2_4.png" },
+        subaruAttack2_5: { path: "SubaruAttack2_5.png" },
+        subaruAttack2_6: { path: "SubaruAttack2_6.png" },
+        subaruAttack3_1: { path: "SubaruAttack3_1.png" },
+        subaruAttack3_2: { path: "SubaruAttack3_2.png" },
+        subaruAttack3_3: { path: "SubaruAttack3_3.png" },
+        subaruAttack3_4: { path: "SubaruAttack3_4.png" },
+        subaruAttack3_5: { path: "SubaruAttack3_5.png" },
+        subaruHurt1: { path: "SubaruHurt1.png" },
+        subaruHurt2: { path: "SubaruHurt2.png" },
+        subaruHurt3: { path: "SubaruHurt3.png" },
+        subaruDead1: { path: "SubaruDead1.png" },
+        subaruDead2: { path: "SubaruDead2.png" },
+        subaruDead3: { path: "SubaruDead3.png" }
       }
       
       const hero = {
@@ -309,7 +366,8 @@
           isAttack: false, superState: false, superTimer: 0,
           state: "idle", img: "idle", animationDirection: "right",
           statusItem: "", durasiItem: 0, tintColor: "white",
-          currentHero: "miya", canMove: true, canAttack: true
+          currentHero: "miya", canMove: true, canAttack: true,
+          panahList: {}
         },
         shuken: {
           x: 0, y: -800, width: 140, height: 150,
@@ -321,7 +379,26 @@
           isAttacking: false, isUsingSkill: false,
           superState: false, superTimer: 0,
           state: "idle", img: "shukenIdle", animationDirection: "right",
-          tintColor: "white", currentHero: "shuken", canMove: true, canAttack: true
+          tintColor: "white", currentHero: "shuken", canMove: true, canAttack: true,
+          bolaPetirList: {}, petirAreaList: {}, petirAtasList: {},
+          skill1Cd: 0, skill2Cd: 0, ultiCd: 0
+        },
+        subaru: {
+          x: 0, y: -800, width: 128, height: 128,
+          hp: 120, maxHp: 120, mp: 100, maxMp: 100,
+          speed: 420, gravity: 2000, jumpPower: 650,
+          attackDamage: 15, dashCd: 0, thrustCd: 0,
+          isDashing: false, invincible: false, invincibleTimer: 0,
+          isAttacking: false, superTimer: 0, superState: false,
+          deathHistory: [], isRespawning: false, respawnTimer: 0, deathCount: 0,
+          deathCheckpoint: { x: 0, y: 0, hp: 120, mp: 100 },
+          magicProjectiles: {},
+          scene: "1", state: "idle", img: "subaruIdle1",
+          animationDirection: "right", canMove: true, canAttack: true,
+          onGround: false, vx: 0, vy: 0, tintColor: "white", damageBuff: 0,
+          useCollider: true, colliderBox: { width: 70, height: 110 },
+          useHurtBox: true, hurtBox: { x: 0, y: 0, width: 70, height: 120 },
+          currentHero: "subaru"
         }
       }
       
@@ -344,15 +421,16 @@
       manaBar.el.style.zIndex = "10001"
       manaBar.el.style.display = "none"
       
+      const nameText = new VirtualText({ text: "", color: "#00ff88", fontSize: 16, padding: "2px 10px", top: 8, left: 290 })
+      const avatar = new VirtualImg({ src: "", width: 50, height: 50, top: 8, left: 15, borderRadius: "50%", border: "2px solid gold" })
+      
       let listPanahMiya = {}
-      let listUpdateDraw = []
-      let dialog, text, text2, text3, avatar
       let lariFrame = 1, lariTimer = 0, lariFrameShuken = 1, lariTimerShuken = 0
       const lariSpeed = 0.12
-      const baseAnimasi = { idle: "idle", run: "run", jump: "jump", fall: "fall", panah: "panah" }
       
       const cardMiya = document.getElementById("cardMiya")
       const cardShuken = document.getElementById("cardShuken")
+      const cardSubaru = document.getElementById("cardSubaru")
       const btnStart = document.getElementById("btnStart")
       const selectScreen = document.getElementById("characterSelect")
       const loadingDiv = document.getElementById("loading")
@@ -360,14 +438,17 @@
       function selectCharacter(heroName) {
         cardMiya.classList.remove("selected")
         cardShuken.classList.remove("selected")
+        cardSubaru.classList.remove("selected")
         if (heroName === "miya") cardMiya.classList.add("selected")
         else if (heroName === "shuken") cardShuken.classList.add("selected")
+        else if (heroName === "subaru") cardSubaru.classList.add("selected")
         btnStart.classList.remove("disabled")
         selectedHero = heroName
       }
       
       cardMiya.onclick = () => selectCharacter("miya")
       cardShuken.onclick = () => selectCharacter("shuken")
+      cardSubaru.onclick = () => selectCharacter("subaru")
       
       btnStart.onclick = () => {
         if (!selectedHero) return
@@ -376,19 +457,25 @@
         hpBar.el.style.display = "block"
         manaBar.el.style.display = "block"
         
-        if (selectedHero === "miya") {
-          hpBar.setMaxValue(hero.miya.maxHp)
-          hpBar.setValue(hero.miya.hp)
-          manaBar.setMaxValue(hero.miya.maxEnergi)
-          manaBar.setValue(hero.miya.energi)
-        } else {
-          hpBar.setMaxValue(hero.shuken.maxHp)
-          hpBar.setValue(hero.shuken.hp)
-          manaBar.setMaxValue(hero.shuken.maxEnergi)
-          manaBar.setValue(hero.shuken.energi)
-        }
+        const player = hero[selectedHero]
+        hpBar.setMaxValue(player.maxHp)
+        hpBar.setValue(player.hp)
+        manaBar.setMaxValue(player.maxMp || player.maxEnergi)
+        manaBar.setValue(player.mp || player.energi)
+        
+        nameText.update(selectedHero.toUpperCase())
+        if (selectedHero === "miya") { nameText.setColor("#00ff88"); avatar.setSrc("Avatar1.png") }
+        else if (selectedHero === "shuken") { nameText.setColor("#aa44ff"); avatar.setSrc("ShukenIdle1.png") }
+        else if (selectedHero === "subaru") { nameText.setColor("#aa88ff"); avatar.setSrc("SubaruIdle1.png") }
         
         startGameAfterLoad()
+      }
+      
+      async function startGameAfterLoad() {
+        const aset = new Aset(gl, listImg)
+        loadedTexture = await aset.load()
+        loadingDiv.style.display = "none"
+        initGame()
       }
       
       function initGame() {
@@ -396,48 +483,49 @@
         
         gameController = new GameController(selectedHero, {
           onMove: (data) => {
-            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
-            if (activeHero.canMove && !activeHero.superState) {
-              activeHero.moveAnalog = data.dx
+            const player = hero[selectedHero]
+            if (player.canMove && !player.superState && !player.isRespawning) {
+              player.vx = data.dx * player.speed
               if (Math.abs(data.dx) > 0.1) {
-                activeHero.animationDirection = data.dx > 0 ? "right" : "left"
+                player.animationDirection = data.dx > 0 ? "right" : "left"
               }
             }
           },
           onMoveStop: () => {
-            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
-            activeHero.moveAnalog = 0
+            const player = hero[selectedHero]
+            if (player.canMove && !player.superState && !player.isRespawning) {
+              player.vx = 0
+            }
           },
           onJump: () => {
-            const activeHero = selectedHero === "miya" ? hero.miya : hero.shuken
-            if (activeHero.canMove && !activeHero.superState) {
-              activeHero.jumpBufferTimer = 0.15
+            const player = hero[selectedHero]
+            if (player.canMove && !player.superState && !player.isRespawning) {
+              player.jumpBufferTimer = 0.15
             }
           },
           onAttack: () => {
+            const player = hero[selectedHero]
             if (selectedHero === "miya") {
-              const miya = hero.miya
-              if (miya.superState) return
-              if (miya.energi < 5) return
-              miya.isAttack = true
-              miya.canMove = false
-              miya.energi -= 5
-              manaBar.setValue(miya.energi)
-              miya.superState = true
-              miya.state = "panah"
+              if (player.superState || player.isRespawning) return
+              if (player.energi < 5) return
+              player.isAttack = true
+              player.canMove = false
+              player.energi -= 5
+              manaBar.setValue(player.energi)
+              player.superState = true
+              player.state = "panah"
+              player.superTimer = 0.25
               const id = crypto.randomUUID()
-              listPanahMiya[id] = {
-                id, x: miya.x + miya.width/2 - 15, y: miya.y + miya.height/3,
-                width: miya.statusItem === "peluruGanda" ? 60 : 40,
-                height: miya.statusItem === "peluruGanda" ? 60 : 40,
-                scene: miya.scene, dir: miya.animationDirection === "right" ? 1 : -1,
-                dirY: miya.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
-                speed: 500, lifeTime: 3, img: "panahMisil"
+              player.panahList[id] = {
+                id, x: player.x + player.width/2 - 15, y: player.y + player.height/3,
+                width: player.statusItem === "peluruGanda" ? 60 : 40,
+                height: player.statusItem === "peluruGanda" ? 60 : 40,
+                scene: player.scene, dir: player.animationDirection === "right" ? 1 : -1,
+                dirY: player.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
+                speed: 500, lifeTime: 3, img: "panahMisil", damage: 10
               }
-              miya.superTimer = 0.25
             } else if (selectedHero === "shuken") {
-              const player = hero.shuken
-              if (player.superState) return
+              if (player.superState || player.isRespawning) return
               if (player.energi < 5) return
               player.isAttacking = true
               player.canMove = false
@@ -447,12 +535,30 @@
               player.state = "attack"
               player.img = "shukenAttack1"
               player.superTimer = 0.25
+              const dmg = player.attackDamage
+              const hitX = player.animationDirection === "right" ? player.x + player.width : player.x - 60
+              const hitbox = { x: hitX, y: player.y + player.height/3, width: 60, height: 70, damage: dmg }
+              physics.aabb({ temp: hitbox }, "buff", (h,m) => { m.hp -= dmg })
+              physics.aabb({ temp: hitbox }, "kelomang", (h,m) => { m.hp -= dmg })
+              physics.aabb({ temp: hitbox }, "guin", (h,m) => { if(m.aktif) m.hp -= dmg })
+            } else if (selectedHero === "subaru") {
+              if (player.isAttacking || !player.canAttack || player.isRespawning) return
+              player.isAttacking = true
+              player.canAttack = false
+              player.state = "attack1"
+              player.superTimer = 0.3
+              const dmg = player.attackDamage + (player.damageBuff || 0)
+              const hitX = player.animationDirection === "right" ? player.x + player.width - 40 : player.x - 60
+              const hitbox = { x: hitX, y: player.y + player.height/2 - 40, width: 80, height: 80, damage: dmg }
+              physics.aabb({ temp: hitbox }, "buff", (h,m) => { m.hp -= dmg; m.tintColor = "red" })
+              physics.aabb({ temp: hitbox }, "kelomang", (h,m) => { m.hp -= dmg; m.tintColor = "red" })
+              physics.aabb({ temp: hitbox }, "guin", (h,m) => { if(m.aktif) m.hp -= dmg; m.tintColor = "red" })
             }
           },
           onSkill1: () => {
+            const player = hero[selectedHero]
             if (selectedHero === "shuken") {
-              const player = hero.shuken
-              if (player.superState) return
+              if (player.superState || player.isRespawning) return
               if (player.energi < 12) return
               player.isUsingSkill = true
               player.canMove = false
@@ -461,20 +567,35 @@
               player.superState = true
               player.state = "skill1"
               player.img = "shukenSkill1"
+              player.superTimer = 0.35
               const id = crypto.randomUUID()
-              bolaPetir[id] = {
+              player.bolaPetirList[id] = {
                 id, x: player.x + player.width/2 - 20, y: player.y + player.height/3,
                 width: 45, height: 45, scene: "1",
                 dir: player.animationDirection === "right" ? 1 : -1,
                 speed: 600, damage: 20, lifeTime: 2, img: "bolaPetir"
               }
-              player.superTimer = 0.35
+            } else if (selectedHero === "subaru") {
+              if (player.dashCd > 0 || player.mp < 15 || player.isRespawning) return
+              player.mp -= 15
+              manaBar.setValue(player.mp)
+              player.dashCd = 2
+              player.isDashing = true
+              player.invincible = true
+              player.invincibleTimer = 0.3
+              player.state = "dash"
+              const dashDist = 180
+              player.x += player.animationDirection === "right" ? dashDist : -dashDist
+              setTimeout(() => {
+                player.isDashing = false
+                if (player.state === "dash") player.state = "idle"
+              }, 200)
             }
           },
           onSkill2: () => {
+            const player = hero[selectedHero]
             if (selectedHero === "shuken") {
-              const player = hero.shuken
-              if (player.superState) return
+              if (player.superState || player.isRespawning) return
               if (player.energi < 25) return
               player.isUsingSkill = true
               player.canMove = false
@@ -483,20 +604,35 @@
               player.superState = true
               player.state = "skill2"
               player.img = "shukenSkill2"
+              player.superTimer = 0.4
               const areaX = player.animationDirection === "right" ? player.x + player.width + 20 : player.x - 140
-              const areaY = player.y + player.height/2
               const id = crypto.randomUUID()
-              petirArea[id] = {
-                id, x: areaX, y: areaY - 60, width: 140, height: 120,
+              player.petirAreaList[id] = {
+                id, x: areaX, y: player.y + player.height/2 - 60, width: 140, height: 120,
                 scene: "1", damage: 30, lifeTime: 0.35, img: "petirArea"
               }
-              player.superTimer = 0.4
+            } else if (selectedHero === "subaru") {
+              if (player.mp < 15 || player.isRespawning) return
+              player.mp -= 15
+              manaBar.setValue(player.mp)
+              player.state = "attack2"
+              player.superTimer = 0.3
+              player.isAttacking = true
+              player.canAttack = false
+              const id = crypto.randomUUID()
+              player.magicProjectiles[id] = {
+                id, x: player.x + (player.animationDirection === "right" ? player.width : -40),
+                y: player.y + player.height/2, width: 40, height: 40,
+                dir: player.animationDirection === "right" ? 1 : -1,
+                speed: 500, damage: 25 + (player.damageBuff || 0),
+                lifeTime: 2, scene: "1"
+              }
             }
           },
-          onUlti: () => {
+          onSkill3: () => {
+            const player = hero[selectedHero]
             if (selectedHero === "shuken") {
-              const player = hero.shuken
-              if (player.superState) return
+              if (player.superState || player.isRespawning) return
               if (player.energi < 50) return
               player.isUsingSkill = true
               player.canMove = false
@@ -505,13 +641,53 @@
               player.superState = true
               player.state = "ulti"
               player.img = "shukenUlti"
+              player.superTimer = 0.6
               const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
               const id = crypto.randomUUID()
-              petirAtas[id] = {
+              player.petirAtasList[id] = {
                 id, x: targetX, y: -50, width: 120, height: 850,
                 scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas", isFalling: true
               }
+            } else if (selectedHero === "subaru") {
+              if (player.thrustCd > 0 || player.mp < 20 || player.isRespawning) return
+              player.mp -= 20
+              manaBar.setValue(player.mp)
+              player.thrustCd = 3
+              player.invincible = true
+              player.invincibleTimer = 0.3
+              player.state = "attack3"
+              player.superTimer = 0.4
+              player.isAttacking = true
+              player.canAttack = false
+              const thrustDist = 120
+              player.x += player.animationDirection === "right" ? thrustDist : -thrustDist
+              const dmg = 35 + (player.damageBuff || 0)
+              const hitX = player.animationDirection === "right" ? player.x : player.x - 60
+              const hitbox = { x: hitX, y: player.y + player.height/2 - 40, width: 80, height: 80, damage: dmg }
+              physics.aabb({ temp: hitbox }, "buff", (h,m) => { m.hp -= dmg })
+              physics.aabb({ temp: hitbox }, "kelomang", (h,m) => { m.hp -= dmg })
+              physics.aabb({ temp: hitbox }, "guin", (h,m) => { if(m.aktif) m.hp -= dmg })
+            }
+          },
+          onUlti: () => {
+            if (selectedHero === "shuken") {
+              const player = hero.shuken
+              if (player.superState || player.isRespawning) return
+              if (player.energi < 50) return
+              player.isUsingSkill = true
+              player.canMove = false
+              player.energi -= 50
+              manaBar.setValue(player.energi)
+              player.superState = true
+              player.state = "ulti"
+              player.img = "shukenUlti"
               player.superTimer = 0.6
+              const targetX = player.animationDirection === "right" ? player.x + player.width + 50 : player.x - 150
+              const id = crypto.randomUUID()
+              player.petirAtasList[id] = {
+                id, x: targetX, y: -50, width: 120, height: 850,
+                scene: "1", damage: 60, lifeTime: 0.5, img: "petirAtas", isFalling: true
+              }
             }
           }
         })
@@ -520,138 +696,330 @@
       }
       
       let listDraw
+      let dialog, dialog2, dialog3
       
       function startGameLoop() {
-        listDraw = [hero, tembok, listPanahMiya, buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas]
-        listUpdateDraw = []
-        listDraw.forEach(entitas => { listUpdateDraw.push(new Draw(entitas, loadedTexture, renderer, physics.gameState)) })
+        const player = hero[selectedHero]
         
-        dialog = new VirtualLyrics(canvas).startX(10).startY(100).color("white")
-          .fill("ibill .....").fill("kesadaran yg engkau miliki").fill("menjadikan dirimu sebagai puncak").fill("rantai makanan").fill("tetap tenang, dan terus maju")
+        listDraw = [player, tembok, buff, kelomang, guin, drawItem]
+        if (selectedHero === "miya") listDraw.push(player.panahList)
+        if (selectedHero === "shuken") listDraw.push(player.bolaPetirList, player.petirAreaList, player.petirAtasList)
+        if (selectedHero === "subaru") listDraw.push(player.magicProjectiles)
         
-        text = new VirtualText({ text: selectedHero === "miya" ? "MIYA" : "SHUKEN", color: selectedHero === "miya" ? "#00ff88" : "#aa44ff", fontSize: 24, padding: "2px 10px", textShadow: "2px 1px 1px black", top: 5, left: 290 })
-        text2 = new VirtualText({ text: "support via DANA", color: "white", fontSize: 9, padding: "2px 8px", top: 5, right: 5 })
-        text3 = new VirtualText({ text: "0821-1602-3162", color: "white", fontSize: 9, padding: "2px 8px", top: 18, right: 5 })
-        avatar = new VirtualImg({ src: selectedHero === "miya" ? "Avatar1.png" : "ShukenIdle1.png", width: 60, height: 60, top: 5, left: 5, borderRadius: "50%", background: "#eee", border: "2px solid gold" })
+        let drawSystems = listDraw.map(obj => new Draw(obj, loadedTexture, renderer, physics.gameState))
         
         game.render(dt => {
-          physics.grid.buildDynamic(buff, kelomang, bulletKelomang, guin, peluruGuin, drawItem, bolaPetir, petirArea, petirAtas)
-          dialog.play(dt)
+          physics.grid.buildDynamic(buff, kelomang, guin, drawItem)
           
-          const activeHeroObj = selectedHero === "miya" ? hero.miya : hero.shuken
-          game.cameraOn({ active: activeHeroObj }, "active", 4, 2.5)
-          for (let entitas of listUpdateDraw) { entitas.update(dt, game.camera) }
+          const playerNow = hero[selectedHero]
+          game.cameraOn({ p: playerNow }, "p", 4, 2.5)
           
+          for (let ds of drawSystems) ds.update(dt, game.camera)
+          
+          // ==================== MIYA LOGIC ====================
           if (selectedHero === "miya") {
             const miya = hero.miya
             const moveDir = gameController?.getMoveDirection().dx || 0
-            
-            if (miya.state === "run" && miya.canMove && !miya.superState) {
-              lariTimer += dt
-              if (lariTimer >= lariSpeed) { lariTimer = 0; lariFrame++; if (lariFrame > 3) lariFrame = 1 }
-              miya.img = `lari${lariFrame}`
-            } else if (!miya.superState) { miya.img = baseAnimasi[miya.state] || "idle"; lariTimer = 0; lariFrame = 1 }
-            
-            if (miya.canMove && !miya.superState) {
-              miya.vx = moveDir * miya.speed
-            } else { miya.vx = 0 }
-            
-            physics.applyPhysics(dt, miya)
-            physics.platformerLogic(dt, miya)
-            miya.vy += miya.gravity * dt
-            utils.activeHurtBox(miya)
             
             if (miya.superTimer > 0) {
               miya.superTimer -= dt
               if (miya.superTimer <= 0) { miya.superState = false; miya.isAttack = false; miya.canMove = true; miya.state = "idle" }
             }
             
+            if (miya.canMove && !miya.superState && !miya.isRespawning) {
+              miya.vx = moveDir * miya.speed
+            } else if (!miya.isRespawning) { miya.vx = 0 }
+            
+            if (!miya.superState && !miya.isRespawning) {
+              if (!miya.onGround) miya.state = miya.vy < 0 ? "jump" : "fall"
+              else if (Math.abs(miya.vx) > 10) { miya.state = "run"; lariTimer += dt; if (lariTimer >= lariSpeed) { lariTimer = 0; lariFrame = (lariFrame % 3) + 1; miya.img = `lari${lariFrame}` } }
+              else { miya.state = "idle"; miya.img = "idle"; lariTimer = 0; lariFrame = 1 }
+            }
+            
+            physics.applyPhysics(dt, miya)
+            physics.platformerLogic(dt, miya)
+            miya.vy += miya.gravity * dt
+            utils.activeHurtBox(miya)
+            
             miya.energi = Math.min(miya.maxEnergi, miya.energi + 1.5 * dt)
             manaBar.setValue(miya.energi)
             hpBar.setValue(miya.hp)
             
-            for (let id in listPanahMiya) {
-              let panah = listPanahMiya[id]
-              panah.x += panah.dir * panah.speed * dt
-              panah.y += panah.dirY * panah.speed * dt
-              panah.lifeTime -= dt
-              if (panah.lifeTime <= 0) delete listPanahMiya[panah.id]
+            for (let id in miya.panahList) {
+              let p = miya.panahList[id]
+              p.x += p.dir * p.speed * dt
+              p.y += (p.dirY || 0) * p.speed * dt
+              p.lifeTime -= dt
+              if (p.lifeTime <= 0) delete miya.panahList[id]
+              else {
+                physics.aabb({ temp: p }, "buff", (proj, m) => { m.hp -= p.damage; delete miya.panahList[proj.id] })
+                physics.aabb({ temp: p }, "kelomang", (proj, m) => { m.hp -= p.damage; delete miya.panahList[proj.id] })
+                physics.aabb({ temp: p }, "guin", (proj, m) => { if(m.aktif) m.hp -= p.damage; delete miya.panahList[proj.id] })
+              }
             }
             
-            panahMiyaVsMonster(dt, listPanahMiya, physics)
-            miyaVsMonster(dt, hero, hpBar, physics)
-            panahMiyaVsKelomang(dt, listPanahMiya, physics)
-            miyaVsKelomang(dt, hero, hpBar, physics)
-            panahMiyaVsGuin(dt, listPanahMiya, physics)
+            if (!miya.invincible && !miya.isRespawning) {
+              physics.aabb({ miya }, "buff", (p, m) => { p.hp -= 0.8; p.tintColor = "red" })
+              physics.aabb({ miya }, "kelomang", (p, m) => { p.hp -= 1; p.tintColor = "red" })
+              physics.aabb({ miya }, "guin", (p, m) => { if(m.aktif) p.hp -= 1.5; p.tintColor = "red" })
+            }
+            
             if (miya.vy > 3000 || miya.hp <= 0) resetGame(miya)
           }
           
+          // ==================== SHUKEN LOGIC ====================
           if (selectedHero === "shuken") {
             const shukenHero = hero.shuken
             const moveDir = gameController?.getMoveDirection().dx || 0
             
-            if (shukenHero.canMove && !shukenHero.superState) {
-              shukenHero.vx = moveDir * shukenHero.speed
-            } else { shukenHero.vx = 0 }
-            
-            physics.applyPhysics(dt, shukenHero)
-            physics.platformerLogic(dt, shukenHero)
-            shukenHero.vy += shukenHero.gravity * dt
-            utils.activeHurtBox(shukenHero)
-            
-            if (!shukenHero.superState) {
-              if (!shukenHero.onGround) shukenHero.state = shukenHero.vy < 0 ? "jump" : "fall"
-              else if (Math.abs(shukenHero.vx) > 10) shukenHero.state = "run"
-              else shukenHero.state = "idle"
-            }
-            
-            if (shukenHero.state === "run" && shukenHero.canMove && !shukenHero.superState) {
-              lariTimerShuken += dt
-              if (lariTimerShuken >= lariSpeed) { lariTimerShuken = 0; lariFrameShuken++; if (lariFrameShuken > 3) lariFrameShuken = 1 }
-              shukenHero.img = `shukenRun${lariFrameShuken}`
-            } else if (!shukenHero.superState) {
-              if (shukenHero.state === "jump") shukenHero.img = "shukenJump"
-              else if (shukenHero.state === "fall") shukenHero.img = "shukenFall"
-              else if (shukenHero.state === "idle") shukenHero.img = "shukenIdle"
-            }
+            shukenHero.skill1Cd = Math.max(0, shukenHero.skill1Cd - dt)
+            shukenHero.skill2Cd = Math.max(0, shukenHero.skill2Cd - dt)
+            shukenHero.ultiCd = Math.max(0, shukenHero.ultiCd - dt)
             
             if (shukenHero.superTimer > 0) {
               shukenHero.superTimer -= dt
               if (shukenHero.superTimer <= 0) { shukenHero.superState = false; shukenHero.isAttacking = false; shukenHero.isUsingSkill = false; shukenHero.canMove = true; shukenHero.state = "idle" }
             }
             
+            if (shukenHero.canMove && !shukenHero.superState && !shukenHero.isRespawning) {
+              shukenHero.vx = moveDir * shukenHero.speed
+            } else if (!shukenHero.isRespawning) { shukenHero.vx = 0 }
+            
+            if (!shukenHero.superState && !shukenHero.isRespawning) {
+              if (!shukenHero.onGround) shukenHero.state = shukenHero.vy < 0 ? "jump" : "fall"
+              else if (Math.abs(shukenHero.vx) > 10) { shukenHero.state = "run"; lariTimerShuken += dt; if (lariTimerShuken >= lariSpeed) { lariTimerShuken = 0; lariFrameShuken = (lariFrameShuken % 3) + 1; shukenHero.img = `shukenRun${lariFrameShuken}` } }
+              else { shukenHero.state = "idle"; shukenHero.img = "shukenIdle"; lariTimerShuken = 0; lariFrameShuken = 1 }
+            }
+            
+            physics.applyPhysics(dt, shukenHero)
+            physics.platformerLogic(dt, shukenHero)
+            shukenHero.vy += shukenHero.gravity * dt
+            utils.activeHurtBox(shukenHero)
+            
             shukenHero.energi = Math.min(shukenHero.maxEnergi, shukenHero.energi + 2 * dt)
             manaBar.setValue(shukenHero.energi)
             hpBar.setValue(shukenHero.hp)
             
-            updateBolaPetir(dt, physics)
-            updatePetirArea(dt, physics)
-            updatePetirAtas(dt, physics)
-            
-            if (shukenHero.isAttacking && shukenHero.superState) {
-              const attackX = shukenHero.animationDirection === "right" ? shukenHero.x + shukenHero.width : shukenHero.x - 60
-              const attackHitbox = { x: attackX, y: shukenHero.y + shukenHero.height/3, width: 60, height: 70, damage: shukenHero.attackDamage, scene: "1" }
-              physics.aabb({ temp: attackHitbox }, "buff", (hit, musuh) => { musuh.hp -= shukenHero.attackDamage; musuh.tintColor = "purple" })
-              physics.aabb({ temp: attackHitbox }, "kelomang", (hit, musuh) => { musuh.hp -= shukenHero.attackDamage; musuh.tintColor = "purple" })
-              physics.aabb({ temp: attackHitbox }, "guin", (hit, musuh) => { if (musuh.aktif) musuh.hp -= shukenHero.attackDamage; musuh.tintColor = "purple" })
+            for (let id in shukenHero.bolaPetirList) {
+              let p = shukenHero.bolaPetirList[id]
+              p.x += p.dir * p.speed * dt
+              p.lifeTime -= dt
+              if (p.lifeTime <= 0) delete shukenHero.bolaPetirList[id]
+              else {
+                physics.aabb({ temp: p }, "buff", (proj, m) => { m.hp -= p.damage; delete shukenHero.bolaPetirList[proj.id] })
+                physics.aabb({ temp: p }, "kelomang", (proj, m) => { m.hp -= p.damage; delete shukenHero.bolaPetirList[proj.id] })
+                physics.aabb({ temp: p }, "guin", (proj, m) => { if(m.aktif) m.hp -= p.damage; delete shukenHero.bolaPetirList[proj.id] })
+              }
             }
             
-            shukenVsMusuh(dt, hero, hpBar, physics)
+            for (let id in shukenHero.petirAreaList) {
+              let p = shukenHero.petirAreaList[id]
+              p.lifeTime -= dt
+              if (p.lifeTime <= 0) delete shukenHero.petirAreaList[id]
+              else {
+                physics.aabb({ temp: p }, "buff", (proj, m) => { m.hp -= p.damage })
+                physics.aabb({ temp: p }, "kelomang", (proj, m) => { m.hp -= p.damage })
+                physics.aabb({ temp: p }, "guin", (proj, m) => { if(m.aktif) m.hp -= p.damage })
+              }
+            }
+            
+            for (let id in shukenHero.petirAtasList) {
+              let p = shukenHero.petirAtasList[id]
+              p.lifeTime -= dt
+              if (p.lifeTime <= 0) delete shukenHero.petirAtasList[id]
+              else {
+                physics.aabb({ temp: p }, "buff", (proj, m) => { m.hp -= p.damage })
+                physics.aabb({ temp: p }, "kelomang", (proj, m) => { m.hp -= p.damage })
+                physics.aabb({ temp: p }, "guin", (proj, m) => { if(m.aktif) m.hp -= p.damage })
+              }
+            }
+            
+            if (!shukenHero.invincible && !shukenHero.isRespawning) {
+              physics.aabb({ shukenHero }, "buff", (p, m) => { p.hp -= 0.8; p.tintColor = "red" })
+              physics.aabb({ shukenHero }, "kelomang", (p, m) => { p.hp -= 1; p.tintColor = "red" })
+              physics.aabb({ shukenHero }, "guin", (p, m) => { if(m.aktif) p.hp -= 1.5; p.tintColor = "red" })
+            }
+            
             if (shukenHero.vy > 3000 || shukenHero.hp <= 0) resetGame(shukenHero)
           }
           
-          const currentPlayer = selectedHero === "miya" ? hero.miya : hero.shuken
-          for (let id in buff) { logikaMonsterJungler(dt, currentPlayer, buff[id], physics); hpMonster(dt, buff[id], game.camera, renderer) }
-          logikaKelomang(dt, currentPlayer, physics)
-          updateBulletKelomang(dt, physics)
-          Object.values(kelomang).forEach(el => hpKelomang(dt, el, game.camera, renderer))
-          Object.values(guin).forEach(el => hpGuin(dt, el, game.camera, renderer))
-          anakKelomangVsMiya(dt, hero, hpBar, physics)
-          logikaGuinevere(dt, hero, hpBar, physics, utils)
-          updatePeluruGuin(dt)
-          peluruGuinVsMiya(dt, hero, hpBar, physics)
-          miyaMengambilItem(hero, physics)
-          miyaMenerimaEfekItem(hpBar, manaBar, hero, dt, utils)
+          // ==================== SUBARU LOGIC ====================
+          if (selectedHero === "subaru") {
+            const subaruHero = hero.subaru
+            const moveDir = gameController?.getMoveDirection().dx || 0
+            
+            subaruHero.dashCd = Math.max(0, subaruHero.dashCd - dt)
+            subaruHero.thrustCd = Math.max(0, subaruHero.thrustCd - dt)
+            subaruHero.invincibleTimer = Math.max(0, subaruHero.invincibleTimer - dt)
+            if (subaruHero.invincibleTimer <= 0) subaruHero.invincible = false
+            
+            if (subaruHero.superTimer > 0) {
+              subaruHero.superTimer -= dt
+              if (subaruHero.superTimer <= 0) {
+                subaruHero.isAttacking = false
+                subaruHero.canAttack = true
+                if (subaruHero.state !== "dead") subaruHero.state = "idle"
+              }
+            }
+            
+            if (subaruHero.canMove && !subaruHero.superState && !subaruHero.isRespawning && !subaruHero.isDashing) {
+              subaruHero.vx = moveDir * subaruHero.speed
+            } else if (!subaruHero.isRespawning) { subaruHero.vx = 0 }
+            
+            // Return by Death
+            if (!subaruHero.isRespawning && subaruHero.hp <= subaruHero.maxHp * 0.25 && subaruHero.scene === "1") {
+              subaruHero.isRespawning = true
+              subaruHero.respawnTimer = 0.8
+              subaruHero.state = "dead"
+              subaruHero.canMove = false
+              subaruHero.canAttack = false
+              subaruHero.deathCheckpoint = { x: Math.max(0, subaruHero.x - 100), y: subaruHero.y, hp: subaruHero.maxHp, mp: subaruHero.maxMp }
+              subaruHero.deathCount++
+              renderer.fillRect(0, 0, canvas.width, canvas.height, "red", 0.7)
+            }
+            
+            if (subaruHero.isRespawning) {
+              subaruHero.respawnTimer -= dt
+              if (subaruHero.respawnTimer <= 0) {
+                subaruHero.x = subaruHero.deathCheckpoint.x
+                subaruHero.y = subaruHero.deathCheckpoint.y
+                subaruHero.hp = subaruHero.deathCheckpoint.hp
+                subaruHero.mp = subaruHero.deathCheckpoint.mp
+                subaruHero.isRespawning = false
+                subaruHero.state = "idle"
+                subaruHero.canMove = true
+                subaruHero.canAttack = true
+                subaruHero.vx = 0
+                subaruHero.vy = 0
+                hpBar.setValue(subaruHero.hp)
+              }
+            }
+            
+            // Animasi state
+            if (!subaruHero.isRespawning && !subaruHero.isDashing && subaruHero.superTimer <= 0) {
+              if (!subaruHero.onGround) {
+                subaruHero.state = subaruHero.vy < 0 ? "jump" : "fall"
+              } else if (Math.abs(subaruHero.vx) > 10) {
+                subaruHero.state = "run"
+                const frame = Math.floor(Date.now() / 100) % 8 + 1
+                subaruHero.img = `subaruRun${frame}`
+              } else if (subaruHero.state !== "attack1" && subaruHero.state !== "attack2" && subaruHero.state !== "attack3" && subaruHero.state !== "dash") {
+                subaruHero.state = "idle"
+                const frame = Math.floor(Date.now() / 150) % 6 + 1
+                subaruHero.img = `subaruIdle${frame}`
+              }
+            }
+            
+            physics.applyPhysics(dt, subaruHero)
+            physics.platformerLogic(dt, subaruHero)
+            subaruHero.vy += subaruHero.gravity * dt
+            utils.activeHurtBox(subaruHero)
+            
+            subaruHero.mp = Math.min(subaruHero.maxMp, subaruHero.mp + 8 * dt)
+            manaBar.setValue(subaruHero.mp)
+            hpBar.setValue(subaruHero.hp)
+            
+            // Update projectiles
+            for (let id in subaruHero.magicProjectiles) {
+              let p = subaruHero.magicProjectiles[id]
+              p.x += p.dir * p.speed * dt
+              p.lifeTime -= dt
+              if (p.lifeTime <= 0) delete subaruHero.magicProjectiles[id]
+              else {
+                physics.aabb({ temp: p }, "buff", (proj, m) => { m.hp -= p.damage; delete subaruHero.magicProjectiles[proj.id] })
+                physics.aabb({ temp: p }, "kelomang", (proj, m) => { m.hp -= p.damage; delete subaruHero.magicProjectiles[proj.id] })
+                physics.aabb({ temp: p }, "guin", (proj, m) => { if(m.aktif) m.hp -= p.damage; delete subaruHero.magicProjectiles[proj.id] })
+              }
+            }
+            
+            if (!subaruHero.invincible && !subaruHero.isRespawning) {
+              physics.aabb({ subaruHero }, "buff", (p, m) => { p.hp -= 0.8; p.tintColor = "red" })
+              physics.aabb({ subaruHero }, "kelomang", (p, m) => { p.hp -= 1; p.tintColor = "red" })
+              physics.aabb({ subaruHero }, "guin", (p, m) => { if(m.aktif) p.hp -= 1.5; p.tintColor = "red" })
+            }
+            
+            if (subaruHero.tintColor === "red") setTimeout(() => { if(subaruHero.tintColor === "red") subaruHero.tintColor = "white" }, 100)
+            
+            if (subaruHero.vy > 3000 || subaruHero.hp <= 0) resetGame(subaruHero)
+          }
+          
+          // ==================== MONSTER LOGIC ====================
+          for (let id in buff) {
+            const m = buff[id]
+            if (m.hp <= 0) { delete buff[id]; spawnItem(m.x, m.y); continue }
+            if (!m.maxHp) m.maxHp = 50
+            m.hpVisual = m.hpVisual || m.hp
+            m.hpVisual += (m.hp - m.hpVisual) * 0.2 * dt * 10
+            const dx = hero[selectedHero].x - m.x
+            if (Math.abs(dx) < 300) {
+              if (dx > 5) m.vx = 100
+              else if (dx < -5) m.vx = -100
+              else m.vx = 0
+            } else m.vx = 0
+            renderer.fillRect(m.x - game.camera.x, m.y - game.camera.y - 12, (m.hpVisual / m.maxHp) * 80, 6, "maroon")
+            renderer.fillRect(m.x - game.camera.x, m.y - game.camera.y - 12, (m.hp / m.maxHp) * 80, 6, "red")
+          }
+          
+          for (let id in kelomang) {
+            const m = kelomang[id]
+            if (m.hp <= 0) { delete kelomang[id]; spawnItem(m.x, m.y); continue }
+            if (!m.maxHp) m.maxHp = 80
+            m.hpVisual = m.hpVisual || m.hp
+            m.hpVisual += (m.hp - m.hpVisual) * 0.2 * dt * 10
+            const dx = hero[selectedHero].x - m.x
+            if (Math.abs(dx) < 400) {
+              if (dx > 5) m.vx = 80
+              else if (dx < -5) m.vx = -80
+              else m.vx = 0
+            } else m.vx = 0
+            renderer.fillRect(m.x - game.camera.x, m.y - game.camera.y - 12, (m.hpVisual / m.maxHp) * 80, 6, "maroon")
+            renderer.fillRect(m.x - game.camera.x, m.y - game.camera.y - 12, (m.hp / m.maxHp) * 80, 6, "red")
+          }
+          
+          for (let id in guin) {
+            const m = guin[id]
+            if (m.hp <= 0) { m.scene = "inactive"; spawnItem(m.x, m.y); continue }
+            if (!m.maxHp) m.maxHp = 200
+            m.hpVisual = m.hpVisual || m.hp
+            m.hpVisual += (m.hp - m.hpVisual) * 0.2 * dt * 10
+            const dx = hero[selectedHero].x - m.x
+            if (Math.abs(dx) < 500) m.aktif = true
+            if (m.aktif) {
+              if (dx > 10) m.vx = 120
+              else if (dx < -10) m.vx = -120
+              else m.vx = 0
+            }
+            renderer.fillRect(m.x - game.camera.x, m.y - game.camera.y - 15, (m.hpVisual / m.maxHp) * 100, 8, "maroon")
+            renderer.fillRect(m.x - game.camera.x, m.y - game.camera.y - 15, (m.hp / m.maxHp) * 100, 8, "red")
+          }
+          
+          // Item drop & collection
+          for (let id in drawItem) {
+            const it = drawItem[id]
+            it.lifeTime = (it.lifeTime || 8) - dt
+            if (it.lifeTime <= 0) { delete drawItem[id]; continue }
+            const playerNow = hero[selectedHero]
+            if (Math.abs(playerNow.x - it.x) < 50 && Math.abs(playerNow.y - it.y) < 50) {
+              if (it.itemType === "heal") playerNow.hp = Math.min(playerNow.maxHp, playerNow.hp + 30)
+              if (it.itemType === "energi") {
+                if (playerNow.mp !== undefined) playerNow.mp = Math.min(playerNow.maxMp, playerNow.mp + 30)
+                else playerNow.energi = Math.min(playerNow.maxEnergi, playerNow.energi + 30)
+              }
+              if (it.itemType === "peluruGanda") playerNow.damageBuff = 5
+              hpBar.setValue(playerNow.hp)
+              if (manaBar) manaBar.setValue(playerNow.mp || playerNow.energi)
+              delete drawItem[id]
+            }
+          }
+          
+          if (hero[selectedHero].damageBuff > 0) {
+            hero[selectedHero].damageBuff -= dt
+            if (hero[selectedHero].damageBuff <= 0) hero[selectedHero].damageBuff = 0
+          }
+          
+          if (hero[selectedHero].tintColor === "red") {
+            setTimeout(() => { if(hero[selectedHero].tintColor === "red") hero[selectedHero].tintColor = "white" }, 100)
+          }
         })
       }
       
@@ -661,18 +1029,29 @@
           if (el.originalX !== undefined) { el.x = el.originalX; el.y = el.originalY; el.hp = el.originalHp; el.scene = "1" }
           el.isChase = false; el.isDead = false; el.vx = 0
         })
-        playerObj.vy = 0; playerObj.x = 0; playerObj.y = 0
-        playerObj.hp = playerObj.maxHp; playerObj.energi = playerObj.maxEnergi
+        playerObj.vy = 0; playerObj.x = 0; playerObj.y = -800
+        playerObj.hp = playerObj.maxHp
+        if (playerObj.mp !== undefined) playerObj.mp = playerObj.maxMp
+        if (playerObj.energi !== undefined) playerObj.energi = playerObj.maxEnergi
         playerObj.superState = false; playerObj.superTimer = 0
         playerObj.canMove = true; playerObj.state = "idle"
-        hpBar.setValue(playerObj.hp); manaBar.setValue(playerObj.energi)
+        playerObj.isRespawning = false
+        hpBar.setValue(playerObj.hp)
+        manaBar.setValue(playerObj.mp || playerObj.energi)
       }
       
-      async function startGameAfterLoad() {
-        const aset = new Aset(gl, listImg)
-        loadedTexture = await aset.load()
-        loadingDiv.style.display = "none"
-        initGame()
+      function spawnItem(x, y) {
+        const rand = Math.random()
+        let type = "heal"
+        if (rand < 0.33) type = "heal"
+        else if (rand < 0.66) type = "energi"
+        else type = "peluruGanda"
+        const id = crypto.randomUUID()
+        drawItem[id] = {
+          id, x, y, width: 40, height: 40, type: "item",
+          itemType: type, scene: "1", lifeTime: 8,
+          img: type === "heal" ? "heal" : (type === "energi" ? "energi" : "peluruGanda")
+        }
       }
       
       (async () => {

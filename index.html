@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>⚡ IBILL VS MONSTER - Battle Arena ⚔️</title>
+  <title>game battle | ibill</title>
   <style>
     * {
       margin: 0;
@@ -92,10 +92,10 @@
     }
     
     .char-card {
-      width: 220px;
-      padding: 15px;
+      width: 240px;
+      padding: 20px;
       background: rgba(0,0,0,0.6);
-      border-radius: 20px;
+      border-radius: 24px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -124,7 +124,6 @@
       background-position: center;
     }
     
-    .char-avatar.miya { background-image: url('Avatar1.png'); }
     .char-avatar.shuken { background-image: url('ShukenIdle1.png'); }
     .char-avatar.subaru { background-image: url('SubaruIdle1.png'); }
     
@@ -134,7 +133,6 @@
       margin-bottom: 8px;
     }
     
-    .char-name.miya { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
     .char-name.shuken { color: #aa44ff; text-shadow: 0 0 10px #aa44ff; }
     .char-name.subaru { color: #aa66ff; text-shadow: 0 0 10px #aa66ff; }
     
@@ -184,20 +182,18 @@
     
     @media (max-width: 600px) {
       .char-container { gap: 20px; }
-      .char-card { width: 170px; padding: 10px; }
+      .char-card { width: 200px; padding: 15px; }
       .char-avatar { width: 100px; height: 100px; }
-      .char-name { font-size: 22px; }
-      .char-stats { font-size: 9px; padding: 6px; }
+      .char-name { font-size: 24px; }
+      .char-stats { font-size: 10px; }
       #characterSelect h1 { font-size: 28px; margin-bottom: 25px; }
       .btn-start { padding: 10px 35px; font-size: 18px; }
-      .btn-start-wrapper { margin-top: 25px; }
     }
     
     @media (max-width: 450px) {
-      .char-card { width: 145px; }
-      .char-avatar { width: 80px; height: 80px; }
-      .char-name { font-size: 18px; }
-      .char-stats { font-size: 8px; }
+      .char-card { width: 170px; }
+      .char-avatar { width: 85px; height: 85px; }
+      .char-name { font-size: 20px; }
       .char-container { gap: 15px; }
     }
   </style>
@@ -211,14 +207,6 @@
   <div id="characterSelect">
     <h1>⚔️ PILIH KARAKTER ⚔️</h1>
     <div class="char-container">
-      <div class="char-card" data-hero="miya" id="cardMiya">
-        <div class="char-avatar miya"></div>
-        <div class="char-name miya">MIYA</div>
-        <div class="char-stats">
-          📊 STATS<br>❤️ HP: 150<br>💛 ENERGI: 100<br>🏃 SPEED: 400<br>🏹 ATK: 10<br>⚡ SKILL: Panah
-        </div>
-      </div>
-      
       <div class="char-card" data-hero="shuken" id="cardShuken">
         <div class="char-avatar shuken"></div>
         <div class="char-name shuken">SHUKEN</div>
@@ -231,7 +219,7 @@
         <div class="char-avatar subaru"></div>
         <div class="char-name subaru">SUBARU</div>
         <div class="char-stats">
-          📊 STATS<br>❤️ HP: 120<br>💙 MP: 100<br>🏃 SPEED: 420<br>🗡️ ATK: 15<br>⚡ SKILL: Magic + Dash
+          📊 STATS<br>❤️ HP: 120<br>💙 MP: 100<br>🏃 SPEED: 420<br>🗡️ ATK: 15<br>🌀 RETURN BY DEATH
         </div>
       </div>
     </div>
@@ -270,29 +258,7 @@
       let gameController = null
       
       const listImg = {
-        idle: { path: "Diam1.png" },
-        lari1: { path: "Lari1.png" },
-        lari2: { path: "Lari2.png" },
-        lari3: { path: "Lari3.png" },
-        jump: { path: "Lompat1.png" },
-        fall: { path: "Turun1.png" },
-        panah: { path: "Pnh2.png" },
-        panahMisil: { path: "Misil1.png" },
-        wall: { path: "Walll1.png" },
-        gerbang: { path: "WallRentak1.png" },
-        buff: { path: "Semut2.png" },
-        heal: { path: "Heal1.png" },
-        energi: { path: "Energi1.png" },
-        peluruGanda: { path: "PeluruGanda1.png" },
-        kelomang: { path: "Kura3.png" },
-        kelomangDiam: { path: "Kura1.png" },
-        kelomangNembak: { path: "Kura2.png" },
-        guinLari: { path: "LabaLari2.png" },
-        guinDiam: { path: "LabaLari1.png" },
-        guinLompat: { path: "LabaNembak1.png" },
-        guinUlti: { path: "LabaMakan2.png" },
-        guinShoot: { path: "LabaNembak2.png" },
-        bolaGuin: { path: "BolaUlti2.png" },
+        // SHUKEN
         shukenIdle: { path: "ShukenIdle1.png" },
         shukenRun1: { path: "ShukenRun1.png" },
         shukenRun2: { path: "ShukenRun2.png" },
@@ -307,7 +273,8 @@
         bolaPetir: { path: "BolaPetir1.png" },
         petirArea: { path: "PetirArea1.png" },
         petirAtas: { path: "PetirAtas1.png" },
-        // SUBARU ANIMATIONS (1 frame per file)
+        
+        // SUBARU ANIMATIONS (45 file)
         subaruIdle1: { path: "SubaruIdle1.png" },
         subaruIdle2: { path: "SubaruIdle2.png" },
         subaruIdle3: { path: "SubaruIdle3.png" },
@@ -352,23 +319,27 @@
         subaruHurt3: { path: "SubaruHurt3.png" },
         subaruDead1: { path: "SubaruDead1.png" },
         subaruDead2: { path: "SubaruDead2.png" },
-        subaruDead3: { path: "SubaruDead3.png" }
+        subaruDead3: { path: "SubaruDead3.png" },
+        
+        // WALL & MONSTER
+        wall: { path: "Walll1.png" },
+        gerbang: { path: "WallRentak1.png" },
+        buff: { path: "Semut2.png" },
+        heal: { path: "Heal1.png" },
+        energi: { path: "Energi1.png" },
+        peluruGanda: { path: "PeluruGanda1.png" },
+        kelomang: { path: "Kura3.png" },
+        kelomangDiam: { path: "Kura1.png" },
+        kelomangNembak: { path: "Kura2.png" },
+        guinLari: { path: "LabaLari2.png" },
+        guinDiam: { path: "LabaLari1.png" },
+        guinLompat: { path: "LabaNembak1.png" },
+        guinUlti: { path: "LabaMakan2.png" },
+        guinShoot: { path: "LabaNembak2.png" },
+        bolaGuin: { path: "BolaUlti2.png" }
       }
       
       const hero = {
-        miya: {
-          x: 0, y: -800, width: 130, height: 130,
-          hp: 150, maxHp: 150, energi: 100, maxEnergi: 100,
-          gravity: 2000, jumpPower: 700, speed: 400,
-          useCollider: true, colliderBox: { width: 60, height: 110 },
-          useHurtBox: true, hurtBox: { x: 0, y: 0, width: 60, height: 130 },
-          vx: 0, vy: 0, scene: "1",
-          isAttack: false, superState: false, superTimer: 0,
-          state: "idle", img: "idle", animationDirection: "right",
-          statusItem: "", durasiItem: 0, tintColor: "white",
-          currentHero: "miya", canMove: true, canAttack: true,
-          panahList: {}
-        },
         shuken: {
           x: 0, y: -800, width: 140, height: 150,
           hp: 120, maxHp: 120, energi: 100, maxEnergi: 100,
@@ -421,14 +392,12 @@
       manaBar.el.style.zIndex = "10001"
       manaBar.el.style.display = "none"
       
-      const nameText = new VirtualText({ text: "", color: "#00ff88", fontSize: 16, padding: "2px 10px", top: 8, left: 290 })
+      const nameText = new VirtualText({ text: "", color: "#aa44ff", fontSize: 16, padding: "2px 10px", top: 8, left: 290 })
       const avatar = new VirtualImg({ src: "", width: 50, height: 50, top: 8, left: 15, borderRadius: "50%", border: "2px solid gold" })
       
-      let listPanahMiya = {}
-      let lariFrame = 1, lariTimer = 0, lariFrameShuken = 1, lariTimerShuken = 0
+      let lariFrameShuken = 1, lariTimerShuken = 0
       const lariSpeed = 0.12
       
-      const cardMiya = document.getElementById("cardMiya")
       const cardShuken = document.getElementById("cardShuken")
       const cardSubaru = document.getElementById("cardSubaru")
       const btnStart = document.getElementById("btnStart")
@@ -436,17 +405,14 @@
       const loadingDiv = document.getElementById("loading")
       
       function selectCharacter(heroName) {
-        cardMiya.classList.remove("selected")
         cardShuken.classList.remove("selected")
         cardSubaru.classList.remove("selected")
-        if (heroName === "miya") cardMiya.classList.add("selected")
-        else if (heroName === "shuken") cardShuken.classList.add("selected")
+        if (heroName === "shuken") cardShuken.classList.add("selected")
         else if (heroName === "subaru") cardSubaru.classList.add("selected")
         btnStart.classList.remove("disabled")
         selectedHero = heroName
       }
       
-      cardMiya.onclick = () => selectCharacter("miya")
       cardShuken.onclick = () => selectCharacter("shuken")
       cardSubaru.onclick = () => selectCharacter("subaru")
       
@@ -464,8 +430,7 @@
         manaBar.setValue(player.mp || player.energi)
         
         nameText.update(selectedHero.toUpperCase())
-        if (selectedHero === "miya") { nameText.setColor("#00ff88"); avatar.setSrc("Avatar1.png") }
-        else if (selectedHero === "shuken") { nameText.setColor("#aa44ff"); avatar.setSrc("ShukenIdle1.png") }
+        if (selectedHero === "shuken") { nameText.setColor("#aa44ff"); avatar.setSrc("ShukenIdle1.png") }
         else if (selectedHero === "subaru") { nameText.setColor("#aa88ff"); avatar.setSrc("SubaruIdle1.png") }
         
         startGameAfterLoad()
@@ -505,26 +470,7 @@
           },
           onAttack: () => {
             const player = hero[selectedHero]
-            if (selectedHero === "miya") {
-              if (player.superState || player.isRespawning) return
-              if (player.energi < 5) return
-              player.isAttack = true
-              player.canMove = false
-              player.energi -= 5
-              manaBar.setValue(player.energi)
-              player.superState = true
-              player.state = "panah"
-              player.superTimer = 0.25
-              const id = crypto.randomUUID()
-              player.panahList[id] = {
-                id, x: player.x + player.width/2 - 15, y: player.y + player.height/3,
-                width: player.statusItem === "peluruGanda" ? 60 : 40,
-                height: player.statusItem === "peluruGanda" ? 60 : 40,
-                scene: player.scene, dir: player.animationDirection === "right" ? 1 : -1,
-                dirY: player.statusItem === "peluruGanda" ? utils.rand(-0.5, 0.5) : 0,
-                speed: 500, lifeTime: 3, img: "panahMisil", damage: 10
-              }
-            } else if (selectedHero === "shuken") {
+            if (selectedHero === "shuken") {
               if (player.superState || player.isRespawning) return
               if (player.energi < 5) return
               player.isAttacking = true
@@ -696,13 +642,11 @@
       }
       
       let listDraw
-      let dialog, dialog2, dialog3
       
       function startGameLoop() {
         const player = hero[selectedHero]
         
         listDraw = [player, tembok, buff, kelomang, guin, drawItem]
-        if (selectedHero === "miya") listDraw.push(player.panahList)
         if (selectedHero === "shuken") listDraw.push(player.bolaPetirList, player.petirAreaList, player.petirAtasList)
         if (selectedHero === "subaru") listDraw.push(player.magicProjectiles)
         
@@ -715,57 +659,6 @@
           game.cameraOn({ p: playerNow }, "p", 4, 2.5)
           
           for (let ds of drawSystems) ds.update(dt, game.camera)
-          
-          // ==================== MIYA LOGIC ====================
-          if (selectedHero === "miya") {
-            const miya = hero.miya
-            const moveDir = gameController?.getMoveDirection().dx || 0
-            
-            if (miya.superTimer > 0) {
-              miya.superTimer -= dt
-              if (miya.superTimer <= 0) { miya.superState = false; miya.isAttack = false; miya.canMove = true; miya.state = "idle" }
-            }
-            
-            if (miya.canMove && !miya.superState && !miya.isRespawning) {
-              miya.vx = moveDir * miya.speed
-            } else if (!miya.isRespawning) { miya.vx = 0 }
-            
-            if (!miya.superState && !miya.isRespawning) {
-              if (!miya.onGround) miya.state = miya.vy < 0 ? "jump" : "fall"
-              else if (Math.abs(miya.vx) > 10) { miya.state = "run"; lariTimer += dt; if (lariTimer >= lariSpeed) { lariTimer = 0; lariFrame = (lariFrame % 3) + 1; miya.img = `lari${lariFrame}` } }
-              else { miya.state = "idle"; miya.img = "idle"; lariTimer = 0; lariFrame = 1 }
-            }
-            
-            physics.applyPhysics(dt, miya)
-            physics.platformerLogic(dt, miya)
-            miya.vy += miya.gravity * dt
-            utils.activeHurtBox(miya)
-            
-            miya.energi = Math.min(miya.maxEnergi, miya.energi + 1.5 * dt)
-            manaBar.setValue(miya.energi)
-            hpBar.setValue(miya.hp)
-            
-            for (let id in miya.panahList) {
-              let p = miya.panahList[id]
-              p.x += p.dir * p.speed * dt
-              p.y += (p.dirY || 0) * p.speed * dt
-              p.lifeTime -= dt
-              if (p.lifeTime <= 0) delete miya.panahList[id]
-              else {
-                physics.aabb({ temp: p }, "buff", (proj, m) => { m.hp -= p.damage; delete miya.panahList[proj.id] })
-                physics.aabb({ temp: p }, "kelomang", (proj, m) => { m.hp -= p.damage; delete miya.panahList[proj.id] })
-                physics.aabb({ temp: p }, "guin", (proj, m) => { if(m.aktif) m.hp -= p.damage; delete miya.panahList[proj.id] })
-              }
-            }
-            
-            if (!miya.invincible && !miya.isRespawning) {
-              physics.aabb({ miya }, "buff", (p, m) => { p.hp -= 0.8; p.tintColor = "red" })
-              physics.aabb({ miya }, "kelomang", (p, m) => { p.hp -= 1; p.tintColor = "red" })
-              physics.aabb({ miya }, "guin", (p, m) => { if(m.aktif) p.hp -= 1.5; p.tintColor = "red" })
-            }
-            
-            if (miya.vy > 3000 || miya.hp <= 0) resetGame(miya)
-          }
           
           // ==================== SHUKEN LOGIC ====================
           if (selectedHero === "shuken") {
